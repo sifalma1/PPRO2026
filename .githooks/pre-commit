@@ -1,0 +1,28 @@
+#!/bin/sh
+# Pre-commit hook: Kontrola aktualizace Single Source of Truth (README.md)
+
+echo "========================================================================"
+echo "[PRE-COMMIT] Kontrola aktualizace technické dokumentace (README.md)..."
+echo "========================================================================"
+
+# Zjištění změněných a připravených (staged) souborů
+STAGED_FILES=$(git diff --cached --name-only)
+
+if [ -z "$STAGED_FILES" ]; then
+    exit 0
+fi
+
+# Kontrola, zda je mezi staged soubory README.md
+HAS_README=$(echo "$STAGED_FILES" | grep -E '^README\.md$')
+
+if [ -n "$HAS_README" ]; then
+    echo "[PRE-COMMIT] OK: README.md je součástí commitu."
+else
+    echo "[PRE-COMMIT] POZOR: Provádíte commit bez aktualizace README.md!"
+    echo "README.md je jediným zdrojem pravdy projektu (dokumentace, rozhodnutí, roadmapa)."
+    echo "Pokud tento commit přináší architektonické rozhodnutí nebo změnu stavu,"
+    echo "nezapomeňte aktualizovat příslušnou sekci v README.md."
+fi
+
+echo "========================================================================"
+exit 0
