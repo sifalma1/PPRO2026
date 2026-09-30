@@ -1,0 +1,29 @@
+{
+  "name": "akademie-trutnov-is",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Informační systém pro vzdělávací centrum Akademie Trutnov (PPRO 2026)",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "migrate": "tsx src/infrastructure/database/migrate.ts",
+    "test": "node --import tsx --test test/**/*.test.ts"
+  },
+  "keywords": ["ppro", "akademie-trutnov", "education"],
+  "author": "Marek Šifalda",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.4",
+    "@types/pg": "^8.11.11",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  }
+}

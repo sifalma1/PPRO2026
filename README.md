@@ -191,35 +191,60 @@ erDiagram
 
 ---
 
+---
+
 ## 5. Infrastruktura a spuštění projektu
 
-### 5.1 Požadavky
-- [Docker](https://www.docker.com/) a Docker Compose v2+
-- Git
+### 5.1 Použitý technologický stack
+- **Běhové prostředí:** Node.js (TypeScript, ES Modules, `strict` mode)
+- **Prezentační vrstva:** Express REST API + responzivní Web UI (Vanilla CSS s moderní estetikou, flexbox/grid, Google Fonts Outfit)
+- **Aplikační vrstva:** Doménové služby (`KurzService`), DTOs a striktní validace invariantů
+- **Perzistentní vrstva:** PostgreSQL 16 (přes `pg` connection pool), verzované SQL migrace
+- **Kontejnerizace:** Docker & Docker Compose
 
-### 5.2 Lokální spuštění
-Celý stack (databáze + migrace + aplikace) se spouští jediným příkazem:
+### 5.2 Lokální spuštění v Dockeru (doporučeno pro klienta a obhajobu)
+Celý stack (databáze + migrace + webová aplikace) se spouští jediným příkazem:
 ```bash
-docker compose up -d
+docker compose up --build
+```
+Aplikace bude následně dostupná:
+- **Webový katalog pro klienta:** [http://localhost:3000](http://localhost:3000)
+- **REST API rozhraní:** [http://localhost:3000/api/kurzy](http://localhost:3000/api/kurzy)
+- **Health check:** [http://localhost:3000/health](http://localhost:3000/health)
+
+### 5.3 Lokální vývojové spuštění (bez Dockeru)
+1. Spuštění PostgreSQL databáze na portu 5432 (dle konfigurace v `.env`).
+2. Instalace závislostí a spuštění:
+```bash
+npm install
+npm run migrate   # aplikuje migrace ze složky migrations/
+npm run dev       # spustí aplikaci ve sledovacím režimu
 ```
 
-### 5.3 Práce s databází a migracemi
-- Migrační skripty jsou verzované a aplikují se automaticky při startu kontejneru.
-- Pro testování a demonstraci aplikace se automaticky nahrávají **syntetická testovací data** (žádné reálné osobní údaje).
+### 5.4 REST API rozhraní entity Kurz
+| Metoda | Endpoint | Popis |
+|---|---|---|
+| `GET` | `/api/kurzy` | Seznam všech kurzů (volitelné query parametry: `?akreditovany=true\|false&search=dotaz`) |
+| `GET` | `/api/kurzy/:id` | Detail vybraného kurzu podle UUID |
+| `POST` | `/api/kurzy` | Vytvoření nového kurzu s validací polí |
+| `PUT` | `/api/kurzy/:id` | Aktualizace parametrů kurzu |
+| `DELETE` | `/api/kurzy/:id` | Smazání kurzu |
 
 ---
 
 ## 6. Testovací strategie
 
-1. **Unit testy:**
-   - Ochrana proti překročení kapacity termínu (souběžné registrace).
-   - Správnost řazení a posunu ve frontě pořadníku.
-   - Matematický výpočet procenta docházky studenta a ověření hranice 70 %.
-   - Generování sekvenčních unikátních čísel osvědčení bez duplicit.
+1. **Unit testy (`npm test`):**
+   - Spouštěny pomocí nativního Node test runneru (`node --test`).
+   - Pokrývají doménová validační pravidla entity `Kurz` a službu `KurzService`:
+     - Ochrana proti neplatné délce názvu (< 3 a > 150 znaků).
+     - Validace kladné hodinové dotace (> 0).
+     - Zákaz záporné ceny kurzu.
+     - Správnost dynamického filtrování a vyhledávání.
+     - Konzistence aktualizace a mazání kurzů.
 2. **Integrační testy:**
-   - Zápis a transakční perzistence přihlášek v databázi.
-   - Přechody stavového automatu přihlášky (`PORADNIK` -> `POTVRZENA` -> `DOKONCENA` / `ZRUSENA`).
-   - Sestavování analytických výkazů za lektory a kurzy.
+   - Transakční integrita perzistence v PostgreSQL.
+   - Aplikační migrace `001_create_kurzy.sql` a `002_seed_kurzy.sql`.
 
 ---
 
@@ -229,9 +254,17 @@ docker compose up -d
 - [x] Vytvoření pravidel vývoje a chování asistenta ([AGENTS.md](file:///c:/Users/skitt/Documents/PPRO/AGENTS.md))
 - [x] Zpracování zadání C a definice architektonických rozhodnutí (ADR) v [README.md](file:///c:/Users/skitt/Documents/PPRO/README.md)
 - [x] Nastavení Git hooku pro kontrolu dokumentace před commitem
-- [ ] Návrh a založení struktury projektu (technologický stack, Dockerfile, docker-compose)
-- [ ] Implementace datových migrací a doménových entit
-- [ ] Implementace aplikačních služeb a byznys pravidel (kapacity, pořadník, docházka)
-- [ ] Implementace API / kontrolerů a prezentační vrstvy
-- [ ] Komplexní testovací sada (unitní i integrační testy)
-- [ ] Syntetický seed data generátor pro předvedení klientovi
+- [x] **Demo fáze – Správa entity Kurz (`Course`):**
+  - [x] Třívrstvá architektura (Presentation, Application, Infrastructure/Persistence)
+  - [x] Databázové schéma a verzované migrace (`migrations/001_create_kurzy.sql`, `migrations/002_seed_kurzy.sql`)
+  - [x] Dockerfile a `docker-compose.yml` s PostgreSQL kontejnerem
+  - [x] Aplikační vrstva s doménovou validací a DTOs
+  - [x] REST API kontroler a router
+  - [x] Moderní klientské webové UI pro paní Bartošovou (katalog, odznaky akreditace, filtry, formulář, statistiky)
+  - [x] Sada unit testů pro byznys pravidla (`npm test` – 7 testů prošlo)
+- [ ] **Rozšíření po klientském schválení dema:**
+  - [ ] Entita `Ucebna` a `Termin` kurzu s hlídáním kapacity
+  - [ ] Entita `Lektor` a přiřazení k termínům (vazba M:N)
+  - [ ] Entita `Student` a `Prihlaska` s logikou pořadníku (Waiting list)
+  - [ ] Evidence docházky a výpočet 70% pravidla pro generování `Osvedceni`
+
