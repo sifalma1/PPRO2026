@@ -229,6 +229,14 @@ npm run dev       # spustí aplikaci ve sledovacím režimu
 | `POST` | `/api/kurzy` | Vytvoření nového kurzu s validací polí |
 | `PUT` | `/api/kurzy/:id` | Aktualizace parametrů kurzu |
 | `DELETE` | `/api/kurzy/:id` | Smazání kurzu |
+| `GET` | `/api/terminy` | Seznam vypsaných termínů (obsazenost, kapacita, lektoři) |
+| `POST` | `/api/terminy` | Vypsání nového termínu kurzu s kapacitou a učebnou |
+| `GET` | `/api/terminy/:id/prihlasky` | Seznam studentů na termínu (potvrzení i čekatelé v pořadníku) |
+| `POST` | `/api/terminy/:id/prihlasky` | Přihlášení studenta na termín (automatická alokace místa / zařazení do pořadníku) |
+| `POST` | `/api/prihlasky/:id/cancel` | Zrušení přihlášky s okamžitým posunem prvního náhradníka z pořadníku (ADR-02) |
+| `GET` | `/api/lektori` | Seznam externích lektorů, jejich termíny a odučené hodiny |
+| `GET` | `/api/ucebny` | Přehled učeben s jejich maximální kapacitou |
+| `GET` | `/api/prehledy` | Analytické výkazy dle bodu 8 zadání (vytížení, lektorské hodiny, studenti s více kurzy) |
 
 ---
 
@@ -236,15 +244,15 @@ npm run dev       # spustí aplikaci ve sledovacím režimu
 
 1. **Unit testy (`npm test`):**
    - Spouštěny pomocí nativního Node test runneru (`node --test`).
-   - Pokrývají doménová validační pravidla entity `Kurz` a službu `KurzService`:
-     - Ochrana proti neplatné délce názvu (< 3 a > 150 znaků).
-     - Validace kladné hodinové dotace (> 0).
-     - Zákaz záporné ceny kurzu.
-     - Správnost dynamického filtrování a vyhledávání.
-     - Konzistence aktualizace a mazání kurzů.
-2. **Integrační testy:**
+   - Pokrývají doménová validační pravidla entity `Kurz` a službu `KurzService` (7 testů).
+   - Pokrývají doménová pravidla entit `Termin`, `Prihlaska` a řazení pořadníku náhradníků (5 testů):
+     - Validace data od a do (začátek <= konec).
+     - Striktní validace kladné kapacity.
+     - Detekce plné kapacity termínu.
+     - Požadavek na platné sekvenční číslo pro náhradníka v pořadníku.
+2. **Integrační testy & migrace:**
    - Transakční integrita perzistence v PostgreSQL.
-   - Aplikační migrace `001_create_kurzy.sql` a `002_seed_kurzy.sql`.
+   - Aplikační migrace `001_create_kurzy.sql`, `002_seed_kurzy.sql`, `003_create_full_schema.sql`, `004_seed_full_data.sql`.
 
 ---
 
@@ -254,17 +262,20 @@ npm run dev       # spustí aplikaci ve sledovacím režimu
 - [x] Vytvoření pravidel vývoje a chování asistenta ([AGENTS.md](file:///c:/Users/skitt/Documents/PPRO/AGENTS.md))
 - [x] Zpracování zadání C a definice architektonických rozhodnutí (ADR) v [README.md](file:///c:/Users/skitt/Documents/PPRO/README.md)
 - [x] Nastavení Git hooku pro kontrolu dokumentace před commitem
-- [x] **Demo fáze – Správa entity Kurz (`Course`):**
+- [x] **Fáze 1 & 2 – Správa entit a třívrstvá architektura:**
   - [x] Třívrstvá architektura (Presentation, Application, Infrastructure/Persistence)
-  - [x] Databázové schéma a verzované migrace (`migrations/001_create_kurzy.sql`, `migrations/002_seed_kurzy.sql`)
+  - [x] Databázové schéma a verzované migrace (`001` až `004`)
   - [x] Dockerfile a `docker-compose.yml` s PostgreSQL kontejnerem
-  - [x] Aplikační vrstva s doménovou validací a DTOs
-  - [x] REST API kontroler a router
-  - [x] Moderní klientské webové UI pro paní Bartošovou (katalog, odznaky akreditace, filtry, formulář, statistiky)
-  - [x] Sada unit testů pro byznys pravidla (`npm test` – 7 testů prošlo)
-- [ ] **Rozšíření po klientském schválení dema:**
-  - [ ] Entita `Ucebna` a `Termin` kurzu s hlídáním kapacity
-  - [ ] Entita `Lektor` a přiřazení k termínům (vazba M:N)
-  - [ ] Entita `Student` a `Prihlaska` s logikou pořadníku (Waiting list)
-  - [ ] Evidence docházky a výpočet 70% pravidla pro generování `Osvedceni`
+  - [x] Entita `Kurz` a katalog kurzů
+  - [x] Entita `Ucebna` a místa konání s kapacitou
+  - [x] Entita `Termin` s vazbou na kurz a učebnu
+  - [x] Entita `Lektor` a přiřazení k termínům (vazba M:N `termin_lektori`)
+  - [x] Entita `Student` a `Prihlaska` s logikou pořadníku (Waiting list, ADR-02)
+  - [x] Automatický posun náhradníka z pořadníku při uvolnění místa
+  - [x] Manažerské přehledy a statistiky dle bodu 8 zadání
+  - [x] Čisté, jednoduché a přehledné webové rozhraní (světlý motiv, záložky, přehledné tabulky a karty bez rušivých elementů)
+  - [x] Sada unit testů pro byznys pravidla (`npm test` – 12 testů prošlo)
+- [ ] **Fáze 3 – Docházka a Osvědčení:**
+  - [ ] Evidence docházky po jednotlivých výukových dnech
+  - [ ] Výpočet 70% pravidla a generování unikátních osvědčení (`AT-YYYY-XXXX`)
 
