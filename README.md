@@ -197,7 +197,7 @@ erDiagram
 
 ### 5.1 Použitý technologický stack
 - **Běhové prostředí:** Node.js (TypeScript, ES Modules, `strict` mode)
-- **Prezentační vrstva:** Express REST API + responzivní Web UI (Vanilla CSS s moderní estetikou, flexbox/grid, Google Fonts Outfit, čisté vektorové SVG ikony namísto nesystémových emoji)
+- **Prezentační vrstva:** Express REST API + responzivní Web UI (Vanilla CSS s čistou estetikou, přepínačem Dark/Light módu s perzistencí v localStorage, záložkovou navigací a vektorovými SVG ikonami)
 - **Aplikační vrstva:** Doménové služby (`KurzService`), DTOs a striktní validace invariantů
 - **Perzistentní vrstva:** PostgreSQL 16 (přes `pg` connection pool), verzované SQL migrace
 - **Kontejnerizace:** Docker & Docker Compose
@@ -273,7 +273,7 @@ npm run dev       # spustí aplikaci ve sledovacím režimu
   - [x] Entita `Student` a `Prihlaska` s logikou pořadníku (Waiting list, ADR-02)
   - [x] Automatický posun náhradníka z pořadníku při uvolnění místa
   - [x] Manažerské přehledy a statistiky dle bodu 8 zadání
-  - [x] Čisté, jednoduché a přehledné webové rozhraní (světlý motiv, záložky, přehledné tabulky a karty bez rušivých elementů)
+  - [x] Čisté, jednoduché a přehledné webové rozhraní (přepínač Dark/Light módu s perzistencí, záložky, přehledné tabulky a karty bez rušivých elementů)
   - [x] Sada unit testů pro byznys pravidla (`npm test` – 12 testů prošlo)
 - [ ] **Fáze 3 – Docházka a Osvědčení:**
   - [ ] Evidence docházky po jednotlivých výukových dnech

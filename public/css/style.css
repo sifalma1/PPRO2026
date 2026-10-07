@@ -27,6 +27,25 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
 }
 
+[data-theme="dark"] {
+  --bg-page: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-subtle: #334155;
+  --border: #334155;
+  --border-strong: #475569;
+
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
+
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+
+  --success-bg: rgba(22, 163, 74, 0.2);
+  --warning-bg: rgba(202, 138, 4, 0.2);
+  --danger-bg: rgba(220, 38, 38, 0.2);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -123,6 +142,31 @@ body {
   color: var(--primary);
   font-weight: 600;
   border-bottom-color: var(--primary);
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-theme-toggle {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-theme-toggle:hover {
+  color: var(--text-main);
+  border-color: var(--border-strong);
 }
 
 .db-pill {
@@ -601,7 +645,8 @@ body {
   border-radius: var(--radius-sm);
   font-family: inherit;
   font-size: 0.88rem;
-  background: #fff;
+  background: var(--bg-surface);
+  color: var(--text-main);
 }
 
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus {

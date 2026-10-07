@@ -8,6 +8,32 @@ document.addEventListener("DOMContentLoaded", () => {
   let terminyData = [];
   let selectedTerminId = null;
 
+  // ==================== TÉMA (DARK / LIGHT MODE) ====================
+  const themeToggle = document.getElementById("theme-toggle");
+  const iconMoon = themeToggle.querySelector(".icon-moon");
+  const iconSun = themeToggle.querySelector(".icon-sun");
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("akademie_theme", theme);
+    if (theme === "dark") {
+      iconMoon.style.display = "none";
+      iconSun.style.display = "block";
+    } else {
+      iconMoon.style.display = "block";
+      iconSun.style.display = "none";
+    }
+  }
+
+  const savedTheme = localStorage.getItem("akademie_theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  applyTheme(savedTheme);
+
+  themeToggle.addEventListener("click", () => {
+    const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+    const nextTheme = currentTheme === "dark" ? "light" : "dark";
+    applyTheme(nextTheme);
+  });
+
   // Záložky
   const navTabs = document.querySelectorAll(".nav-tab");
   const tabPanes = document.querySelectorAll(".tab-pane");
