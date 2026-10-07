@@ -33,7 +33,9 @@ services:
       DB_PORT: 5432
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
-      DB_NAME: ${DB_NAME:-akademie_db}
+    volumes:
+      - ./public:/app/public:ro
+      - ./migrations:/app/migrations:ro
     depends_on:
       db:
         condition: service_healthy

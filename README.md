@@ -197,7 +197,7 @@ erDiagram
 
 ### 5.1 Použitý technologický stack
 - **Běhové prostředí:** Node.js (TypeScript, ES Modules, `strict` mode)
-- **Prezentační vrstva:** Express REST API + responzivní Web UI (Vanilla CSS s moderní estetikou, flexbox/grid, Google Fonts Outfit)
+- **Prezentační vrstva:** Express REST API + responzivní Web UI (Vanilla CSS s moderní estetikou, flexbox/grid, Google Fonts Outfit, čisté vektorové SVG ikony namísto nesystémových emoji)
 - **Aplikační vrstva:** Doménové služby (`KurzService`), DTOs a striktní validace invariantů
 - **Perzistentní vrstva:** PostgreSQL 16 (přes `pg` connection pool), verzované SQL migrace
 - **Kontejnerizace:** Docker & Docker Compose

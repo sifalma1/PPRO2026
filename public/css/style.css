@@ -212,12 +212,15 @@ body {
 }
 
 .btn-danger-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: transparent;
   color: var(--danger);
   border: 1px solid rgba(239, 68, 68, 0.3);
-  padding: 6px 10px;
+  padding: 6px 12px;
   border-radius: var(--radius-sm);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
 }
 
 .btn-danger-outline:hover {
@@ -226,12 +229,15 @@ body {
 }
 
 .btn-edit-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: transparent;
   color: var(--text-muted);
   border: 1px solid var(--border-color);
-  padding: 6px 10px;
+  padding: 6px 12px;
   border-radius: var(--radius-sm);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
 }
 
 .btn-edit-outline:hover {
@@ -733,10 +739,13 @@ body {
 }
 
 .custom-checkbox input:checked + .checkmark::after {
-  content: '✓';
-  color: #fff;
-  font-size: 14px;
-  font-weight: bold;
+  content: '';
+  width: 5px;
+  height: 9px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
 }
 
 .checkbox-label {
@@ -797,6 +806,21 @@ body {
 
 .toast.toast-success { border-color: var(--emerald); }
 .toast.toast-error { border-color: var(--danger); }
+
+.toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.toast.toast-success .toast-icon {
+  color: var(--emerald);
+}
+
+.toast.toast-error .toast-icon {
+  color: var(--danger);
+}
 
 @keyframes toast-in {
   from { opacity: 0; transform: translateY(12px); }
