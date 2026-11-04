@@ -801,15 +801,135 @@ Projekt disponuje ucelenou sadou testů spouštěných nativním Node test runne
 - `Flow 6a: Completing Term via POST /api/terms/:termId/complete`: Uzavření termínu a hromadné generování certifikátů.
 - `Flow 6b: Issuing Certificate with Lecturer Waiver via POST /api/certificates/issue`: Vystavení certifikátu na výjimku lektora.
 
-### 6.3 Spuštění testů
+### 6.3 Komplexní testovací sada v Jestu ([`test/jest/`](test/jest/) – 71 testů)
 
-Spuštění kompletní testovací sady:
+Pro hloubkovou automatizovanou verifikaci celého systému byla implementována dedikovaná testovací sada v moderním frameworku **Jest** s plnou podporou **TypeScript** a **ECMAScript Modules (ESM)** prostřednictvím `ts-jest/presets/default-esm`. Testy jsou strukturovány do 5 tematických modulů s přehlednými `describe` a `it` bloky:
+
+#### 1. Sada: `CourseService and Course Entity` ([`test/jest/course.service.test.ts`](test/jest/course.service.test.ts) – 17 testů)
+
+- **Doménové invarianty entity `Course`:**
+  - Vytvoření platného kurzu se všemi parametry (název, anotace, hodiny, cena, akreditace).
+  - Povolení bezplatných kurzů a workshopů s cenou `0 Kč`.
+  - Ořezávání bílých znaků (trimming) v názvu i anotaci.
+  - Validace délky názvu (min. 3 znaky, max. 150 znaků).
+  - Validace minimální délky anotace (min. 10 znaků).
+  - Validace kladné celočíselné hodinové dotace (`hours > 0`, zákaz desetinných čísel a záporných hodnot).
+  - Zákaz záporné ceny (`price < 0`).
+- **Aplikační služba `CourseService`:**
+  - Vytvoření kurzu a návrat kompletního `CourseResponseDto`.
+  - Získání kurzu dle ID a vyhození výjimky při neexistujícím ID.
+  - Filtrování kurzů dle stavu akreditace (`isAccredited: true/false`).
+  - Textové vyhledávání v názvu i anotaci kurzu (včetně kombinace s filtrem akreditace).
+  - Aktualizace parametrů existujícího kurzu (`updateCourse`).
+  - Zabezpečení proti aktualizaci a smazání neexistujícího kurzu.
+  - Smazání kurzu a ověření jeho odstranění.
+
+#### 2. Sada: `CourseTerm and Enrollment Entities & TermService` ([`test/jest/term-and-enrollment.test.ts`](test/jest/term-and-enrollment.test.ts) – 14 testů)
+
+- **Doménová entita `CourseTerm`:**
+  - Kalkulace volných míst (`availableSpots`) a výchozí stav `PLANNED`.
+  - Detekce plné kapacity termínu (`isFull`).
+  - Invariant časového intervalu (zákaz `startDate > endDate`).
+  - Invariant kladné kapacity (`capacity > 0`).
+  - Povinná vazba na existující kurz (`courseId`).
+- **Doménová entita `Enrollment`:**
+  - Vytvoření potvrzené přihlášky se stavem `CONFIRMED`.
+  - Zařazení do pořadníku (`WAITLIST`) s kladným sekvenčním číslem pozice (ADR-02).
+  - Zákaz nekladné nebo chybějící pozice v pořadníku pro stav `WAITLIST`.
+  - Validace povinných referencí (`termId`, `studentId`).
+- **Aplikační služba `TermService` a workflow pořadníku (ADR-02 & ADR-03):**
+  - Validace vstupních parametrů při zakládání termínu a přihlášky studenta.
+  - Automatické potvrzování přihlášek do vyčerpání kapacity.
+  - Automatické přesouvání zájemců do pořadníku náhradníků po naplnění kapacity termínu (ADR-02).
+  - **Transakční postup z pořadníku při stornu:** Při zrušení potvrzeného místa je náhradník na pozici #1 automaticky povýšen na `CONFIRMED` a všem zbývajícím čekatelům je pozice snížena o 1 (ADR-02).
+  - **Zákaz souběhu (ADR-03):** Zamezení vícenásobné aktivní registrace jednoho studenta na různé termíny téhož kurzu.
+
+#### 3. Sada: `TeachingDay, Attendance Domain Entities and AttendanceService` ([`test/jest/attendance.test.ts`](test/jest/attendance.test.ts) – 12 testů)
+
+- **Doménová entita `TeachingDay` (ADR-05):**
+  - Vytvoření výukového dne s lektorem, hodinovou dotací a probíraným tématem.
+  - Trimming tématu a validace minimální délky tématu (min. 3 znaky).
+  - Validace kladné celočíselné hodinové dotace (> 0).
+  - Povinné datum výukového dne a vazba na termín.
+- **Doménová entita `Attendance`:**
+  - Záznam docházky studenta (přítomen / nepřítomen / poznámka).
+  - Validace referencí na výukový den a studenta.
+- **Aplikační služba `AttendanceService` a pravidlo 70 % (ADR-01 & ADR-05):**
+  - Validace vstupních parametrů pro zakládání výukových dnů i záznam prezence.
+  - Výpočet procentuální docházky studentů na základě proběhlých výukových dnů.
+  - Přesné vyhodnocení docházkové podmínky: docházka 100 % a 70 % splňuje kritérium pro osvědčení (`qualifiesForCertificate = true`), docházka 60 % kritérium nesplňuje (`qualifiesForCertificate = false`).
+
+#### 4. Sada: `Certificate Entity and CertificateService` ([`test/jest/certificate.test.ts`](test/jest/certificate.test.ts) – 10 testů)
+
+- **Doménová entita `Certificate` (ADR-01):**
+  - Automatické vystavení osvědčení při docházce >= 70 %.
+  - Splnění podmínky na přesné hraniční hodnotě 70.0 % docházky bez nutnosti výjimky.
+  - Zamítnutí vystavení bez schválené výjimky při docházce pod 70 %.
+  - Úspěšné vystavení osvědčení při docházce pod 70 % se schválenou lektorskou výjimkou a písemným odůvodněním.
+  - Zamítnutí výjimky při absenci nebo nedostatečné délce odůvodnění (< 5 znaků).
+  - Striktní kontrola formátu čísla certifikátu dle masky `AT-YYYY-XXXX` (např. `AT-2026-0042`).
+  - Zákaz neplatných formátů a validace rozsahu docházky (0 až 100 %).
+- **Aplikační služba `CertificateService`:**
+  - Validace vstupních parametrů při vystavování osvědčení.
+  - Hromadné uzavření termínu (`completeTerm`) s automatickým vystavením certifikátů všem kvalifikovaným studentům a možností individuálního udělení výjimky pro nekvalifikované.
+
+#### 5. Sada: `Express API Integration and Route Verification` ([`test/jest/api.integration.test.ts`](test/jest/api.integration.test.ts) – 18 testů)
+
+- **Integrační testy přes Supertest:**
+  - `GET /health` – dostupnost systému (status 200, status: "UP").
+  - `GET /api/courses` & alias `GET /api/kurzy` – katalog kurzů a český alias.
+  - `POST /api/courses` – validace chybových odpovědí (HTTP 400 při neplatném názvu, hodinách či záporné ceně).
+  - `GET /api/terms` & alias `GET /api/terminy` – seznam vypsaných termínů a 404 pro neexistující ID.
+  - `GET /api/certificates` & alias `GET /api/osvedceni` – evidence vydaných osvědčení.
+  - `POST /api/certificates/issue` – validace povinných polí přihlášky (HTTP 400).
+  - `GET /api/attendance/terms/:termId/days` – výukové dny termínu.
+  - `GET /api/attendance/terms/:termId/summary` – souhrnný docházkový výkaz.
+  - `GET /api/lecturers` & `GET /api/lektori` – číselník lektorů.
+  - `GET /api/classrooms` & `GET /api/ucebny` – číselník učeben s kapacitami.
+  - `GET /api/students` & `GET /api/studenti` – adresář studentů.
+  - `GET /api/analytics` & `GET /api/prehledy` – analytické ukazatele a statistiky.
+
+---
+
+### 6.4 Spuštění testů a souhrnný přehled
+
+Projekt disponuje dvěma komplementárními testovacími rozhraními:
+
+| Příkaz              | Runner            | Počet testů   | Popis                                                                |
+| ------------------- | ----------------- | ------------- | -------------------------------------------------------------------- |
+| `npm test`          | Node Test Runner  | 29 testů      | 20 doménových testů + 9 end-to-end integračních testů proti databázi |
+| `npm run test:jest` | Jest (TypeScript) | 71 testů      | 53 doménových unit testů + 18 integračních Supertest API testů       |
+| **Celkem**          |                   | **100 testů** | **100% úspěšnost (0 chyb, zero failures)**                           |
+
+#### 1. Spuštění sady Jest testů:
+
+```bash
+npm run test:jest
+```
+
+Výstup Jest test runneru:
+
+```text
+PASS test/jest/attendance.test.ts (12 tests passed)
+PASS test/jest/term-and-enrollment.test.ts (14 tests passed)
+PASS test/jest/course.service.test.ts (17 tests passed)
+PASS test/jest/certificate.test.ts (10 tests passed)
+PASS test/jest/api.integration.test.ts (18 tests passed)
+
+Test Suites: 5 passed, 5 total
+Tests:       71 passed, 71 total
+Snapshots:   0 total
+Time:        6.834 s
+Ran all test suites.
+```
+
+#### 2. Spuštění sady Node test runner testů:
 
 ```bash
 npm test
 ```
 
-Výstup testovacího runneru:
+Výstup nativního runneru:
 
 ```text
 ✔ Attendance and Certificate Entities (Unit Tests - ADR-01 & ADR-05) (8 tests passed)
@@ -823,7 +943,9 @@ Výstup testovacího runneru:
 ℹ fail 0
 ```
 
-### 6.4 Kvalita kódu, linting a formátování (ESLint + Prettier)
+---
+
+### 6.5 Kvalita kódu, linting a formátování (ESLint + Prettier)
 
 Pro udržení vysoké kvality a konzistence kódu napříč celým projektem (backend v `src/`, frontend v `frontend/` i testy v `test/`) jsou integrovány standardní nástroje moderního TypeScript ekosystému:
 
@@ -871,14 +993,30 @@ Pro udržení vysoké kvality a konzistence kódu napříč celým projektem (ba
   - [x] Entita `Certificate` s garantovaně unikátním evidenčním číslem `AT-YYYY-XXXX`
   - [x] Možnost lektorské výjimky s písemným odůvodněním pro studenty s docházkou pod 70 %
   - [x] Webové uživatelské rozhraní v **Tailwind CSS**: 6 záložek (Kurzy, Termíny & Pořadník, Evidence docházky, Osvědčení & Absolventi, Lektoři & Učebny, Přehledy & Výkazy) včetně Dark/Light režimu
-  - [x] Komplexní sada 20 unit testů pokrývající všechna obchodní pravidla (100% úspěšnost)
+  - [x] Komplexní sada 20 unit testů v nativním test runneru pokrývající všechna obchodní pravidla (100% úspěšnost)
+  - [x] Komplexní testovací sada v **Jestu s TypeScript & ESM** (71 testů pokrývajících doménové entity, služby, čekací listiny, docházková pravidla a Supertest REST API)
 - [x] **Zhodnocení a doporučení k administraci Strapi (ADR-06)**
 
 ---
 
 ### 7.2 Historie verzí (Changelog)
 
-#### Verze 1.4.0 (Aktuální verze – Modulární Frontend SPA s Vite a TypeScriptem)
+#### Verze 1.5.0 (Aktuální verze – Komplexní automatizované testování v Jestu)
+
+- **Konfigurace testovacího frameworku Jest pro TypeScript a ESM:**
+  - Plná integrace `jest`, `ts-jest` a `@types/jest` v režimu ECMAScript Modules (`"type": "module"`).
+  - Konfigurace [`jest.config.js`](jest.config.js) s presetetem `ts-jest/presets/default-esm`, `useESM: true` a mapováním modulů `moduleNameMapper` pro `.js` importy.
+  - Skript v `package.json`: `"test:jest": "node --experimental-vm-modules node_modules/jest/bin/jest.js"` – spolehlivý multiplatformní běh bez závislosti na externích nástrojích.
+- **Vytvoření komplexní sady 71 Jest testů v [`test/jest/`](test/jest/):**
+  - [`test/jest/course.service.test.ts`](test/jest/course.service.test.ts) (17 testů): Doménové invarianty `Course` (ceny včetně 0 Kč, délky názvů, hodiny) a kompletní use cases `CourseService`.
+  - [`test/jest/term-and-enrollment.test.ts`](test/jest/term-and-enrollment.test.ts) (14 testů): Invarianty termínů, plná kapacita, pořadník `WAITLIST` s automatickým transakčním posunem při stornu (ADR-02) a zákaz souběhu přihlášek (ADR-03).
+  - [`test/jest/attendance.test.ts`](test/jest/attendance.test.ts) (12 testů): Výukové dny, prezenční listiny a výpočet 70% docházkového limitu pro osvědčení (ADR-01, ADR-05).
+  - [`test/jest/certificate.test.ts`](test/jest/certificate.test.ts) (10 testů): Automatické generování certifikátů, lektorské výjimky s písemným odůvodněním a formát masky `AT-YYYY-XXXX`.
+  - [`test/jest/api.integration.test.ts`](test/jest/api.integration.test.ts) (18 testů): Integrační testy Express REST API přes **Supertest** (endpointy `/health`, kurzy, termíny, certifikáty, docházka, číselníky a české aliasy).
+- **Výsledek testovací strategie:**
+  - 100 automatizovaných testů (29 Node test runner + 71 Jest) prochází na 100 % s nulovým počtem selhání.
+
+#### Verze 1.4.0 (Modulární Frontend SPA s Vite a TypeScriptem)
 
 - **Kompletní refaktoring a modularizace frontendu:**
   - Přechod z monolitického skriptu na moderní modulární architekturu řízenou přes **Vite** a **TypeScript**.
