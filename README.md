@@ -1236,6 +1236,7 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
   - Podnabídka sdružuje specializované moduly: _Kniha osvědčení_ [4], _Lektoři & Učebny_ [5] a _Manažerské výkazy_ [6].
   - Dynamická zpětná vazba: Při otevření podagendy tlačítko dropdownu automaticky přejímá aktivní akcentní styl a dynamicky zobrazuje název vybrané sekce (`Správa: Osvědčení`, `Správa: Lektoři`, `Správa: Výkazy`).
   - Plná přístupnost (WAI-ARIA `aria-expanded`, `aria-haspopup`, zavření klávesou `Escape`, detekce kliknutí mimo kontejner).
+  - Odstraněno nadbytečné grafické logo, indikátor aktivního stavu a tlačítko nápovědy pro čistý, nerušený a profesionální vzhled.
   - Responzivní sjednocení pro desktop i mobilní zobrazení bez nutnosti horizontálního posunu.
 
 #### Verze 1.4.0 (Modulární Frontend SPA s Vite, TypeScript a Tailwind CSS)
