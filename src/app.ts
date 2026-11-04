@@ -1,55 +1,107 @@
 import express, { Express, Router } from "express";
 import path from "path";
 import { pool } from "./infrastructure/database/db.js";
-import { PostgresKurzRepository } from "./infrastructure/database/PostgresKurzRepository.js";
-import { KurzService } from "./application/services/KurzService.js";
-import { KurzController } from "./presentation/controllers/KurzController.js";
-import { createKurzRouter } from "./presentation/routes/kurzRoutes.js";
-import { PostgresTerminRepository } from "./infrastructure/database/PostgresTerminRepository.js";
-import { TerminService } from "./application/services/TerminService.js";
-import { TerminController } from "./presentation/controllers/TerminController.js";
+
+// Repositories
+import { PostgresCourseRepository } from "./infrastructure/database/PostgresCourseRepository.js";
+import { PostgresTermRepository } from "./infrastructure/database/PostgresTermRepository.js";
+import { PostgresAttendanceRepository } from "./infrastructure/database/PostgresAttendanceRepository.js";
+import { PostgresCertificateRepository } from "./infrastructure/database/PostgresCertificateRepository.js";
+
+// Services
+import { CourseService } from "./application/services/CourseService.js";
+import { TermService } from "./application/services/TermService.js";
+import { AttendanceService } from "./application/services/AttendanceService.js";
+import { CertificateService } from "./application/services/CertificateService.js";
+
+// Controllers
+import { CourseController } from "./presentation/controllers/CourseController.js";
+import { TermController } from "./presentation/controllers/TermController.js";
+import { AttendanceController } from "./presentation/controllers/AttendanceController.js";
+import { CertificateController } from "./presentation/controllers/CertificateController.js";
+
+// Routes
+import { createCourseRouter } from "./presentation/routes/courseRoutes.js";
 
 export function createApp(): Express {
   const app = express();
 
-  // Middleware pro parsování JSON a URL-encoded těl požadavků
+  // Middleware for parsing JSON and URL-encoded request bodies
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // Statické soubory pro webové rozhraní (Frontend)
+  // Static files for client UI (Frontend)
   const publicDir = path.resolve(process.cwd(), "public");
   app.use(express.static(publicDir));
 
-  // Inicializace vrstev pro Kurzy
-  const kurzRepository = new PostgresKurzRepository(pool);
-  const kurzService = new KurzService(kurzRepository);
-  const kurzController = new KurzController(kurzService);
+  // Initialize repositories
+  const courseRepository = new PostgresCourseRepository(pool);
+  const termRepository = new PostgresTermRepository(pool);
+  const attendanceRepository = new PostgresAttendanceRepository(pool);
+  const certificateRepository = new PostgresCertificateRepository(pool);
 
-  // Inicializace vrstev pro Termíny, Přihlášky, Lektory a Přehledy
-  const terminRepository = new PostgresTerminRepository(pool);
-  const terminService = new TerminService(terminRepository);
-  const terminController = new TerminController(terminService);
+  // Initialize application services
+  const courseService = new CourseService(courseRepository);
+  const termService = new TermService(termRepository);
+  const attendanceService = new AttendanceService(attendanceRepository);
+  const certificateService = new CertificateService(certificateRepository);
 
-  // Napojení API směrovačů
-  app.use("/api/kurzy", createKurzRouter(kurzController));
+  // Initialize presentation controllers
+  const courseController = new CourseController(courseService);
+  const termController = new TermController(termService);
+  const attendanceController = new AttendanceController(attendanceService);
+  const certificateController = new CertificateController(certificateService);
 
-  // Router pro termíny a přihlášky
-  const terminRouter = Router();
-  terminRouter.get("/", terminController.getAll);
-  terminRouter.post("/", terminController.create);
-  terminRouter.get("/:id", terminController.getById);
-  terminRouter.get("/:id/prihlasky", terminController.getPrihlasky);
-  terminRouter.post("/:id/prihlasky", terminController.createPrihlaska);
-  app.use("/api/terminy", terminRouter);
+  // ===================== REST API ROUTES =====================
 
-  // Rušení přihlášek (s posunem z pořadníku)
-  app.post("/api/prihlasky/:prihlaskaId/cancel", terminController.cancelPrihlaska);
+  // 1. Courses (Primary English + Czech alias)
+  const courseRouter = createCourseRouter(courseController);
+  app.use("/api/courses", courseRouter);
+  app.use("/api/kurzy", courseRouter);
 
-  // Číselníky a přehledy
-  app.get("/api/lektori", terminController.getLektori);
-  app.get("/api/ucebny", terminController.getUcebny);
-  app.get("/api/studenti", terminController.getStudenti);
-  app.get("/api/prehledy", terminController.getAnalytics);
+  // 2. Terms & Enrollments (Primary English + Czech alias)
+  const termRouter = Router();
+  termRouter.get("/", termController.getAll);
+  termRouter.post("/", termController.create);
+  termRouter.get("/:id", termController.getById);
+  termRouter.get("/:id/enrollments", termController.getEnrollments);
+  termRouter.get("/:id/prihlasky", termController.getEnrollments);
+  termRouter.post("/:id/enrollments", termController.createEnrollment);
+  termRouter.post("/:id/prihlasky", termController.createEnrollment);
+  termRouter.post("/:termId/complete", certificateController.completeTerm);
+  app.use("/api/terms", termRouter);
+  app.use("/api/terminy", termRouter);
+
+  // 3. Enrollments direct actions
+  app.post("/api/enrollments/:enrollmentId/cancel", termController.cancelEnrollment);
+  app.post("/api/prihlasky/:prihlaskaId/cancel", termController.cancelEnrollment);
+
+  // 4. Teaching Days & Attendance (ADR-01, ADR-05)
+  const attendanceRouter = Router();
+  attendanceRouter.get("/terms/:termId/days", attendanceController.getTeachingDays);
+  attendanceRouter.post("/terms/:termId/days", attendanceController.createTeachingDay);
+  attendanceRouter.get("/days/:dayId", attendanceController.getAttendanceForDay);
+  attendanceRouter.post("/days/:dayId/mark", attendanceController.markAttendance);
+  attendanceRouter.get("/terms/:termId/summary", attendanceController.getAttendanceSummary);
+  app.use("/api/attendance", attendanceRouter);
+
+  // 5. Certificates (ADR-01)
+  const certificateRouter = Router();
+  certificateRouter.get("/", certificateController.getAll);
+  certificateRouter.get("/:id", certificateController.getById);
+  certificateRouter.post("/issue", certificateController.issue);
+  app.use("/api/certificates", certificateRouter);
+  app.use("/api/osvedceni", certificateRouter);
+
+  // 6. Dictionaries & Analytics
+  app.get("/api/lecturers", termController.getLecturers);
+  app.get("/api/lektori", termController.getLecturers);
+  app.get("/api/classrooms", termController.getClassrooms);
+  app.get("/api/ucebny", termController.getClassrooms);
+  app.get("/api/students", termController.getStudents);
+  app.get("/api/studenti", termController.getStudents);
+  app.get("/api/analytics", termController.getAnalytics);
+  app.get("/api/prehledy", termController.getAnalytics);
 
   // Health check endpoint
   app.get("/health", (req, res) => {

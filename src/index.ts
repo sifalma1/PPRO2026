@@ -8,20 +8,23 @@ const PORT = parseInt(process.env.PORT || "3000", 10);
 
 async function bootstrap() {
   try {
-    console.log("=== Spouštění systému Akademie Trutnov (PPRO) ===");
+    console.log("=== Starting Akademie Trutnov Information System (PPRO) ===");
 
-    // Automatická aplikace databázových migrací
+    // Automatically apply database migrations
     await runMigrations();
 
     const app = createApp();
 
     app.listen(PORT, () => {
-      console.log(`-> Aplikace běží na http://localhost:${PORT}`);
-      console.log(`-> API kurzů dostupné na http://localhost:${PORT}/api/kurzy`);
-      console.log(`-> Webový katalog dostupný na http://localhost:${PORT}`);
+      console.log(`-> Server is running on http://localhost:${PORT}`);
+      console.log(`-> Courses API: http://localhost:${PORT}/api/courses`);
+      console.log(`-> Terms API: http://localhost:${PORT}/api/terms`);
+      console.log(`-> Attendance API: http://localhost:${PORT}/api/attendance`);
+      console.log(`-> Certificates API: http://localhost:${PORT}/api/certificates`);
+      console.log(`-> Web UI: http://localhost:${PORT}`);
     });
   } catch (err) {
-    console.error("Kritická chyba při startu aplikace:", err);
+    console.error("Critical error starting application:", err);
     process.exit(1);
   }
 }

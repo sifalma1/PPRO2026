@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Akademie Trutnov – Informační systém kurzů</title>
-  <meta name="description" content="Jednoduchý a přehledný systém pro správu kurzů, termínů, lektorů a přihlášek Akademie Trutnov.">
+  <meta name="description" content="Informační systém pro správu kurzů, termínů, docházky, certifikátů a přihlášek Akademie Trutnov.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -23,16 +23,18 @@
         </div>
         <div>
           <h1 class="brand-title">Akademie Trutnov</h1>
-          <p class="brand-subtitle">Informační systém vzdělávacího centra</p>
+          <p class="brand-subtitle">Informační systém vzdělávacího centra (PPRO)</p>
         </div>
       </div>
 
       <!-- Hlavní navigační záložky -->
       <nav class="nav-tabs" role="tablist">
-        <button class="nav-tab active" data-tab="kurzy">Kurzy</button>
-        <button class="nav-tab" data-tab="terminy">Termíny & Pořadník</button>
-        <button class="nav-tab" data-tab="lektori">Lektoři & Učebny</button>
-        <button class="nav-tab" data-tab="prehledy">Přehledy & Výkazy</button>
+        <button class="nav-tab active" data-tab="courses">Kurzy</button>
+        <button class="nav-tab" data-tab="terms">Termíny & Pořadník</button>
+        <button class="nav-tab" data-tab="attendance">Evidence docházky</button>
+        <button class="nav-tab" data-tab="certificates">Osvědčení & Absolventi</button>
+        <button class="nav-tab" data-tab="lecturers">Lektoři & Učebny</button>
+        <button class="nav-tab" data-tab="analytics">Přehledy & Výkazy</button>
       </nav>
 
       <div class="header-status">
@@ -61,13 +63,13 @@
 
   <main class="app-main">
     <!-- ==================== ZÁLOŽKA 1: KURZY ==================== -->
-    <section id="tab-kurzy" class="tab-pane active">
+    <section id="tab-courses" class="tab-pane active">
       <div class="section-toolbar">
         <div>
           <h2>Katalog kurzů</h2>
           <p class="section-desc">Přehled akreditovaných rekvalifikačních programů a firemních školení.</p>
         </div>
-        <button id="btn-open-create-kurz" class="btn btn-primary">
+        <button id="btn-open-create-course" class="btn btn-primary">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           Přidat nový kurz
         </button>
@@ -77,7 +79,7 @@
       <div class="filter-bar">
         <div class="search-input-wrap">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" id="filter-search-kurz" placeholder="Hledat kurz podle názvu nebo zaměření...">
+          <input type="text" id="filter-search-course" placeholder="Hledat kurz podle názvu nebo zaměření...">
         </div>
         <div class="filter-btn-group">
           <button class="filter-chip active" data-filter="all">Všechny</button>
@@ -87,19 +89,19 @@
       </div>
 
       <!-- Seznam kurzů -->
-      <div id="kurzy-list" class="cards-grid">
+      <div id="courses-list" class="cards-grid">
         <!-- Generováno dynamicky -->
       </div>
     </section>
 
     <!-- ==================== ZÁLOŽKA 2: TERMÍNY & POŘADNÍK ==================== -->
-    <section id="tab-terminy" class="tab-pane">
+    <section id="tab-terms" class="tab-pane">
       <div class="section-toolbar">
         <div>
           <h2>Vypsané termíny a pořadník náhradníků</h2>
-          <p class="section-desc">Evidence termínů, hlídání limitu kapacit a automatický posun čekatelů z pořadníku (ADR-02).</p>
+          <p class="section-desc">Evidence termínů, hlídání kapacity bez overbookingu a automatický posun čekatelů z pořadníku (ADR-02).</p>
         </div>
-        <button id="btn-open-create-termin" class="btn btn-primary">
+        <button id="btn-open-create-term" class="btn btn-primary">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           Vypsat nový termín
         </button>
@@ -119,18 +121,18 @@
               <th class="text-right">Akce</th>
             </tr>
           </thead>
-          <tbody id="terminy-table-body">
+          <tbody id="terms-table-body">
             <!-- Dynamicky plněno -->
           </tbody>
         </table>
       </div>
 
       <!-- Detail vybraného termínu (Přihlášky & Pořadník) -->
-      <div id="termin-detail-box" class="detail-box" style="display: none;">
+      <div id="term-detail-box" class="detail-box" style="display: none;">
         <div class="detail-box-header">
           <div>
-            <h3 id="detail-termin-nazev">Přihlášky na termín</h3>
-            <p id="detail-termin-info" class="section-desc"></p>
+            <h3 id="detail-term-title">Přihlášky na termín</h3>
+            <p id="detail-term-info" class="section-desc"></p>
           </div>
           <button id="btn-open-enroll" class="btn btn-primary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
@@ -150,7 +152,7 @@
                 <th class="text-right">Akce</th>
               </tr>
             </thead>
-            <tbody id="prihlasky-table-body">
+            <tbody id="enrollments-table-body">
               <!-- Dynamicky plněno -->
             </tbody>
           </table>
@@ -158,14 +160,149 @@
       </div>
     </section>
 
-    <!-- ==================== ZÁLOŽKA 3: LEKTOŘI & UČEBNY ==================== -->
-    <section id="tab-lektori" class="tab-pane">
+    <!-- ==================== ZÁLOŽKA 3: EVIDENCE DOCHÁZKY (ADR-01, ADR-05) ==================== -->
+    <section id="tab-attendance" class="tab-pane">
+      <div class="section-toolbar">
+        <div>
+          <h2>Evidence docházky po výukových dnech</h2>
+          <p class="section-desc">Záznam účasti studentů na jednotlivých blocích kurzu a sledování 70% pravidla docházky (ADR-01, ADR-05).</p>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <label for="attendance-term-select" style="font-weight:600; font-size:13px;">Vyberte termín:</label>
+          <select id="attendance-term-select" style="padding:8px 12px; border-radius:6px; border:1px solid var(--border); font-size:13px;"></select>
+          <button id="btn-open-create-day" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Přidat výukový den
+          </button>
+        </div>
+      </div>
+
+      <div class="two-columns">
+        <!-- Levý sloupec: Výukové dny -->
+        <div>
+          <div class="detail-box-header" style="padding-bottom:12px;">
+            <h3>Výukové dny termínu</h3>
+            <span id="attendance-days-count" class="badge">0 dnů</span>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Datum</th>
+                  <th>Téma výuky</th>
+                  <th>Rozsah</th>
+                  <th>Lektor</th>
+                  <th class="text-right">Docházka</th>
+                </tr>
+              </thead>
+              <tbody id="teaching-days-table-body">
+                <tr><td colspan="5" class="empty-state">Vyberte termín kurzu výše.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pravý sloupec: Záznam přítomnosti na vybraném dni -->
+        <div>
+          <div class="detail-box-header" style="padding-bottom:12px;">
+            <div>
+              <h3 id="attendance-day-title">Zápis účasti studentů</h3>
+              <p id="attendance-day-subtitle" class="section-desc">Vyberte výukový den vlevo pro záznam docházky.</p>
+            </div>
+            <button id="btn-save-attendance" class="btn btn-primary" style="display:none;">Uložit docházku</button>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>E-mail</th>
+                  <th>Účast</th>
+                  <th>Poznámka</th>
+                </tr>
+              </thead>
+              <tbody id="attendance-roster-body">
+                <tr><td colspan="4" class="empty-state">Vyberte výukový den pro zápis prezenční listiny.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Souhrn docházky studentů -->
+      <div style="margin-top:28px;">
+        <div class="detail-box-header">
+          <div>
+            <h3>Souhrnný přehled splnění docházky studentů na termínu</h3>
+            <p class="section-desc">Pravidlo 70 % pro automatické udělení certifikátu (ADR-01).</p>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>E-mail</th>
+                <th>Odučené dny</th>
+                <th>Účast</th>
+                <th>Splnění 70 %</th>
+                <th>Stav osvědčení</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-summary-table-body">
+              <tr><td colspan="6" class="empty-state">Vyberte termín pro zobrazení souhrnné docházky.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ZÁLOŽKA 4: OSVĚDČENÍ & ABSOLVENTI (ADR-01) ==================== -->
+    <section id="tab-certificates" class="tab-pane">
+      <div class="section-toolbar">
+        <div>
+          <h2>Vystavená osvědčení o absolvování</h2>
+          <p class="section-desc">Evidence certifikátů s garantovaně unikátním číslem formátu AT-YYYY-XXXX (ADR-01).</p>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <select id="complete-term-select" style="padding:8px 12px; border-radius:6px; border:1px solid var(--border); font-size:13px;"></select>
+          <button id="btn-complete-term" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Uzavřít termín & vystavit osvědčení
+          </button>
+          <button id="btn-open-issue-waiver" class="btn btn-secondary">
+            Vystavit s výjimkou lektora
+          </button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Číslo osvědčení</th>
+              <th>Absolvent (Student)</th>
+              <th>Absolvovaný kurz</th>
+              <th>Datum vydání</th>
+              <th>Docházka</th>
+              <th>Režim schválení</th>
+            </tr>
+          </thead>
+          <tbody id="certificates-table-body">
+            <!-- Dynamicky plněno -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==================== ZÁLOŽKA 5: LEKTOŘI & UČEBNY ==================== -->
+    <section id="tab-lecturers" class="tab-pane">
       <div class="two-columns">
         <div>
           <div class="section-toolbar">
             <div>
               <h2>Lektoři akademie</h2>
-              <p class="section-desc">Externí lektoři a jejich specializace.</p>
+              <p class="section-desc">Externí lektoři, specializace a odučené hodiny.</p>
             </div>
           </div>
           <div class="table-container">
@@ -175,10 +312,10 @@
                   <th>Jméno lektora</th>
                   <th>Kontakt</th>
                   <th>Specializace</th>
-                  <th>Termíny</th>
+                  <th>Odučeno hodin</th>
                 </tr>
               </thead>
-              <tbody id="lektori-table-body"></tbody>
+              <tbody id="lecturers-table-body"></tbody>
             </table>
           </div>
         </div>
@@ -187,7 +324,7 @@
           <div class="section-toolbar">
             <div>
               <h2>Učebny a místa konání</h2>
-              <p class="section-desc">Kapacita učeben určuje maximální velikost kurzu.</p>
+              <p class="section-desc">Kapacita učeben určuje maximální velikost termínu.</p>
             </div>
           </div>
           <div class="table-container">
@@ -199,15 +336,15 @@
                   <th>Max. kapacita</th>
                 </tr>
               </thead>
-              <tbody id="ucebny-table-body"></tbody>
+              <tbody id="classrooms-table-body"></tbody>
             </table>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ==================== ZÁLOŽKA 4: PŘEHLEDY & VÝKAZY ==================== -->
-    <section id="tab-prehledy" class="tab-pane">
+    <!-- ==================== ZÁLOŽKA 6: PŘEHLEDY & VÝKAZY ==================== -->
+    <section id="tab-analytics" class="tab-pane">
       <div class="section-toolbar">
         <div>
           <h2>Manažerské přehledy a statistiky</h2>
@@ -223,19 +360,19 @@
         <!-- Vytížení termínů -->
         <div class="analytics-card">
           <h3>Vytížení vypsaných termínů</h3>
-          <div id="analytics-terminy-list" class="analytics-sublist"></div>
+          <div id="analytics-terms-list" class="analytics-sublist"></div>
         </div>
 
         <!-- Hodiny lektorů -->
         <div class="analytics-card">
           <h3>Odučené hodiny lektorů</h3>
-          <div id="analytics-lektori-list" class="analytics-sublist"></div>
+          <div id="analytics-lecturers-list" class="analytics-sublist"></div>
         </div>
 
         <!-- Studenti s více kurzy -->
         <div class="analytics-card full-width">
           <h3>Studenti přihlášení na více než jeden kurz v tomto roce</h3>
-          <div id="analytics-studenti-list" class="analytics-sublist"></div>
+          <div id="analytics-students-list" class="analytics-sublist"></div>
         </div>
       </div>
     </section>
@@ -244,48 +381,48 @@
   <footer class="app-footer">
     <div class="footer-inner">
       <span>© 2026 Akademie Trutnov • IS Vzdělávacího centra (Zadání C, PPRO)</span>
-      <span>Třívrstvá architektura • Docker + PostgreSQL • Jediný zdroj pravdy v README.md</span>
+      <span>Modulární třívrstvá architektura • Docker + PostgreSQL • Jediný zdroj pravdy v README.md</span>
     </div>
   </footer>
 
   <!-- ==================== MODÁLNÍ OKNA ==================== -->
 
   <!-- Modál: Vytvoření / Editace kurzu -->
-  <div id="modal-kurz" class="modal-backdrop" style="display: none;">
+  <div id="modal-course" class="modal-backdrop" style="display: none;">
     <div class="modal-card">
       <div class="modal-card-header">
-        <h3 id="modal-kurz-title">Nový kurz</h3>
-        <button class="modal-close" data-close="modal-kurz">×</button>
+        <h3 id="modal-course-title">Nový kurz</h3>
+        <button class="modal-close" data-close="modal-course">×</button>
       </div>
-      <form id="form-kurz" class="modal-body">
-        <input type="hidden" id="kurz-id">
+      <form id="form-course" class="modal-body">
+        <input type="hidden" id="course-id">
         <div class="form-field">
-          <label for="kurz-nazev">Název kurzu <span class="req">*</span></label>
-          <input type="text" id="kurz-nazev" placeholder="např. Účetnictví a daňová evidence pro praxi" required minlength="3" maxlength="150">
+          <label for="course-title">Název kurzu <span class="req">*</span></label>
+          <input type="text" id="course-title" placeholder="např. Účetnictví a daňová evidence pro praxi" required minlength="3" maxlength="150">
         </div>
         <div class="form-field">
-          <label for="kurz-anotace">Anotace a cíl kurzu <span class="req">*</span></label>
-          <textarea id="kurz-anotace" rows="3" placeholder="Popis obsahu a cílové skupiny..." required minlength="10"></textarea>
+          <label for="course-annotation">Anotace a cíl kurzu <span class="req">*</span></label>
+          <textarea id="course-annotation" rows="3" placeholder="Popis obsahu a cílové skupiny..." required minlength="10"></textarea>
         </div>
         <div class="form-grid-2">
           <div class="form-field">
-            <label for="kurz-rozsah">Rozsah v hodinách <span class="req">*</span></label>
-            <input type="number" id="kurz-rozsah" min="1" max="500" placeholder="např. 80" required>
+            <label for="course-hours">Rozsah v hodinách <span class="req">*</span></label>
+            <input type="number" id="course-hours" min="1" max="500" placeholder="např. 80" required>
           </div>
           <div class="form-field">
-            <label for="kurz-cena">Cena v Kč <span class="req">*</span></label>
-            <input type="number" id="kurz-cena" min="0" step="100" placeholder="např. 14900" required>
+            <label for="course-price">Cena v Kč <span class="req">*</span></label>
+            <input type="number" id="course-price" min="0" step="100" placeholder="např. 14900" required>
           </div>
         </div>
         <div class="form-field-checkbox">
           <label>
-            <input type="checkbox" id="kurz-akreditovany">
+            <input type="checkbox" id="course-accredited">
             <span>Oficiálně akreditovaný kurz (rekvalifikace MŠMT / MPSV)</span>
           </label>
         </div>
-        <div id="form-kurz-error" class="error-msg" style="display: none;"></div>
+        <div id="form-course-error" class="error-msg" style="display: none;"></div>
         <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" data-close="modal-kurz">Zrušit</button>
+          <button type="button" class="btn btn-secondary" data-close="modal-course">Zrušit</button>
           <button type="submit" class="btn btn-primary">Uložit kurz</button>
         </div>
       </form>
@@ -293,43 +430,43 @@
   </div>
 
   <!-- Modál: Vypsání nového termínu -->
-  <div id="modal-termin" class="modal-backdrop" style="display: none;">
+  <div id="modal-term" class="modal-backdrop" style="display: none;">
     <div class="modal-card">
       <div class="modal-card-header">
         <h3>Vypsat nový termín kurzu</h3>
-        <button class="modal-close" data-close="modal-termin">×</button>
+        <button class="modal-close" data-close="modal-term">×</button>
       </div>
-      <form id="form-termin" class="modal-body">
+      <form id="form-term" class="modal-body">
         <div class="form-field">
-          <label for="termin-kurz-select">Kurz <span class="req">*</span></label>
-          <select id="termin-kurz-select" required></select>
+          <label for="term-course-select">Kurz <span class="req">*</span></label>
+          <select id="term-course-select" required></select>
         </div>
         <div class="form-field">
-          <label for="termin-ucebna-select">Místo konání (Učebna)</label>
-          <select id="termin-ucebna-select"></select>
+          <label for="term-classroom-select">Místo konání (Učebna)</label>
+          <select id="term-classroom-select"></select>
         </div>
         <div class="form-grid-2">
           <div class="form-field">
-            <label for="termin-datum-od">Datum zahájení <span class="req">*</span></label>
-            <input type="date" id="termin-datum-od" required>
+            <label for="term-start-date">Datum zahájení <span class="req">*</span></label>
+            <input type="date" id="term-start-date" required>
           </div>
           <div class="form-field">
-            <label for="termin-datum-do">Datum ukončení <span class="req">*</span></label>
-            <input type="date" id="termin-datum-do" required>
+            <label for="term-end-date">Datum ukončení <span class="req">*</span></label>
+            <input type="date" id="term-end-date" required>
           </div>
         </div>
         <div class="form-field">
-          <label for="termin-kapacita">Maximální kapacita míst <span class="req">*</span></label>
-          <input type="number" id="termin-kapacita" min="1" max="100" value="12" required>
-          <span class="field-hint">Po vyčerpání kapacity jsou zájemci automaticky řazeni do pořadníku.</span>
+          <label for="term-capacity">Maximální kapacita míst <span class="req">*</span></label>
+          <input type="number" id="term-capacity" min="1" max="100" value="12" required>
+          <span class="field-hint">Po vyčerpání kapacity jsou zájemci automaticky řazeni do pořadníku (ADR-02).</span>
         </div>
         <div class="form-field">
-          <label for="termin-lektor-select">Lektor kurzu</label>
-          <select id="termin-lektor-select"></select>
+          <label for="term-lecturer-select">Lektor kurzu</label>
+          <select id="term-lecturer-select"></select>
         </div>
-        <div id="form-termin-error" class="error-msg" style="display: none;"></div>
+        <div id="form-term-error" class="error-msg" style="display: none;"></div>
         <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" data-close="modal-termin">Zrušit</button>
+          <button type="button" class="btn btn-secondary" data-close="modal-term">Zrušit</button>
           <button type="submit" class="btn btn-primary">Vypsat termín</button>
         </div>
       </form>
@@ -337,25 +474,25 @@
   </div>
 
   <!-- Modál: Přihlášení studenta na termín -->
-  <div id="modal-prihlaska" class="modal-backdrop" style="display: none;">
+  <div id="modal-enrollment" class="modal-backdrop" style="display: none;">
     <div class="modal-card">
       <div class="modal-card-header">
         <h3>Přihláška studenta na termín</h3>
-        <button class="modal-close" data-close="modal-prihlaska">×</button>
+        <button class="modal-close" data-close="modal-enrollment">×</button>
       </div>
-      <form id="form-prihlaska" class="modal-body">
-        <input type="hidden" id="prihlaska-termin-id">
-        <div class="notice-info" id="prihlaska-termin-notice">
+      <form id="form-enrollment" class="modal-body">
+        <input type="hidden" id="enrollment-term-id">
+        <div class="notice-info" id="enrollment-term-notice">
           Vybraný termín
         </div>
         <div class="form-grid-2">
           <div class="form-field">
-            <label for="student-jmeno">Jméno studenta <span class="req">*</span></label>
-            <input type="text" id="student-jmeno" placeholder="Jan" required>
+            <label for="student-first-name">Jméno studenta <span class="req">*</span></label>
+            <input type="text" id="student-first-name" placeholder="Jan" required>
           </div>
           <div class="form-field">
-            <label for="student-prijmeni">Příjmení studenta <span class="req">*</span></label>
-            <input type="text" id="student-prijmeni" placeholder="Novák" required>
+            <label for="student-last-name">Příjmení studenta <span class="req">*</span></label>
+            <input type="text" id="student-last-name" placeholder="Novák" required>
           </div>
         </div>
         <div class="form-field">
@@ -364,22 +501,87 @@
         </div>
         <div class="form-grid-2">
           <div class="form-field">
-            <label for="student-telefon">Telefon</label>
-            <input type="tel" id="student-telefon" placeholder="+420 ...">
+            <label for="student-phone">Telefon</label>
+            <input type="tel" id="student-phone" placeholder="+420 ...">
           </div>
           <div class="form-field">
-            <label for="student-organizace">Organizace / Zaměstnavatel</label>
-            <input type="text" id="student-organizace" placeholder="např. MěÚ Trutnov">
+            <label for="student-organization">Organizace / Zaměstnavatel</label>
+            <input type="text" id="student-organization" placeholder="např. MěÚ Trutnov">
           </div>
         </div>
         <div class="form-field">
-          <label for="student-poznamka">Poznámka (např. platba ÚP, požadavek na fakturaci)</label>
-          <input type="text" id="student-poznamka" placeholder="Volitelná poznámka k přihlášce...">
+          <label for="student-note">Poznámka (např. platba ÚP, požadavek na fakturaci)</label>
+          <input type="text" id="student-note" placeholder="Volitelná poznámka k přihlášce...">
         </div>
-        <div id="form-prihlaska-error" class="error-msg" style="display: none;"></div>
+        <div id="form-enrollment-error" class="error-msg" style="display: none;"></div>
         <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" data-close="modal-prihlaska">Zrušit</button>
+          <button type="button" class="btn btn-secondary" data-close="modal-enrollment">Zrušit</button>
           <button type="submit" class="btn btn-primary">Zaregistrovat studenta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modál: Přidat výukový den -->
+  <div id="modal-teaching-day" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-card-header">
+        <h3>Přidat výukový den</h3>
+        <button class="modal-close" data-close="modal-teaching-day">×</button>
+      </div>
+      <form id="form-teaching-day" class="modal-body">
+        <input type="hidden" id="day-term-id">
+        <div class="form-field">
+          <label for="day-date">Datum výukového dne <span class="req">*</span></label>
+          <input type="date" id="day-date" required>
+        </div>
+        <div class="form-field">
+          <label for="day-hours">Počet hodin výuky <span class="req">*</span></label>
+          <input type="number" id="day-hours" min="1" max="16" value="6" required>
+        </div>
+        <div class="form-field">
+          <label for="day-topic">Téma výuky / obsah bloku <span class="req">*</span></label>
+          <input type="text" id="day-topic" placeholder="např. Daňová evidence a software Pohoda" required minlength="3">
+        </div>
+        <div class="form-field">
+          <label for="day-lecturer-select">Lektor pro tento den (ADR-05)</label>
+          <select id="day-lecturer-select"></select>
+        </div>
+        <div id="form-teaching-day-error" class="error-msg" style="display: none;"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close="modal-teaching-day">Zrušit</button>
+          <button type="submit" class="btn btn-primary">Přidat den</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modál: Udělit výjimku lektora pro certifikát (ADR-01) -->
+  <div id="modal-waiver" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-card-header">
+        <h3>Vystavit osvědčení s výjimkou lektora</h3>
+        <button class="modal-close" data-close="modal-waiver">×</button>
+      </div>
+      <form id="form-waiver" class="modal-body">
+        <div class="form-field">
+          <label for="waiver-enrollment-select">Student a přihláška <span class="req">*</span></label>
+          <select id="waiver-enrollment-select" required></select>
+        </div>
+        <div class="form-field-checkbox">
+          <label>
+            <input type="checkbox" id="waiver-confirmed" checked disabled>
+            <span>Udělit výjimku z pravidla 70% docházky dle článku ADR-01</span>
+          </label>
+        </div>
+        <div class="form-field">
+          <label for="waiver-reason">Písemné odůvodnění výjimky lektorem <span class="req">*</span></label>
+          <textarea id="waiver-reason" rows="3" placeholder="Uveďte důvod udělení výjimky (např. předložení lékařského potvrzení a zvládnutí doplňkového testu)..." required minlength="5"></textarea>
+        </div>
+        <div id="form-waiver-error" class="error-msg" style="display: none;"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close="modal-waiver">Zrušit</button>
+          <button type="submit" class="btn btn-primary">Schválit výjimku & vystavit</button>
         </div>
       </form>
     </div>
