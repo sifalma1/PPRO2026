@@ -1,6 +1,9 @@
 import { Pool } from "pg";
 import { Certificate } from "../../domain/entities/Certificate.js";
-import { CertificateResponseDto, IssueCertificateDto } from "../../application/dto/CertificateDto.js";
+import {
+  CertificateResponseDto,
+  IssueCertificateDto,
+} from "../../application/dto/CertificateDto.js";
 
 export class PostgresCertificateRepository {
   constructor(private readonly db: Pool) {}
@@ -19,7 +22,7 @@ export class PostgresCertificateRepository {
       ORDER BY c.issue_date DESC, c.certificate_number DESC;
     `;
     const res = await this.db.query(sql);
-    return res.rows.map(r => this.mapToDto(r));
+    return res.rows.map((r) => this.mapToDto(r));
   }
 
   public async findById(id: string): Promise<CertificateResponseDto | null> {
@@ -88,7 +91,10 @@ export class PostgresCertificateRepository {
       const enrollment = eRes.rows[0];
 
       // Check if certificate already issued
-      const existingCert = await client.query("SELECT id FROM certificates WHERE enrollment_id = $1", [dto.enrollmentId]);
+      const existingCert = await client.query(
+        "SELECT id FROM certificates WHERE enrollment_id = $1",
+        [dto.enrollmentId]
+      );
       if (existingCert.rows.length > 0) {
         throw new Error("A certificate has already been issued for this enrollment.");
       }
@@ -120,7 +126,7 @@ export class PostgresCertificateRepository {
         issueDate,
         attendanceRate: Math.round(attendanceRate * 10) / 10,
         hasWaiver: dto.hasWaiver,
-        waiverReason: dto.waiverReason
+        waiverReason: dto.waiverReason,
       });
 
       // 4. Insert certificate
@@ -137,11 +143,14 @@ export class PostgresCertificateRepository {
         domainCert.issueDate,
         domainCert.attendanceRate,
         domainCert.hasWaiver,
-        domainCert.waiverReason
+        domainCert.waiverReason,
       ]);
 
       // 5. Update enrollment status to COMPLETED
-      await client.query("UPDATE enrollments SET status = 'COMPLETED', updated_at = NOW() WHERE id = $1", [dto.enrollmentId]);
+      await client.query(
+        "UPDATE enrollments SET status = 'COMPLETED', updated_at = NOW() WHERE id = $1",
+        [dto.enrollmentId]
+      );
 
       await client.query("COMMIT");
 
@@ -159,13 +168,18 @@ export class PostgresCertificateRepository {
    * Sets course_term status to 'COMPLETED', evaluates all confirmed students,
    * automatically issues certificates to all who meet the 70% requirement.
    */
-  public async completeTerm(termId: string): Promise<{ issuedCount: number; certificates: CertificateResponseDto[] }> {
+  public async completeTerm(
+    termId: string
+  ): Promise<{ issuedCount: number; certificates: CertificateResponseDto[] }> {
     const client = await this.db.connect();
     try {
       await client.query("BEGIN");
 
       // Update term status
-      await client.query("UPDATE course_terms SET status = 'COMPLETED', updated_at = NOW() WHERE id = $1", [termId]);
+      await client.query(
+        "UPDATE course_terms SET status = 'COMPLETED', updated_at = NOW() WHERE id = $1",
+        [termId]
+      );
 
       // Find all confirmed students without certificates
       const enrollmentsRes = await client.query(
@@ -208,11 +222,14 @@ export class PostgresCertificateRepository {
       termId: r.term_id,
       courseTitle: r.course_title,
       certificateNumber: r.certificate_number,
-      issueDate: r.issue_date instanceof Date ? r.issue_date.toISOString().split("T")[0] : String(r.issue_date).split("T")[0],
+      issueDate:
+        r.issue_date instanceof Date
+          ? r.issue_date.toISOString().split("T")[0]
+          : String(r.issue_date).split("T")[0],
       attendanceRate: Number(r.attendance_rate),
       hasWaiver: Boolean(r.has_waiver),
       waiverReason: r.waiver_reason,
-      createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : String(r.created_at)
+      createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : String(r.created_at),
     };
   }
 }

@@ -5,12 +5,19 @@
   "description": "Informační systém pro vzdělávací centrum Akademie Trutnov (PPRO 2026)",
   "main": "dist/index.js",
   "scripts": {
-    "build:css": "tailwindcss -i ./src/presentation/styles/input.css -o ./public/css/style.css --minify",
-    "build": "npm run build:css && tsc",
+    "build:client": "vite build",
+    "build:server": "tsc",
+    "build": "npm run build:client && npm run build:server",
     "start": "node dist/index.js",
+    "dev:client": "vite",
     "dev": "tsx watch src/index.ts",
     "migrate": "tsx src/infrastructure/database/migrate.ts",
-    "test": "node --import tsx --test test/**/*.test.ts"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node --import tsx --test test/*.test.ts",
+    "test:jest": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "keywords": [
     "ppro",
@@ -25,11 +32,28 @@
     "pg": "^8.13.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/express": "^5.0.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.13.4",
     "@types/pg": "^8.11.11",
+    "@types/supertest": "^7.2.1",
+    "@typescript-eslint/eslint-plugin": "^8.72.1",
+    "@typescript-eslint/parser": "^8.72.1",
+    "autoprefixer": "^10.6.2",
+    "cross-env": "^10.1.0",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.14.0",
+    "jest": "^30.5.2",
+    "postcss": "^8.5.32",
+    "prettier": "^3.9.10",
+    "supertest": "^7.3.1",
     "tailwindcss": "^3.4.19",
+    "ts-jest": "^29.4.15",
     "tsx": "^4.19.3",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.5"
   }
 }

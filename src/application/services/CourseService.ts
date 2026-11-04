@@ -11,7 +11,7 @@ export class CourseService {
 
   public async getAllCourses(filter?: CourseFilter): Promise<CourseResponseDto[]> {
     const courses = await this.courseRepository.findAll(filter);
-    return courses.map(c => this.toResponseDto(c));
+    return courses.map((c) => this.toResponseDto(c));
   }
 
   public async getCourseById(id: string): Promise<CourseResponseDto> {
@@ -28,7 +28,7 @@ export class CourseService {
       annotation: dto.annotation,
       hours: dto.hours,
       price: dto.price,
-      isAccredited: Boolean(dto.isAccredited)
+      isAccredited: Boolean(dto.isAccredited),
     });
 
     const created = await this.courseRepository.create(domainCourse);
@@ -48,7 +48,7 @@ export class CourseService {
       hours: dto.hours !== undefined ? dto.hours : existing.hours,
       price: dto.price !== undefined ? dto.price : existing.price,
       isAccredited: dto.isAccredited !== undefined ? dto.isAccredited : existing.isAccredited,
-      createdAt: existing.createdAt
+      createdAt: existing.createdAt,
     });
 
     const saved = await this.courseRepository.update(id, updatedCourse);
@@ -76,7 +76,7 @@ export class CourseService {
       price: course.price,
       isAccredited: course.isAccredited,
       createdAt: course.createdAt ? course.createdAt.toISOString() : new Date().toISOString(),
-      updatedAt: course.updatedAt ? course.updatedAt.toISOString() : new Date().toISOString()
+      updatedAt: course.updatedAt ? course.updatedAt.toISOString() : new Date().toISOString(),
     };
   }
 }

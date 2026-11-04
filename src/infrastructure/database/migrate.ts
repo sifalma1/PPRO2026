@@ -26,8 +26,9 @@ export async function runMigrations(): Promise<void> {
       return;
     }
 
-    const files = fs.readdirSync(migrationsDir)
-      .filter(f => f.endsWith(".sql"))
+    const files = fs
+      .readdirSync(migrationsDir)
+      .filter((f) => f.endsWith(".sql"))
       .sort();
 
     for (const file of files) {
@@ -53,7 +54,10 @@ export async function runMigrations(): Promise<void> {
 }
 
 // Pokud je skript spuštěn přímo z příkazové řádky
-if (process.argv[1] && (process.argv[1].endsWith("migrate.ts") || process.argv[1].endsWith("migrate.js"))) {
+if (
+  process.argv[1] &&
+  (process.argv[1].endsWith("migrate.ts") || process.argv[1].endsWith("migrate.js"))
+) {
   runMigrations()
     .then(() => {
       console.log("Migrace dokončeny.");

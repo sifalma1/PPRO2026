@@ -9,7 +9,7 @@ describe("CourseTerm and Enrollment Entities & Waiting List (Unit Tests)", () =>
       courseId: "course-123",
       startDate: "2026-11-01",
       endDate: "2026-11-30",
-      capacity: 15
+      capacity: 15,
     });
 
     assert.strictEqual(term.courseId, "course-123");
@@ -25,7 +25,7 @@ describe("CourseTerm and Enrollment Entities & Waiting List (Unit Tests)", () =>
       startDate: "2026-11-01",
       endDate: "2026-11-30",
       capacity: 5,
-      confirmedCount: 5
+      confirmedCount: 5,
     });
 
     assert.strictEqual(term.isFull, true);
@@ -39,7 +39,7 @@ describe("CourseTerm and Enrollment Entities & Waiting List (Unit Tests)", () =>
           courseId: "course-123",
           startDate: "2026-12-01",
           endDate: "2026-11-01", // before start date
-          capacity: 10
+          capacity: 10,
         });
       },
       { message: "Start date cannot be after end date." }
@@ -53,7 +53,7 @@ describe("CourseTerm and Enrollment Entities & Waiting List (Unit Tests)", () =>
           courseId: "course-123",
           startDate: "2026-11-01",
           endDate: "2026-11-30",
-          capacity: 0
+          capacity: 0,
         });
       },
       { message: "Term capacity must be a positive integer." }
@@ -67,7 +67,7 @@ describe("CourseTerm and Enrollment Entities & Waiting List (Unit Tests)", () =>
           termId: "term-1",
           studentId: "student-1",
           status: "WAITLIST",
-          waitlistPosition: 0 // invalid position
+          waitlistPosition: 0, // invalid position
         });
       },
       { message: "Waitlisted enrollment must have a positive waitlist position number." }
@@ -77,7 +77,7 @@ describe("CourseTerm and Enrollment Entities & Waiting List (Unit Tests)", () =>
       termId: "term-1",
       studentId: "student-1",
       status: "WAITLIST",
-      waitlistPosition: 1
+      waitlistPosition: 1,
     });
 
     assert.strictEqual(validWaitlist.isWaitlisted, true);

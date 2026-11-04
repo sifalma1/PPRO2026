@@ -19,7 +19,9 @@ export class CertificateService {
     return await this.repo.issueCertificate(dto);
   }
 
-  public async completeTerm(termId: string): Promise<{ issuedCount: number; certificates: CertificateResponseDto[] }> {
+  public async completeTerm(
+    termId: string
+  ): Promise<{ issuedCount: number; certificates: CertificateResponseDto[] }> {
     if (!termId) throw new Error("Term ID is required.");
     return await this.repo.completeTerm(termId);
   }

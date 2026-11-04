@@ -15,7 +15,7 @@ class InMemoryCourseRepository implements ICourseRepository {
   }
 
   async findAll(filter?: { isAccredited?: boolean; query?: string }): Promise<Course[]> {
-    return this.items.filter(c => {
+    return this.items.filter((c) => {
       if (filter?.isAccredited !== undefined && c.isAccredited !== filter.isAccredited) {
         return false;
       }
@@ -28,7 +28,7 @@ class InMemoryCourseRepository implements ICourseRepository {
   }
 
   async findById(id: string): Promise<Course | null> {
-    return this.items.find(c => c.id === id) || null;
+    return this.items.find((c) => c.id === id) || null;
   }
 
   async create(course: Course): Promise<Course> {
@@ -36,27 +36,27 @@ class InMemoryCourseRepository implements ICourseRepository {
       ...course,
       id: "mock-uuid-" + (this.items.length + 1),
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
     this.items.push(created);
     return created;
   }
 
   async update(id: string, course: Course): Promise<Course | null> {
-    const idx = this.items.findIndex(c => c.id === id);
+    const idx = this.items.findIndex((c) => c.id === id);
     if (idx === -1) return null;
     const updated = new Course({
       ...course,
       id,
       createdAt: this.items[idx].createdAt,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
     this.items[idx] = updated;
     return updated;
   }
 
   async delete(id: string): Promise<boolean> {
-    const idx = this.items.findIndex(c => c.id === id);
+    const idx = this.items.findIndex((c) => c.id === id);
     if (idx === -1) return false;
     this.items.splice(idx, 1);
     return true;
@@ -70,10 +70,11 @@ describe("CourseService and Course Entity (Unit Tests)", () => {
 
     const result = await service.createCourse({
       title: "Python Programming & Data Analysis",
-      annotation: "Comprehensive practical course covering Python from basics to web and data analysis.",
+      annotation:
+        "Comprehensive practical course covering Python from basics to web and data analysis.",
       hours: 60,
       price: 14500,
-      isAccredited: true
+      isAccredited: true,
     });
 
     assert.ok(result.id);
@@ -94,7 +95,7 @@ describe("CourseService and Course Entity (Unit Tests)", () => {
           annotation: "Annotation with sufficient character length.",
           hours: 20,
           price: 5000,
-          isAccredited: false
+          isAccredited: false,
         });
       },
       { message: "Course title must be between 3 and 150 characters." }
@@ -112,7 +113,7 @@ describe("CourseService and Course Entity (Unit Tests)", () => {
           annotation: "Annotation with sufficient character length.",
           hours: 0,
           price: 5000,
-          isAccredited: false
+          isAccredited: false,
         });
       },
       { message: "Course hours must be a positive integer greater than 0." }
@@ -130,7 +131,7 @@ describe("CourseService and Course Entity (Unit Tests)", () => {
           annotation: "Annotation with sufficient character length.",
           hours: 30,
           price: -500,
-          isAccredited: false
+          isAccredited: false,
         });
       },
       { message: "Course price cannot be negative." }
@@ -145,7 +146,7 @@ describe("CourseService and Course Entity (Unit Tests)", () => {
         annotation: "Professional accounting training.",
         hours: 120,
         price: 15000,
-        isAccredited: true
+        isAccredited: true,
       }),
       new Course({
         id: "c-2",
@@ -153,8 +154,8 @@ describe("CourseService and Course Entity (Unit Tests)", () => {
         annotation: "Online marketing strategies.",
         hours: 30,
         price: 8000,
-        isAccredited: false
-      })
+        isAccredited: false,
+      }),
     ];
 
     const repo = new InMemoryCourseRepository(initialCourses);
@@ -177,15 +178,15 @@ describe("CourseService and Course Entity (Unit Tests)", () => {
         annotation: "Original annotation of sufficient length.",
         hours: 40,
         price: 9000,
-        isAccredited: false
-      })
+        isAccredited: false,
+      }),
     ]);
     const service = new CourseService(repo);
 
     const updated = await service.updateCourse("c-1", {
       title: "Updated Course Title",
       price: 11000,
-      isAccredited: true
+      isAccredited: true,
     });
 
     assert.strictEqual(updated.title, "Updated Course Title");
@@ -202,8 +203,8 @@ describe("CourseService and Course Entity (Unit Tests)", () => {
         annotation: "Annotation of sufficient length.",
         hours: 20,
         price: 3000,
-        isAccredited: false
-      })
+        isAccredited: false,
+      }),
     ]);
     const service = new CourseService(repo);
 

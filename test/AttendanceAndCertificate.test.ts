@@ -10,7 +10,7 @@ describe("Attendance and Certificate Entities (Unit Tests - ADR-01 & ADR-05)", (
       termId: "term-101",
       dayDate: "2026-11-15",
       hours: 6,
-      topic: "Introduction to Advanced Node.js"
+      topic: "Introduction to Advanced Node.js",
     });
 
     assert.strictEqual(day.termId, "term-101");
@@ -25,7 +25,7 @@ describe("Attendance and Certificate Entities (Unit Tests - ADR-01 & ADR-05)", (
           termId: "term-101",
           dayDate: "2026-11-15",
           hours: 0,
-          topic: "Topic"
+          topic: "Topic",
         });
       },
       { message: "Teaching day hours must be a positive integer." }
@@ -37,7 +37,7 @@ describe("Attendance and Certificate Entities (Unit Tests - ADR-01 & ADR-05)", (
           termId: "term-101",
           dayDate: "2026-11-15",
           hours: 4,
-          topic: "AB"
+          topic: "AB",
         });
       },
       { message: "Teaching day topic must be at least 3 characters long." }
@@ -49,7 +49,7 @@ describe("Attendance and Certificate Entities (Unit Tests - ADR-01 & ADR-05)", (
       teachingDayId: "day-1",
       studentId: "student-1",
       isPresent: true,
-      note: "Participated actively"
+      note: "Participated actively",
     });
 
     assert.strictEqual(att.isPresent, true);
@@ -63,7 +63,7 @@ describe("Attendance and Certificate Entities (Unit Tests - ADR-01 & ADR-05)", (
       termId: "term-1",
       certificateNumber: "AT-2026-0042",
       issueDate: "2026-11-30",
-      attendanceRate: 85.5
+      attendanceRate: 85.5,
     });
 
     assert.strictEqual(cert.certificateNumber, "AT-2026-0042");
@@ -81,12 +81,12 @@ describe("Attendance and Certificate Entities (Unit Tests - ADR-01 & ADR-05)", (
           certificateNumber: "AT-2026-0043",
           issueDate: "2026-11-30",
           attendanceRate: 65.0,
-          hasWaiver: false
+          hasWaiver: false,
         });
       },
       {
         message:
-          "Student does not meet the 70% attendance requirement (65.0%). An instructor waiver with written reason is required."
+          "Student does not meet the 70% attendance requirement (65.0%). An instructor waiver with written reason is required.",
       }
     );
   });
@@ -100,7 +100,8 @@ describe("Attendance and Certificate Entities (Unit Tests - ADR-01 & ADR-05)", (
       issueDate: "2026-11-30",
       attendanceRate: 66.7,
       hasWaiver: true,
-      waiverReason: "Lecturer waiver granted due to documented medical leave and completed makeup project."
+      waiverReason:
+        "Lecturer waiver granted due to documented medical leave and completed makeup project.",
     });
 
     assert.strictEqual(cert.hasWaiver, true);
@@ -118,7 +119,7 @@ describe("Attendance and Certificate Entities (Unit Tests - ADR-01 & ADR-05)", (
           issueDate: "2026-11-30",
           attendanceRate: 60.0,
           hasWaiver: true,
-          waiverReason: "Ok" // < 5 chars
+          waiverReason: "Ok", // < 5 chars
         });
       },
       { message: "Instructor waiver requires a written justification of at least 5 characters." }
@@ -134,10 +135,13 @@ describe("Attendance and Certificate Entities (Unit Tests - ADR-01 & ADR-05)", (
           termId: "term-1",
           certificateNumber: "INVALID-NUM-123",
           issueDate: "2026-11-30",
-          attendanceRate: 90.0
+          attendanceRate: 90.0,
         });
       },
-      { message: "Invalid certificate number format 'INVALID-NUM-123'. Expected format: AT-YYYY-XXXX" }
+      {
+        message:
+          "Invalid certificate number format 'INVALID-NUM-123'. Expected format: AT-YYYY-XXXX",
+      }
     );
   });
 });

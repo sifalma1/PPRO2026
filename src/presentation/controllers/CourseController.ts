@@ -6,10 +6,17 @@ export class CourseController {
 
   public getAll = async (req: Request, res: Response): Promise<void> => {
     try {
-      const isAccredited = req.query.accredited !== undefined 
-        ? req.query.accredited === "true" 
-        : (req.query.jeAkreditovany !== undefined ? req.query.jeAkreditovany === "true" : undefined);
-      const query = req.query.query ? String(req.query.query) : (req.query.search ? String(req.query.search) : undefined);
+      const isAccredited =
+        req.query.accredited !== undefined
+          ? req.query.accredited === "true"
+          : req.query.jeAkreditovany !== undefined
+            ? req.query.jeAkreditovany === "true"
+            : undefined;
+      const query = req.query.query
+        ? String(req.query.query)
+        : req.query.search
+          ? String(req.query.search)
+          : undefined;
 
       const courses = await this.courseService.getAllCourses({ isAccredited, query });
       res.status(200).json({ success: true, count: courses.length, data: courses });
@@ -30,14 +37,21 @@ export class CourseController {
   public create = async (req: Request, res: Response): Promise<void> => {
     try {
       const body = req.body;
+      const hoursVal = body.hours !== undefined ? body.hours : body.rozsahHodin;
+      const priceVal = body.price !== undefined ? body.price : body.cena;
       const created = await this.courseService.createCourse({
         title: body.title || body.nazev,
         annotation: body.annotation || body.anotace,
-        hours: Number(body.hours || body.rozsahHodin),
-        price: Number(body.price || body.cena),
-        isAccredited: body.isAccredited !== undefined ? Boolean(body.isAccredited) : Boolean(body.jeAkreditovany)
+        hours: hoursVal !== undefined ? Number(hoursVal) : NaN,
+        price: priceVal !== undefined ? Number(priceVal) : NaN,
+        isAccredited:
+          body.isAccredited !== undefined
+            ? Boolean(body.isAccredited)
+            : Boolean(body.jeAkreditovany),
       });
-      res.status(201).json({ success: true, message: "Course created successfully.", data: created });
+      res
+        .status(201)
+        .json({ success: true, message: "Course created successfully.", data: created });
     } catch (err: any) {
       res.status(400).json({ success: false, error: err.message });
     }
@@ -46,14 +60,23 @@ export class CourseController {
   public update = async (req: Request, res: Response): Promise<void> => {
     try {
       const body = req.body;
+      const hoursVal = body.hours !== undefined ? body.hours : body.rozsahHodin;
+      const priceVal = body.price !== undefined ? body.price : body.cena;
       const updated = await this.courseService.updateCourse(String(req.params.id), {
-        title: body.title || body.nazev,
-        annotation: body.annotation || body.anotace,
-        hours: body.hours !== undefined ? Number(body.hours) : (body.rozsahHodin !== undefined ? Number(body.rozsahHodin) : undefined),
-        price: body.price !== undefined ? Number(body.price) : (body.cena !== undefined ? Number(body.cena) : undefined),
-        isAccredited: body.isAccredited !== undefined ? Boolean(body.isAccredited) : (body.jeAkreditovany !== undefined ? Boolean(body.jeAkreditovany) : undefined)
+        title: body.title !== undefined ? body.title : body.nazev,
+        annotation: body.annotation !== undefined ? body.annotation : body.anotace,
+        hours: hoursVal !== undefined ? Number(hoursVal) : undefined,
+        price: priceVal !== undefined ? Number(priceVal) : undefined,
+        isAccredited:
+          body.isAccredited !== undefined
+            ? Boolean(body.isAccredited)
+            : body.jeAkreditovany !== undefined
+              ? Boolean(body.jeAkreditovany)
+              : undefined,
       });
-      res.status(200).json({ success: true, message: "Course updated successfully.", data: updated });
+      res
+        .status(200)
+        .json({ success: true, message: "Course updated successfully.", data: updated });
     } catch (err: any) {
       res.status(400).json({ success: false, error: err.message });
     }

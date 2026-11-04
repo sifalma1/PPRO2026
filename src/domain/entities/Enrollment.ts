@@ -60,7 +60,10 @@ export class Enrollment {
     if (!this.studentId) {
       throw new Error("Enrollment must reference a student.");
     }
-    if (this.status === "WAITLIST" && (this.waitlistPosition === null || this.waitlistPosition <= 0)) {
+    if (
+      this.status === "WAITLIST" &&
+      (this.waitlistPosition === null || this.waitlistPosition <= 0)
+    ) {
       throw new Error("Waitlisted enrollment must have a positive waitlist position number.");
     }
   }

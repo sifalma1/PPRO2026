@@ -3,11 +3,12 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json tsconfig.json tailwind.config.js ./
+COPY package*.json tsconfig.json tailwind.config.js postcss.config.js vite.config.ts ./
 RUN npm ci
 
 COPY public ./public
 COPY src ./src
+COPY frontend ./frontend
 RUN npm run build
 
 # 2. Běhová fáze

@@ -28,7 +28,7 @@ export class PostgresTermRepository {
       ORDER BY t.start_date ASC;
     `;
     const res = await this.db.query(sql);
-    return res.rows.map(r => ({
+    return res.rows.map((r) => ({
       id: r.id,
       courseId: r.course_id,
       courseTitle: r.course_title,
@@ -37,19 +37,25 @@ export class PostgresTermRepository {
       classroomId: r.classroom_id,
       classroomName: r.classroom_name || "Unassigned",
       classroomCapacity: r.classroom_capacity ? Number(r.classroom_capacity) : null,
-      startDate: r.start_date instanceof Date ? r.start_date.toISOString().split("T")[0] : String(r.start_date).split("T")[0],
-      endDate: r.end_date instanceof Date ? r.end_date.toISOString().split("T")[0] : String(r.end_date).split("T")[0],
+      startDate:
+        r.start_date instanceof Date
+          ? r.start_date.toISOString().split("T")[0]
+          : String(r.start_date).split("T")[0],
+      endDate:
+        r.end_date instanceof Date
+          ? r.end_date.toISOString().split("T")[0]
+          : String(r.end_date).split("T")[0],
       capacity: r.capacity,
       status: r.status,
       confirmedCount: parseInt(r.confirmed_count, 10),
       waitlistCount: parseInt(r.waitlist_count, 10),
-      lecturers: r.lecturers
+      lecturers: r.lecturers,
     }));
   }
 
   public async findById(id: string): Promise<any | null> {
     const list = await this.findAll();
-    return list.find(t => t.id === id) || null;
+    return list.find((t) => t.id === id) || null;
   }
 
   public async createTerm(data: CreateTermDto): Promise<string> {
@@ -59,11 +65,15 @@ export class PostgresTermRepository {
 
       // Validate classroom capacity constraint if classroom is specified
       if (data.classroomId) {
-        const roomRes = await client.query("SELECT capacity FROM classrooms WHERE id = $1", [data.classroomId]);
+        const roomRes = await client.query("SELECT capacity FROM classrooms WHERE id = $1", [
+          data.classroomId,
+        ]);
         if (roomRes.rows.length > 0) {
           const maxCap = roomRes.rows[0].capacity;
           if (data.capacity > maxCap) {
-            throw new Error(`Term capacity (${data.capacity}) exceeds classroom maximum capacity (${maxCap}).`);
+            throw new Error(
+              `Term capacity (${data.capacity}) exceeds classroom maximum capacity (${maxCap}).`
+            );
           }
         }
       }
@@ -78,7 +88,7 @@ export class PostgresTermRepository {
         data.classroomId || null,
         data.startDate,
         data.endDate,
-        data.capacity
+        data.capacity,
       ]);
       const termId = res.rows[0].id;
 
@@ -128,7 +138,7 @@ export class PostgresTermRepository {
         e.submitted_at ASC;
     `;
     const res = await this.db.query(sql, [termId]);
-    return res.rows.map(r => ({
+    return res.rows.map((r) => ({
       id: r.id,
       termId: r.term_id,
       studentId: r.student_id,
@@ -136,10 +146,11 @@ export class PostgresTermRepository {
       studentEmail: r.email,
       studentPhone: r.phone,
       studentOrganization: r.organization,
-      submittedAt: r.submitted_at instanceof Date ? r.submitted_at.toISOString() : String(r.submitted_at),
+      submittedAt:
+        r.submitted_at instanceof Date ? r.submitted_at.toISOString() : String(r.submitted_at),
       status: r.status,
       waitlistPosition: r.waitlist_position,
-      note: r.note
+      note: r.note,
     }));
   }
 
@@ -155,7 +166,9 @@ export class PostgresTermRepository {
       // 1. Find or create student
       let studentId: string;
       const normalizedEmail = studentData.email.trim().toLowerCase();
-      const sRes = await client.query("SELECT id FROM students WHERE email = $1", [normalizedEmail]);
+      const sRes = await client.query("SELECT id FROM students WHERE email = $1", [
+        normalizedEmail,
+      ]);
       if (sRes.rows.length > 0) {
         studentId = sRes.rows[0].id;
       } else {
@@ -169,14 +182,17 @@ export class PostgresTermRepository {
           studentData.lastName.trim(),
           normalizedEmail,
           studentData.phone ? studentData.phone.trim() : null,
-          studentData.organization ? studentData.organization.trim() : null
+          studentData.organization ? studentData.organization.trim() : null,
         ]);
         studentId = insRes.rows[0].id;
       }
 
       // 2. Concurrency rule ADR-03:
       // Student cannot have multiple active confirmed registrations for terms of the SAME course.
-      const termInfo = await client.query("SELECT course_id, capacity FROM course_terms WHERE id = $1", [termId]);
+      const termInfo = await client.query(
+        "SELECT course_id, capacity FROM course_terms WHERE id = $1",
+        [termId]
+      );
       if (termInfo.rows.length === 0) throw new Error("Course term was not found.");
       const courseId = termInfo.rows[0].course_id;
       const capacity = termInfo.rows[0].capacity;
@@ -188,7 +204,9 @@ export class PostgresTermRepository {
       `;
       const sameCourseRes = await client.query(sameCourseCheck, [courseId, studentId]);
       if (sameCourseRes.rows.length > 0) {
-        throw new Error("Student already has an active confirmed enrollment for this course in another term (ADR-03 rule).");
+        throw new Error(
+          "Student already has an active confirmed enrollment for this course in another term (ADR-03 rule)."
+        );
       }
 
       // Check if student already has active enrollment in THIS term
@@ -233,7 +251,7 @@ export class PostgresTermRepository {
         studentId,
         status,
         waitlistPosition,
-        studentData.note || null
+        studentData.note || null,
       ]);
 
       await client.query("COMMIT");
@@ -245,7 +263,7 @@ export class PostgresTermRepository {
         studentName: `${studentData.firstName} ${studentData.lastName}`,
         status: eRes.rows[0].status,
         waitlistPosition: eRes.rows[0].waitlist_position,
-        submittedAt: eRes.rows[0].submitted_at
+        submittedAt: eRes.rows[0].submitted_at,
       };
     } catch (e) {
       await client.query("ROLLBACK");
@@ -259,7 +277,9 @@ export class PostgresTermRepository {
    * Cancel enrollment with automatic waitlist advancement (ADR-02).
    * When a confirmed spot is cancelled, candidate #1 is automatically promoted.
    */
-  public async cancelEnrollment(enrollmentId: string): Promise<{ success: boolean; promotedStudentId?: string }> {
+  public async cancelEnrollment(
+    enrollmentId: string
+  ): Promise<{ success: boolean; promotedStudentId?: string }> {
     const client = await this.db.connect();
     try {
       await client.query("BEGIN");
@@ -337,7 +357,7 @@ export class PostgresTermRepository {
       ORDER BY l.last_name ASC;
     `;
     const res = await this.db.query(sql);
-    return res.rows.map(r => ({
+    return res.rows.map((r) => ({
       id: r.id,
       name: `${r.first_name} ${r.last_name}`,
       firstName: r.first_name,
@@ -346,18 +366,18 @@ export class PostgresTermRepository {
       phone: r.phone,
       specialization: r.specialization,
       termCount: parseInt(r.term_count, 10),
-      taughtHours: parseInt(r.taught_hours, 10)
+      taughtHours: parseInt(r.taught_hours, 10),
     }));
   }
 
   public async getClassrooms(): Promise<any[]> {
     const sql = "SELECT id, name, address, capacity FROM classrooms ORDER BY name ASC";
     const res = await this.db.query(sql);
-    return res.rows.map(r => ({
+    return res.rows.map((r) => ({
       id: r.id,
       name: r.name,
       address: r.address,
-      capacity: Number(r.capacity)
+      capacity: Number(r.capacity),
     }));
   }
 
@@ -372,7 +392,7 @@ export class PostgresTermRepository {
       ORDER BY s.last_name ASC;
     `;
     const res = await this.db.query(sql);
-    return res.rows.map(r => ({
+    return res.rows.map((r) => ({
       id: r.id,
       name: `${r.first_name} ${r.last_name}`,
       firstName: r.first_name,
@@ -380,7 +400,7 @@ export class PostgresTermRepository {
       email: r.email,
       phone: r.phone,
       organization: r.organization,
-      enrollmentCount: parseInt(r.enrollment_count, 10)
+      enrollmentCount: parseInt(r.enrollment_count, 10),
     }));
   }
 
@@ -404,28 +424,28 @@ export class PostgresTermRepository {
     const multiRes = await this.db.query(multiCourseSql);
 
     return {
-      termStats: terms.map(t => ({
+      termStats: terms.map((t) => ({
         id: t.id,
         courseTitle: t.courseTitle,
         period: `${t.startDate} - ${t.endDate}`,
         capacity: t.capacity,
         confirmed: t.confirmedCount,
         waitlist: t.waitlistCount,
-        fillRate: t.capacity > 0 ? Math.round((t.confirmedCount / t.capacity) * 100) : 0
+        fillRate: t.capacity > 0 ? Math.round((t.confirmedCount / t.capacity) * 100) : 0,
       })),
-      lecturerStats: lecturers.map(l => ({
+      lecturerStats: lecturers.map((l) => ({
         name: l.name,
         specialization: l.specialization,
         taughtHours: l.taughtHours,
-        termCount: l.termCount
+        termCount: l.termCount,
       })),
-      multiCourseStudents: multiRes.rows.map(s => ({
+      multiCourseStudents: multiRes.rows.map((s) => ({
         student: `${s.first_name} ${s.last_name}`,
         email: s.email,
         organization: s.organization,
         courseCount: parseInt(s.course_count, 10),
-        courses: s.courses
-      }))
+        courses: s.courses,
+      })),
     };
   }
 }

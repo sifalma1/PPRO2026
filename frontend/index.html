@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="cs" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Akademie Trutnov – Informační systém kurzů</title>
+    <meta
+      name="description"
+      content="Moderní modulární informační systém pro správu vzdělávacích kurzů, termínů, docházky, osvědčení a manažerských výkazů Akademie Trutnov (PPRO 2026/2027)."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body
+    class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-150 antialiased selection:bg-blue-600 selection:text-white"
+  >
+    <!-- ==================== HORNÍ ZÁHLAVÍ (HEADER) ==================== -->
+    <header
+      class="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm transition-colors"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4"
+      >
+        <!-- Brand Logo -->
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-blue-500/25"
+          >
+            <svg
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c3 3 9 3 12 0v-5" />
+            </svg>
+          </div>
+          <div>
+            <h1
+              class="text-base font-bold text-slate-900 dark:text-white leading-tight flex items-center gap-2"
+            >
+              Akademie Trutnov
+              <span
+                class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
+                >IS</span
+              >
+            </h1>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+              Informační systém vzdělávacího centra (PPRO 2026/2027)
+            </p>
+          </div>
+        </div>
+
+        <!-- Navigační záložky (Desktop) -->
+        <nav
+          class="hidden lg:flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl border border-slate-200/70 dark:border-slate-700/60"
+          role="tablist"
+        >
+          <button class="nav-tab-btn active" data-tab="courses">
+            <svg
+              class="w-4 h-4 opacity-75"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            Kurzy
+          </button>
+          <button class="nav-tab-btn" data-tab="terms">
+            <svg
+              class="w-4 h-4 opacity-75"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            Termíny & Pořadník
+          </button>
+          <button class="nav-tab-btn" data-tab="attendance">
+            <svg
+              class="w-4 h-4 opacity-75"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            Evidence docházky
+          </button>
+          <button class="nav-tab-btn" data-tab="certificates">
+            <svg
+              class="w-4 h-4 opacity-75"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="8" r="7"></circle>
+              <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+            </svg>
+            Osvědčení & Absolventi
+          </button>
+          <button class="nav-tab-btn" data-tab="lecturers">
+            <svg
+              class="w-4 h-4 opacity-75"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Lektoři & Učebny
+          </button>
+          <button class="nav-tab-btn" data-tab="analytics">
+            <svg
+              class="w-4 h-4 opacity-75"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+            Přehledy & Výkazy
+          </button>
+        </nav>
+
+        <!-- Status & Theme Toggle -->
+        <div class="flex items-center gap-2.5">
+          <button
+            id="theme-toggle"
+            class="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            title="Přepnout tmavý / světlý režim"
+          >
+            <svg
+              class="icon-moon w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+            <svg
+              class="icon-sun w-4 h-4 hidden"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          </button>
+
+          <span
+            id="system-status-indicator"
+            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
+          >
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Systém aktivní
+          </span>
+        </div>
+      </div>
+
+      <!-- Mobilní / Tabletová navigace -->
+      <div
+        class="flex lg:hidden overflow-x-auto gap-1 px-4 py-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/90 scrollbar-none"
+      >
+        <button class="nav-tab-btn active whitespace-nowrap" data-tab="courses">Kurzy</button>
+        <button class="nav-tab-btn whitespace-nowrap" data-tab="terms">Termíny & Pořadník</button>
+        <button class="nav-tab-btn whitespace-nowrap" data-tab="attendance">Docházka</button>
+        <button class="nav-tab-btn whitespace-nowrap" data-tab="certificates">Osvědčení</button>
+        <button class="nav-tab-btn whitespace-nowrap" data-tab="lecturers">Lektoři</button>
+        <button class="nav-tab-btn whitespace-nowrap" data-tab="analytics">Výkazy</button>
+      </div>
+    </header>
+
+    <!-- ==================== HLAVNÍ OBSAH (MAIN VIEWPORT) ==================== -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+      <!-- ==================== ZÁLOŽKA 1: KURZY ==================== -->
+      <section id="tab-courses" class="tab-pane active animate-fadeIn">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              Katalog kurzů
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Přehled akreditovaných rekvalifikačních programů MŠMT a firemních školení.
+            </p>
+          </div>
+          <button id="btn-open-create-course" class="btn-primary-tw">
+            <svg
+              class="w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Přidat nový kurz
+          </button>
+        </div>
+
+        <!-- Filtry kurzů -->
+        <div
+          class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6 p-2.5 bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm"
+        >
+          <div class="relative flex-1">
+            <svg
+              class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              type="text"
+              id="filter-search-course"
+              class="w-full pl-9 pr-3 py-1.5 text-xs bg-transparent placeholder-slate-400 focus:outline-none text-slate-900 dark:text-slate-100"
+              placeholder="Hledat kurz podle názvu nebo anotace..."
+            />
+          </div>
+          <div
+            class="flex items-center gap-1.5 border-t sm:border-t-0 sm:border-l border-slate-200 dark:border-slate-700 pt-2 sm:pt-0 sm:pl-3"
+          >
+            <button
+              class="filter-chip px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+              data-filter="all"
+            >
+              Všechny
+            </button>
+            <button
+              class="filter-chip px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              data-filter="accredited"
+            >
+              Akreditované
+            </button>
+            <button
+              class="filter-chip px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              data-filter="standard"
+            >
+              Firemní
+            </button>
+          </div>
+        </div>
+
+        <!-- Seznam kurzů -->
+        <div id="courses-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </section>
+
+      <!-- ==================== ZÁLOŽKA 2: TERMÍNY & POŘADNÍK ==================== -->
+      <section id="tab-terms" class="tab-pane hidden animate-fadeIn">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              Vypsané termíny a pořadník náhradníků
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Hlídání kapacit bez overbookingu a okamžitý automatický posun čekatelů z pořadníku
+              (ADR-02).
+            </p>
+          </div>
+          <button id="btn-open-create-term" class="btn-primary-tw">
+            <svg
+              class="w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Vypsat nový termín
+          </button>
+        </div>
+
+        <!-- Tabulka termínů -->
+        <div class="table-box-wrap mb-8">
+          <div class="overflow-x-auto">
+            <table class="table-tw">
+              <thead>
+                <tr>
+                  <th>Kurz</th>
+                  <th>Termín (od–do)</th>
+                  <th>Učebna</th>
+                  <th>Kapacita a obsazení</th>
+                  <th>Lektor</th>
+                  <th>Stav</th>
+                  <th class="text-right">Akce</th>
+                </tr>
+              </thead>
+              <tbody id="terms-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Detail vybraného termínu (Přihlášky & Pořadník) -->
+        <div
+          id="term-detail-box"
+          class="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-6 shadow-sm"
+          style="display: none"
+        >
+          <div
+            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5 pb-4 border-b border-slate-100 dark:border-slate-700"
+          >
+            <div>
+              <h3 id="detail-term-title" class="text-base font-bold text-slate-900 dark:text-white">
+                Přihlášky na termín
+              </h3>
+              <p
+                id="detail-term-info"
+                class="text-xs text-slate-500 dark:text-slate-400 mt-0.5"
+              ></p>
+            </div>
+            <button id="btn-open-enroll" class="btn-primary-tw">
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="20" y1="8" x2="20" y2="14"></line>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+              </svg>
+              Přihlásit studenta
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="table-tw">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>E-mail</th>
+                  <th>Telefon / Organizace</th>
+                  <th>Datum podání</th>
+                  <th>Status přihlášky</th>
+                  <th class="text-right">Akce</th>
+                </tr>
+              </thead>
+              <tbody id="enrollments-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== ZÁLOŽKA 3: EVIDENCE DOCHÁZKY ==================== -->
+      <section id="tab-attendance" class="tab-pane hidden animate-fadeIn">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              Evidence docházky po výukových dnech
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Záznam účasti studentů na blocích kurzu a sledování 70% pravidla docházky (ADR-01,
+              ADR-05).
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <label
+              for="attendance-term-select"
+              class="text-xs font-semibold text-slate-600 dark:text-slate-400"
+              >Vyberte termín:</label
+            >
+            <select
+              id="attendance-term-select"
+              class="input-tw py-1.5 text-xs w-auto max-w-xs font-medium"
+            ></select>
+            <button id="btn-open-create-day" class="btn-primary-tw btn-sm-tw">
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Přidat výukový den
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <!-- Levý sloupec: Výukové dny -->
+          <div class="table-box-wrap">
+            <div
+              class="px-5 py-4 border-b border-slate-100 dark:border-slate-700/80 flex items-center justify-between"
+            >
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white">Výukové dny termínu</h3>
+              <span id="attendance-days-count" class="badge-chip badge-chip-blue">0 dnů</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="table-tw">
+                <thead>
+                  <tr>
+                    <th>Datum</th>
+                    <th>Téma výuky</th>
+                    <th>Rozsah</th>
+                    <th>Lektor</th>
+                    <th class="text-right">Docházka</th>
+                  </tr>
+                </thead>
+                <tbody id="teaching-days-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Pravý sloupec: Zápis prezenční listiny -->
+          <div
+            class="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm"
+          >
+            <div
+              class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700/80 mb-4"
+            >
+              <div>
+                <h3
+                  id="attendance-day-title"
+                  class="text-sm font-bold text-slate-900 dark:text-white"
+                >
+                  Zápis účasti studentů
+                </h3>
+                <p id="attendance-day-subtitle" class="text-xs text-slate-500 dark:text-slate-400">
+                  Vyberte výukový den v tabulce vlevo.
+                </p>
+              </div>
+              <button
+                id="btn-save-attendance"
+                class="btn-primary-tw btn-sm-tw"
+                style="display: none"
+              >
+                Uložit docházku
+              </button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="table-tw">
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>E-mail</th>
+                    <th>Účast</th>
+                    <th>Poznámka</th>
+                  </tr>
+                </thead>
+                <tbody id="attendance-roster-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Souhrn docházky studentů -->
+        <div class="table-box-wrap">
+          <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-700/80">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white">
+              Souhrnný přehled splnění docházky studentů na termínu
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Pravidlo 70 % pro automatické udělení osvědčení (ADR-01).
+            </p>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="table-tw">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>E-mail</th>
+                  <th>Odučené dny</th>
+                  <th>Účast</th>
+                  <th>Splnění 70 %</th>
+                  <th>Stav osvědčení</th>
+                </tr>
+              </thead>
+              <tbody id="attendance-summary-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== ZÁLOŽKA 4: OSVĚDČENÍ & ABSOLVENTI ==================== -->
+      <section id="tab-certificates" class="tab-pane hidden animate-fadeIn">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              Vystavená osvědčení o absolvování
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Evidence certifikátů s garantovaně unikátním číslem formátu AT-YYYY-XXXX (ADR-01).
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <select
+              id="complete-term-select"
+              class="input-tw py-1.5 text-xs w-auto max-w-xs font-medium"
+            ></select>
+            <button id="btn-complete-term" class="btn-primary-tw btn-sm-tw">
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Uzavřít termín & vystavit osvědčení
+            </button>
+            <button id="btn-open-issue-waiver" class="btn-secondary-tw btn-sm-tw">
+              Vystavit s výjimkou lektora
+            </button>
+          </div>
+        </div>
+
+        <div class="table-box-wrap">
+          <div class="overflow-x-auto">
+            <table class="table-tw">
+              <thead>
+                <tr>
+                  <th>Číslo osvědčení</th>
+                  <th>Absolvent (Student)</th>
+                  <th>Absolvovaný kurz</th>
+                  <th>Datum vydání</th>
+                  <th>Docházka</th>
+                  <th>Režim schválení</th>
+                </tr>
+              </thead>
+              <tbody id="certificates-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== ZÁLOŽKA 5: LEKTOŘI & UČEBNY ==================== -->
+      <section id="tab-lecturers" class="tab-pane hidden animate-fadeIn">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="table-box-wrap">
+            <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-700/80">
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white">Lektoři akademie</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Externí lektoři, kontakty, specializace a celkově odučené hodiny.
+              </p>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="table-tw">
+                <thead>
+                  <tr>
+                    <th>Jméno lektora</th>
+                    <th>Kontakt</th>
+                    <th>Specializace</th>
+                    <th>Odučeno hodin</th>
+                  </tr>
+                </thead>
+                <tbody id="lecturers-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="table-box-wrap">
+            <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-700/80">
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white">
+                Učebny a výukové prostory
+              </h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Kapacita učeben určuje maximální velikost termínu kurzu.
+              </p>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="table-tw">
+                <thead>
+                  <tr>
+                    <th>Název učebny</th>
+                    <th>Adresa</th>
+                    <th>Max. kapacita</th>
+                  </tr>
+                </thead>
+                <tbody id="classrooms-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== ZÁLOŽKA 6: PŘEHLEDY & VÝKAZY ==================== -->
+      <section id="tab-analytics" class="tab-pane hidden animate-fadeIn">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              Manažerské přehledy a statistiky
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Souhrnné manažerské výkazy dle bodu 8 zadání (vytížení kapacit, hodiny lektorů, věrní
+              studenti).
+            </p>
+          </div>
+          <button id="btn-refresh-analytics" class="btn-secondary-tw btn-sm-tw">
+            <svg
+              class="w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="23 4 23 10 17 10" />
+              <polyline points="1 20 1 14 7 14" />
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+            </svg>
+            Obnovit data
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Vytížení termínů -->
+          <div
+            class="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm"
+          >
+            <h3
+              class="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center justify-between"
+            >
+              <span>Vytížení vypsaných termínů</span>
+              <span class="text-[11px] font-normal text-slate-400">Obsazenost míst</span>
+            </h3>
+            <div id="analytics-terms-list" class="space-y-3"></div>
+          </div>
+
+          <!-- Hodiny lektorů -->
+          <div
+            class="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm"
+          >
+            <h3
+              class="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center justify-between"
+            >
+              <span>Odučené hodiny lektorů</span>
+              <span class="text-[11px] font-normal text-slate-400">Pracovní vytížení</span>
+            </h3>
+            <div id="analytics-lecturers-list" class="space-y-3"></div>
+          </div>
+
+          <!-- Studenti s více kurzy -->
+          <div
+            class="lg:col-span-2 bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm"
+          >
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-3">
+              Studenti přihlášení na více než jeden kurz v tomto roce (Bod 8 zadání)
+            </h3>
+            <div id="analytics-students-list" class="space-y-3"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ==================== PATIČKA (FOOTER) ==================== -->
+    <footer
+      class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 text-xs text-slate-500 dark:text-slate-400 mt-auto transition-colors"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3"
+      >
+        <span>© 2026–2027 Akademie Trutnov • IS Vzdělávacího centra (Zadání C, PPRO FIM UHK)</span>
+        <span class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          Vite + TypeScript + Tailwind CSS • Docker + PostgreSQL
+        </span>
+      </div>
+    </footer>
+
+    <!-- ==================== MODÁLNÍ DIALOGY ==================== -->
+
+    <!-- Modal: Kurz -->
+    <div id="modal-course" class="modal-overlay hidden" style="display: none">
+      <div class="modal-dialog">
+        <div
+          class="px-6 py-4 border-b border-slate-100 dark:border-slate-700/80 flex items-center justify-between"
+        >
+          <h3 id="modal-course-title" class="text-base font-bold text-slate-900 dark:text-white">
+            Nový kurz
+          </h3>
+          <button
+            class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1 leading-none"
+            data-close="modal-course"
+          >
+            ×
+          </button>
+        </div>
+        <form id="form-course" class="p-6 space-y-4">
+          <input type="hidden" id="course-id" />
+          <div>
+            <label
+              class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              for="course-title"
+              >Název kurzu <span class="text-rose-500">*</span></label
+            >
+            <input
+              type="text"
+              id="course-title"
+              class="input-tw"
+              placeholder="např. Účetnictví a daňová evidence pro praxi"
+              required
+              minlength="3"
+              maxlength="150"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              for="course-annotation"
+              >Anotace kurzu <span class="text-rose-500">*</span></label
+            >
+            <textarea
+              id="course-annotation"
+              rows="3"
+              class="input-tw resize-none"
+              placeholder="Stručný popis obsahu kurzu..."
+              required
+              minlength="10"
+            ></textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                for="course-hours"
+                >Rozsah v hodinách <span class="text-rose-500">*</span></label
+              >
+              <input
+                type="number"
+                id="course-hours"
+                class="input-tw"
+                min="1"
+                max="500"
+                placeholder="80"
+                required
+              />
+            </div>
+            <div>
+              <label
+                class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                for="course-price"
+                >Cena v Kč <span class="text-rose-500">*</span></label
+              >
+              <input
+                type="number"
+                id="course-price"
+                class="input-tw"
+                min="0"
+                step="100"
+                placeholder="14900"
+                required
+              />
+            </div>
+          </div>
+          <div class="flex items-center gap-2 pt-1">
+            <input
+              type="checkbox"
+              id="course-accredited"
+              class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-700"
+            />
+            <label
+              for="course-accredited"
+              class="text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+              >Oficiálně akreditovaný kurz (rekvalifikace MŠMT / MPSV)</label
+            >
+          </div>
+          <div
+            id="form-course-error"
+            class="p-3 text-xs text-rose-600 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-lg"
+            style="display: none"
+          ></div>
+          <div class="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+            <button type="button" class="btn-secondary-tw" data-close="modal-course">Zrušit</button>
+            <button type="submit" class="btn-primary-tw">Uložit kurz</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal: Termín -->
+    <div id="modal-term" class="modal-overlay hidden" style="display: none">
+      <div class="modal-dialog">
+        <div
+          class="px-6 py-4 border-b border-slate-100 dark:border-slate-700/80 flex items-center justify-between"
+        >
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">
+            Vypsat nový termín kurzu
+          </h3>
+          <button
+            class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1 leading-none"
+            data-close="modal-term"
+          >
+            ×
+          </button>
+        </div>
+        <form id="form-term" class="p-6 space-y-4">
+          <div>
+            <label
+              class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              for="term-course-select"
+              >Kurz <span class="text-rose-500">*</span></label
+            >
+            <select id="term-course-select" class="input-tw" required></select>
+          </div>
+          <div>
+            <label
+              class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              for="term-classroom-select"
+              >Místo konání (Učebna)</label
+            >
+            <select id="term-classroom-select" class="input-tw"></select>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                for="term-start-date"
+                >Datum zahájení <span class="text-rose-500">*</span></label
+              >
+              <input type="date" id="term-start-date" class="input-tw" required />
+            </div>
+            <div>
+              <label
+                class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                for="term-end-date"
+                >Datum ukončení <span class="text-rose-500">*</span></label
+              >
+              <input type="date" id="term-end-date" class="input-tw" required />
+            </div>
+          </div>
+          <div>
+            <label
+              class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              for="term-capacity"
+              >Maximální kapacita míst <span class="text-rose-500">*</span></label
+            >
+            <input
+              type="number"
+              id="term-capacity"
+              class="input-tw"
+              min="1"
+              max="100"
+              value="12"
+              required
+            />
+            <span class="text-[11px] text-slate-400 block mt-1"
+              >Po naplnění kapacity jsou další zájemci automaticky řazeni do pořadníku náhradníků
+              (ADR-02).</span
+            >
+          </div>
+          <div>
+            <label
+              class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              for="term-lecturer-select"
+              >Garantující lektor kurzu</label
+            >
+            <select id="term-lecturer-select" class="input-tw"></select>
+          </div>
+          <div
+            id="form-term-error"
+            class="p-3 text-xs text-rose-600 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-lg"
+            style="display: none"
+          ></div>
+          <div class="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+            <button type="button" class="btn-secondary-tw" data-close="modal-term">Zrušit</button>
+            <button type="submit" class="btn-primary-tw">Vypsat termín</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal: Přihláška -->
+    <div id="modal-enrollment" class="modal-overlay hidden" style="display: none">
+      <div class="modal-dialog">
+        <div
+          class="px-6 py-4 border-b border-slate-100 dark:border-slate-700/80 flex items-center justify-between"
+        >
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">
+            Přihláška studenta na termín
+          </h3>
+          <button
+            class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1 leading-none"
+            data-close="modal-enrollment"
+          >
+            ×
+          </button>
+        </div>
+        <form id="form-enrollment" class="p-6 space-y-4">
+          <input type="hidden" id="enrollment-term-id" />
+          <div id="enrollment-term-notice"></div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                for="student-first-name"
+                >Jméno <span class="text-rose-500">*</span></label
+              >
+              <input
+                type="text"
+                id="student-first-name"
+                class="input-tw"
+                placeholder="Jan"
+                required
+              />
+            </div>
+            <div>
+              <label
+                class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                for="student-last-name"
+                >Příjmení <span class="text-rose-500">*</span></label
+              >
+              <input
+                type="text"
+                id="student-last-name"
+                class="input-tw"
+                placeholder="Novák"
+                required
+              />
+            </div>
+          </div>
+          <div>
+            <label
+              class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              for="student-email"
+              >E-mailová adresa <span class="text-rose-500">*</span></label
+            >
+            <input
+              type="email"
+              id="student-email"
+              class="input-tw"
+              placeholder="jan.novak@email.cz"
+              required
+            />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                for="student-phone"
+                >Telefon</label
+              >
+              <input
+                type="tel"
+                id="student-phone"
+                class="input-tw"
+                placeholder="+420 777 123 456"
+              />
+            </div>
+            <div>
+              <label
+                class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                for="student-organization"
+                >Organizace / Zaměstnavatel</label
+              >
+              <input
+                type="text"
+                id="student-organization"
+                class="input-tw"
+                placeholder="např. MěÚ Trutnov"
+              />
+            </div>
+          </div>
+          <div>
+            <label
+              class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              for="student-note"
+              >Poznámka</label
+            >
+            <input
+              type="text"
+              id="student-note"
+              class="input-tw"
+              placeholder="Volitelná poznámka k přihlášce..."
+            />
+          </div>
+          <div
+            id="form-enrollment-error"
+            class="p-3 text-xs text-rose-600 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-lg"
+            style="display: none"
+          ></div>
+          <div class="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+            <button type="button" class="btn-secondary-tw" data-close="modal-enrollment">
+              Zrušit
+            </button>
+            <button type="submit" class="btn-primary-tw">Zaregistrovat studenta</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal: Výukový den -->
+    <div id="modal-teaching-day" class="modal-overlay hidden" style="display: none">
+      <div class="modal-dialog">
+        <div
+          class="px-6 py-4 border-b border-slate-100 dark:border-slate-700/80 flex items-center justify-between"
+        >
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">Přidat výukový den</h3>
+          <button
+            class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1 leading-none"
+            data-close="modal-teaching-day"
+          >
+            ×
+          </button>
+        </div>
+        <form id="form-teaching-day" class="p-6 space-y-4">
+          <input type="hidden" id="day-term-id" />
+          <div>
+            <label
+              class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              for="day-date"
+              >Datum výukového dne <span class="text-rose-500">*</span></label
+            >
+            <input type="date" id="day-date" class="input-tw" required />
+          </div>
+          <div>
+            <label
+              class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              for="day-hours"
+              >Počet hodin výuky <span class="text-rose-500">*</span></label
+            >
+            <input
+              type="number"
+              id="day-hours"
+              class="input-tw"
+              min="1"
+              max="16"
+              value="6"
+              required
+            />
+          </div>
+          <div>
+            <label
+              class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              for="day-topic"
+              >Téma výuky / obsah bloku <span class="text-rose-500">*</span></label
+            >
+            <input
+              type="text"
+              id="day-topic"
+              class="input-tw"
+              placeholder="např. Daňová evidence a DPH v praxi"
+              required
+              minlength="3"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              for="day-lecturer-select"
+              >Lektor pro tento den (ADR-05)</label
+            >
+            <select id="day-lecturer-select" class="input-tw"></select>
+          </div>
+          <div
+            id="form-teaching-day-error"
+            class="p-3 text-xs text-rose-600 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-lg"
+            style="display: none"
+          ></div>
+          <div class="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+            <button type="button" class="btn-secondary-tw" data-close="modal-teaching-day">
+              Zrušit
+            </button>
+            <button type="submit" class="btn-primary-tw">Přidat den</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal: Výjimka lektora (ADR-01) -->
+    <div id="modal-waiver" class="modal-overlay hidden" style="display: none">
+      <div class="modal-dialog">
+        <div
+          class="px-6 py-4 border-b border-slate-100 dark:border-slate-700/80 flex items-center justify-between"
+        >
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">
+            Vystavit osvědčení s výjimkou lektora
+          </h3>
+          <button
+            class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1 leading-none"
+            data-close="modal-waiver"
+          >
+            ×
+          </button>
+        </div>
+        <form id="form-waiver" class="p-6 space-y-4">
+          <div>
+            <label
+              class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              for="waiver-enrollment-select"
+              >Student a přihláška <span class="text-rose-500">*</span></label
+            >
+            <select id="waiver-enrollment-select" class="input-tw" required></select>
+          </div>
+          <div class="flex items-center gap-2 pt-1">
+            <input
+              type="checkbox"
+              id="waiver-confirmed"
+              checked
+              disabled
+              class="w-4 h-4 rounded text-blue-600 border-slate-300 dark:border-slate-700"
+            />
+            <span class="text-xs font-medium text-slate-700 dark:text-slate-300"
+              >Udělit výjimku z pravidla 70% docházky dle článku ADR-01</span
+            >
+          </div>
+          <div>
+            <label
+              class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              for="waiver-reason"
+              >Písemné odůvodnění výjimky lektorem <span class="text-rose-500">*</span></label
+            >
+            <textarea
+              id="waiver-reason"
+              rows="3"
+              class="input-tw resize-none"
+              placeholder="Uveďte důvod udělení výjimky (např. předložení lékařského potvrzení a zvládnutí doplňkového testu)..."
+              required
+              minlength="5"
+            ></textarea>
+          </div>
+          <div
+            id="form-waiver-error"
+            class="p-3 text-xs text-rose-600 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-lg"
+            style="display: none"
+          ></div>
+          <div class="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+            <button type="button" class="btn-secondary-tw" data-close="modal-waiver">Zrušit</button>
+            <button type="submit" class="btn-primary-tw">Schválit výjimku & vystavit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast zprávy -->
+    <div id="toast-container" class="toast-stack"></div>
+
+    <!-- Vite module entry point -->
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -28,6 +28,7 @@ Tento dokument definuje pravidla chování, pracovní postupy, architektonické 
 ## 3. Pravidla pro práci s Gitem
 
 ### 3.1 Závazné formátování commitů
+
 - Každý commit **MUSÍ** být prováděn s přepínačem `-m` a věcným, výstižným popisem (ideálně konvence Conventional Commits):
   - `feat: <popis>` – nová funkcionalita
   - `fix: <popis>` – oprava chyby
@@ -38,11 +39,13 @@ Tento dokument definuje pravidla chování, pracovní postupy, architektonické 
 - Commit zpráva musí jasně specifikovat, co a proč se mění.
 
 ### 3.2 Striktní zákaz automatického PUSHe
+
 - **NIKDY neprovádět `git push` automaticky.**
 - Asistent **vždy vyžaduje explicitní povel/souhlas od uživatele** před spuštěním operace `git push origin <branch>`.
 - Lokální commity asistent připravuje po dokončení logických celků, ale odeslání do vzdáleného repozitáře provádí výhradně na přímý pokyn.
 
 ### 3.3 Kontrola dokumentace před commitem (Pre-Commit Hook)
+
 - Před provedením commitu asistent ověří, zda:
   1. Došlo k aktualizaci technické dokumentace a stavu implementace v `README.md`.
   2. Byla zaznamenána případná nová rozhodnutí k otevřeným bodům.
@@ -53,6 +56,7 @@ Tento dokument definuje pravidla chování, pracovní postupy, architektonické 
 ## 4. Technické standardy a povinné minimum projektu
 
 Podle specifikace PPRO musí aplikace splňovat:
+
 1. **Třívrstvá architektura:**
    - Striktně jednosměrné závislosti (Presentation -> Application/Domain Service -> Persistence/Infrastructure).
    - Doménová logika nesmí přímo záviset na infrastruktuře ani UI vrstvě.

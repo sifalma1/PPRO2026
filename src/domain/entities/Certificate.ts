@@ -62,7 +62,9 @@ export class Certificate {
 
     const certRegex = /^AT-\d{4}-\d{4,}$/;
     if (!certRegex.test(this.certificateNumber)) {
-      throw new Error(`Invalid certificate number format '${this.certificateNumber}'. Expected format: AT-YYYY-XXXX`);
+      throw new Error(
+        `Invalid certificate number format '${this.certificateNumber}'. Expected format: AT-YYYY-XXXX`
+      );
     }
 
     if (isNaN(this.attendanceRate) || this.attendanceRate < 0 || this.attendanceRate > 100) {
@@ -77,7 +79,9 @@ export class Certificate {
     }
 
     if (this.hasWaiver && (!this.waiverReason || this.waiverReason.length < 5)) {
-      throw new Error("Instructor waiver requires a written justification of at least 5 characters.");
+      throw new Error(
+        "Instructor waiver requires a written justification of at least 5 characters."
+      );
     }
   }
 }

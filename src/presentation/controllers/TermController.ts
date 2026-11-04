@@ -25,15 +25,26 @@ export class TermController {
   public create = async (req: Request, res: Response): Promise<void> => {
     try {
       const body = req.body;
+      const courseId = body.courseId || body.kurzId;
+      const classroomId = body.classroomId || body.ucebnaId;
+      const startDate = body.startDate || body.datumOd;
+      const endDate = body.endDate || body.datumDo;
+      const capacityVal = body.capacity !== undefined ? body.capacity : body.kapacita;
+      const lecturers = body.lecturerIds || body.lektorIds;
+
       const termId = await this.termService.createTerm({
-        courseId: String(body.courseId || body.kurzId),
-        classroomId: body.classroomId || body.ucebnaId ? String(body.classroomId || body.ucebnaId) : undefined,
-        startDate: String(body.startDate || body.datumOd),
-        endDate: String(body.endDate || body.datumDo),
-        capacity: parseInt(body.capacity || body.kapacita, 10),
-        lecturerIds: Array.isArray(body.lecturerIds || body.lektorIds) ? (body.lecturerIds || body.lektorIds) : undefined
+        courseId: courseId ? String(courseId) : "",
+        classroomId: classroomId ? String(classroomId) : undefined,
+        startDate: startDate ? String(startDate) : "",
+        endDate: endDate ? String(endDate) : "",
+        capacity: capacityVal !== undefined ? parseInt(capacityVal, 10) : NaN,
+        lecturerIds: Array.isArray(lecturers) ? lecturers.filter(Boolean) : undefined,
       });
-      res.status(201).json({ success: true, message: "Course term created successfully.", data: { id: termId } });
+      res.status(201).json({
+        success: true,
+        message: "Course term created successfully.",
+        data: { id: termId },
+      });
     } catch (err: any) {
       res.status(400).json({ success: false, error: err.message });
     }
@@ -41,7 +52,8 @@ export class TermController {
 
   public getEnrollments = async (req: Request, res: Response): Promise<void> => {
     try {
-      const list = await this.termService.getEnrollmentsForTerm(String(req.params.id));
+      const termId = String(req.params.id || req.params.termId);
+      const list = await this.termService.getEnrollmentsForTerm(termId);
       res.status(200).json({ success: true, count: list.length, data: list });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
@@ -50,19 +62,23 @@ export class TermController {
 
   public createEnrollment = async (req: Request, res: Response): Promise<void> => {
     try {
-      const termId = String(req.params.id);
+      const termId = String(req.params.id || req.params.termId);
       const b = req.body;
       const created = await this.termService.createEnrollment(termId, {
-        firstName: b.firstName || b.jmeno,
-        lastName: b.lastName || b.prijmeni,
-        email: b.email,
-        phone: b.phone || b.telefon,
-        organization: b.organization || b.organizace,
-        note: b.note || b.poznamka
+        firstName: b.firstName || b.jmeno ? String(b.firstName || b.jmeno).trim() : "",
+        lastName: b.lastName || b.prijmeni ? String(b.lastName || b.prijmeni).trim() : "",
+        email: b.email ? String(b.email).trim() : "",
+        phone: b.phone || b.telefon ? String(b.phone || b.telefon).trim() : undefined,
+        organization:
+          b.organization || b.organizace
+            ? String(b.organization || b.organizace).trim()
+            : undefined,
+        note: b.note || b.poznamka ? String(b.note || b.poznamka).trim() : undefined,
       });
-      const msg = created.status === "WAITLIST"
-        ? `Course capacity is full. Student was placed on the waiting list as candidate #${created.waitlistPosition}.`
-        : "Student enrollment confirmed successfully.";
+      const msg =
+        created.status === "WAITLIST"
+          ? `Course capacity is full. Student was placed on the waiting list as candidate #${created.waitlistPosition}.`
+          : "Student enrollment confirmed successfully.";
       res.status(201).json({ success: true, message: msg, data: created });
     } catch (err: any) {
       res.status(400).json({ success: false, error: err.message });
@@ -71,14 +87,16 @@ export class TermController {
 
   public cancelEnrollment = async (req: Request, res: Response): Promise<void> => {
     try {
-      const enrollmentId = String(req.params.enrollmentId || req.params.id || req.params.prihlaskaId);
+      const enrollmentId = String(
+        req.params.enrollmentId || req.params.id || req.params.prihlaskaId
+      );
       const result = await this.termService.cancelEnrollment(enrollmentId);
       res.status(200).json({
         success: true,
         message: result.promotedStudentId
           ? "Enrollment was cancelled. Spot was automatically assigned to the first waitlisted candidate (ADR-02)!"
           : "Enrollment was cancelled successfully.",
-        data: result
+        data: result,
       });
     } catch (err: any) {
       res.status(400).json({ success: false, error: err.message });

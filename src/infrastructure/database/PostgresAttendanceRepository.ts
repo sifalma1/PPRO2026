@@ -1,5 +1,9 @@
 import { Pool } from "pg";
-import { CreateTeachingDayDto, MarkAttendanceDto, AttendanceSummaryDto } from "../../application/dto/AttendanceDto.js";
+import {
+  CreateTeachingDayDto,
+  MarkAttendanceDto,
+  AttendanceSummaryDto,
+} from "../../application/dto/AttendanceDto.js";
 
 export class PostgresAttendanceRepository {
   constructor(private readonly db: Pool) {}
@@ -19,16 +23,19 @@ export class PostgresAttendanceRepository {
       ORDER BY td.day_date ASC;
     `;
     const res = await this.db.query(sql, [termId]);
-    return res.rows.map(r => ({
+    return res.rows.map((r) => ({
       id: r.id,
       termId: r.term_id,
       lecturerId: r.lecturer_id,
       lecturerName: r.lecturer_name,
-      dayDate: r.day_date instanceof Date ? r.day_date.toISOString().split("T")[0] : String(r.day_date).split("T")[0],
+      dayDate:
+        r.day_date instanceof Date
+          ? r.day_date.toISOString().split("T")[0]
+          : String(r.day_date).split("T")[0],
       hours: r.hours,
       topic: r.topic,
       attendanceCount: parseInt(r.attendance_records, 10),
-      presentCount: parseInt(r.present_records, 10)
+      presentCount: parseInt(r.present_records, 10),
     }));
   }
 
@@ -43,7 +50,7 @@ export class PostgresAttendanceRepository {
       dto.lecturerId || null,
       dto.dayDate,
       dto.hours,
-      dto.topic
+      dto.topic,
     ]);
     return res.rows[0].id;
   }
@@ -65,13 +72,13 @@ export class PostgresAttendanceRepository {
       ORDER BY s.last_name ASC;
     `;
     const res = await this.db.query(sql, [teachingDayId]);
-    return res.rows.map(r => ({
+    return res.rows.map((r) => ({
       teachingDayId: r.teaching_day_id,
       studentId: r.student_id,
       studentName: r.student_name,
       studentEmail: r.student_email,
       isPresent: Boolean(r.is_present),
-      note: r.note
+      note: r.note,
     }));
   }
 
@@ -82,12 +89,7 @@ export class PostgresAttendanceRepository {
       ON CONFLICT (teaching_day_id, student_id)
       DO UPDATE SET is_present = EXCLUDED.is_present, note = EXCLUDED.note;
     `;
-    await this.db.query(sql, [
-      dto.teachingDayId,
-      dto.studentId,
-      dto.isPresent,
-      dto.note || null
-    ]);
+    await this.db.query(sql, [dto.teachingDayId, dto.studentId, dto.isPresent, dto.note || null]);
   }
 
   /**
@@ -118,7 +120,7 @@ export class PostgresAttendanceRepository {
       ORDER BY s.last_name ASC;
     `;
     const res = await this.db.query(sql, [termId]);
-    return res.rows.map(r => {
+    return res.rows.map((r) => {
       const total = parseInt(r.total_days, 10) || 0;
       const attended = parseInt(r.attended_days, 10) || 0;
       const percentage = total > 0 ? Math.round((attended / total) * 1000) / 10 : 0;
@@ -132,7 +134,7 @@ export class PostgresAttendanceRepository {
         attendancePercentage: percentage,
         qualifiesForCertificate: percentage >= 70,
         certificateIssued: Boolean(r.certificate_id),
-        certificateNumber: r.certificate_number || undefined
+        certificateNumber: r.certificate_number || undefined,
       };
     });
   }

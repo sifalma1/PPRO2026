@@ -24,13 +24,16 @@ export class CertificateController {
 
   public issue = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { enrollmentId, hasWaiver, waiverReason } = req.body;
+      const { enrollmentId, prihlaskaId, hasWaiver, waiverReason } = req.body;
+      const targetId = enrollmentId || prihlaskaId;
       const cert = await this.certificateService.issueCertificate({
-        enrollmentId: String(enrollmentId),
+        enrollmentId: targetId ? String(targetId) : "",
         hasWaiver: Boolean(hasWaiver),
-        waiverReason: waiverReason ? String(waiverReason) : undefined
+        waiverReason: waiverReason ? String(waiverReason) : undefined,
       });
-      res.status(201).json({ success: true, message: "Certificate issued successfully.", data: cert });
+      res
+        .status(201)
+        .json({ success: true, message: "Certificate issued successfully.", data: cert });
     } catch (err: any) {
       res.status(400).json({ success: false, error: err.message });
     }
@@ -38,12 +41,12 @@ export class CertificateController {
 
   public completeTerm = async (req: Request, res: Response): Promise<void> => {
     try {
-      const termId = String(req.params.termId);
+      const termId = String(req.params.termId || req.params.id);
       const result = await this.certificateService.completeTerm(termId);
       res.status(200).json({
         success: true,
         message: `Course term completed. Issued ${result.issuedCount} certificate(s) for qualifying students.`,
-        data: result
+        data: result,
       });
     } catch (err: any) {
       res.status(400).json({ success: false, error: err.message });

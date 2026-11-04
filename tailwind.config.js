@@ -2,21 +2,22 @@
 export default {
   content: [
     "./public/**/*.{html,js}",
-    "./src/**/*.{html,ts,js}"
+    "./src/**/*.{html,ts,js}",
+    "./frontend/**/*.{html,ts,js,tsx}",
   ],
   darkMode: ["selector", '[data-theme="dark"]'],
   theme: {
     extend: {
       colors: {
         brand: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-        }
-      }
+          50: "#eff6ff",
+          100: "#dbeafe",
+          500: "#3b82f6",
+          600: "#2563eb",
+          700: "#1d4ed8",
+        },
+      },
     },
   },
   plugins: [],
-}
+};

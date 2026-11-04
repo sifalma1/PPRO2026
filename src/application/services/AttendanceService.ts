@@ -1,5 +1,9 @@
 import { PostgresAttendanceRepository } from "../../infrastructure/database/PostgresAttendanceRepository.js";
-import { CreateTeachingDayDto, MarkAttendanceDto, AttendanceSummaryDto } from "../dto/AttendanceDto.js";
+import {
+  CreateTeachingDayDto,
+  MarkAttendanceDto,
+  AttendanceSummaryDto,
+} from "../dto/AttendanceDto.js";
 
 export class AttendanceService {
   constructor(private readonly repo: PostgresAttendanceRepository) {}
@@ -12,7 +16,8 @@ export class AttendanceService {
     if (!dto.termId) throw new Error("Term ID is required.");
     if (!dto.dayDate) throw new Error("Date is required.");
     if (!dto.hours || dto.hours <= 0) throw new Error("Hours must be a positive integer.");
-    if (!dto.topic || dto.topic.trim().length < 3) throw new Error("Topic must be at least 3 characters long.");
+    if (!dto.topic || dto.topic.trim().length < 3)
+      throw new Error("Topic must be at least 3 characters long.");
     return await this.repo.createTeachingDay(dto);
   }
 

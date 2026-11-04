@@ -26,7 +26,7 @@ export class PostgresCourseRepository implements ICourseRepository {
     query += ` ORDER BY created_at DESC`;
 
     const res = await this.db.query(query, params);
-    return res.rows.map(row => this.mapToEntity(row));
+    return res.rows.map((row) => this.mapToEntity(row));
   }
 
   public async findById(id: string): Promise<Course | null> {
@@ -79,7 +79,7 @@ export class PostgresCourseRepository implements ICourseRepository {
       price: Number(row.price),
       isAccredited: row.is_accredited,
       createdAt: row.created_at,
-      updatedAt: row.updated_at
+      updatedAt: row.updated_at,
     });
   }
 }
