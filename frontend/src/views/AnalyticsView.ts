@@ -1,6 +1,7 @@
 /**
- * Analytics & Reports View
- * Managerial dashboards: classroom and term capacity utilization, lecturer workload, and multi-course students
+ * Analytics & Reports View - Akademie Trutnov
+ * Managerial dashboards: classroom and term capacity utilization, lecturer workload,
+ * and multi-course students (Bod 8 zadání).
  */
 import { AnalyticsData } from "../types";
 import { dictionariesApi } from "../api/dictionariesApi";
@@ -37,8 +38,9 @@ export class AnalyticsView {
       if (showFeedback) {
         Toast.success("Manažerské statistiky byly aktualizovány.");
       }
-    } catch (err: any) {
-      Toast.error(err.message || "Nepodařilo se načíst manažerské výkazy.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Nepodařilo se načíst manažerské výkazy.";
+      Toast.error(msg);
     }
   }
 
@@ -66,32 +68,41 @@ export class AnalyticsView {
     this.data!.termStats.forEach((t) => {
       const card = document.createElement("div");
       card.className =
-        "p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-700/60 transition-all";
+        "p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 transition-all";
 
       const isOverbooked = t.waitlist > 0;
+      const fillPercentage = Math.min(100, t.fillRate);
 
       card.innerHTML = `
-        <div class="flex justify-between items-center text-xs mb-2">
+        <div class="flex justify-between items-center text-xs mb-1.5">
           <span class="font-bold text-slate-900 dark:text-white truncate pr-2">
             ${t.courseTitle}
-            <span class="font-normal text-slate-400">(${t.period})</span>
+            <span class="font-mono text-[10px] text-slate-400 font-normal">(${t.period})</span>
           </span>
-          <div class="shrink-0 text-right">
+          <div class="shrink-0 text-right font-mono text-[11px]">
             <span class="font-bold text-slate-800 dark:text-slate-200">${t.confirmed} / ${t.capacity}</span>
-            <span class="text-slate-500 font-semibold ml-1">(${t.fillRate} %)</span>
+            <span class="${t.fillRate >= 100 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"} font-bold ml-1">
+              (${t.fillRate} %)
+            </span>
           </div>
         </div>
-        <div class="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden mb-1.5">
-          <div class="h-full ${t.fillRate >= 100 ? "bg-amber-500" : "bg-blue-600"} rounded-full transition-all duration-300" style="width: ${Math.min(100, t.fillRate)}%;"></div>
+        <div class="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden mb-1">
+          <div
+            class="h-full rounded-full transition-all duration-300 ${t.fillRate >= 100 ? "bg-amber-500" : "bg-emerald-600"}"
+            style="width: ${fillPercentage}%;"
+          ></div>
         </div>
-        ${
-          isOverbooked
-            ? `<div class="text-[11px] text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                ${t.waitlist} ${t.waitlist === 1 ? "student čeká" : "studenti čekají"} v pořadníku
-               </div>`
-            : `<div class="text-[11px] text-slate-400">Volná místa: ${Math.max(0, t.capacity - t.confirmed)}</div>`
-        }
+        <div class="flex items-center justify-between text-[10px]">
+          ${
+            isOverbooked
+              ? `<span class="text-amber-600 dark:text-amber-400 font-semibold font-mono flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                  ADR-02: ${t.waitlist} ${t.waitlist === 1 ? "náhradník čeká" : "náhradníci čekají"} v pořadníku
+                 </span>`
+              : `<span class="text-slate-400 font-mono">Volná místa: ${Math.max(0, t.capacity - t.confirmed)}</span>`
+          }
+          <span class="text-slate-400 font-mono text-[10px]">Kapacita: ${t.capacity}</span>
+        </div>
       `;
 
       this.termsListContainer?.appendChild(card);
@@ -111,16 +122,29 @@ export class AnalyticsView {
       return;
     }
 
+    // Find max hours for relative bars
+    const maxHours = Math.max(...this.data!.lecturerStats.map((l) => l.taughtHours), 1);
+
     this.data!.lecturerStats.forEach((l) => {
       const card = document.createElement("div");
       card.className =
-        "p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-700/60 flex justify-between items-center text-xs";
+        "p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 text-xs";
+
+      const barPercentage = Math.round((l.taughtHours / maxHours) * 100);
 
       card.innerHTML = `
-        <span class="font-bold text-slate-900 dark:text-white">${l.name}</span>
-        <div class="flex items-center gap-2">
-          <span class="font-bold text-blue-600 dark:text-blue-400">${l.taughtHours} odučených hodin</span>
-          <span class="text-slate-400">(${l.termCount} termínů)</span>
+        <div class="flex justify-between items-center mb-1">
+          <span class="font-bold text-slate-900 dark:text-white">${l.name}</span>
+          <div class="flex items-center gap-1.5 font-mono text-[11px]">
+            <strong class="text-emerald-700 dark:text-emerald-400 font-bold">${l.taughtHours} hod.</strong>
+            <span class="text-slate-400">(${l.termCount} termínů)</span>
+          </div>
+        </div>
+        <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+          <div
+            class="h-full bg-emerald-600 rounded-full transition-all duration-300"
+            style="width: ${barPercentage}%;"
+          ></div>
         </div>
       `;
 
@@ -134,45 +158,60 @@ export class AnalyticsView {
 
     if (this.data!.multiCourseStudents.length === 0) {
       this.studentsListContainer.innerHTML = `
-        <div class="py-8 text-center text-xs text-slate-400">
+        <div class="py-6 text-center text-xs text-slate-400">
           V tomto roce zatím žádný student neabsolvoval více než 1 kurz.
         </div>
       `;
       return;
     }
 
-    this.data!.multiCourseStudents.forEach((s) => {
-      const card = document.createElement("div");
-      card.className =
-        "p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs";
+    const tableWrapper = document.createElement("div");
+    tableWrapper.className = "overflow-x-auto";
 
-      const coursesTags = s.courses
+    tableWrapper.innerHTML = `
+      <table class="table-tw">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Kontakt (E-mail)</th>
+            <th>Organizace</th>
+            <th>Počet kurzů</th>
+            <th>Navštěvované programy</th>
+          </tr>
+        </thead>
+        <tbody id="multi-students-table-body"></tbody>
+      </table>
+    `;
+
+    const tbody = tableWrapper.querySelector("#multi-students-table-body");
+
+    this.data!.multiCourseStudents.forEach((st) => {
+      const tr = document.createElement("tr");
+
+      const coursesBadges = st.courses
         .map(
           (c) =>
-            `<span class="px-2 py-0.5 rounded bg-slate-200/70 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">${c}</span>`
+            `<span class="inline-block px-2 py-0.5 rounded text-[10.5px] bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 mr-1 mb-1 font-medium">${c}</span>`
         )
-        .join(" ");
+        .join("");
 
-      card.innerHTML = `
-        <div>
-          <div class="font-bold text-slate-900 dark:text-white text-sm">
-            ${s.student}
-            <span class="font-normal text-xs text-slate-400 ml-1">(${s.email})</span>
-            ${s.organization ? `<span class="font-normal text-xs text-blue-600 dark:text-blue-400 ml-1.5">• ${s.organization}</span>` : ""}
-          </div>
-          <div class="flex flex-wrap items-center gap-1.5 mt-2">
-            <span class="text-slate-400 text-[11px]">Zapsané kurzy:</span>
-            ${coursesTags}
-          </div>
-        </div>
-        <div class="shrink-0 self-start sm:self-auto">
-          <span class="badge-chip badge-chip-green font-bold text-xs">
-            ${s.courseCount} kurzy
+      tr.innerHTML = `
+        <td>
+          <div class="font-bold text-slate-900 dark:text-white">${st.student}</div>
+        </td>
+        <td class="font-mono text-xs text-slate-600 dark:text-slate-400">${st.email}</td>
+        <td class="text-xs text-slate-500">${st.organization || "-"}</td>
+        <td>
+          <span class="badge-chip badge-chip-green font-mono">
+            ${st.courseCount} kurzy
           </span>
-        </div>
+        </td>
+        <td class="py-2">${coursesBadges}</td>
       `;
 
-      this.studentsListContainer?.appendChild(card);
+      tbody?.appendChild(tr);
     });
+
+    this.studentsListContainer.appendChild(tableWrapper);
   }
 }

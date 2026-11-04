@@ -1,6 +1,6 @@
 /**
- * Courses View
- * Manages course catalog, search & filtering, creation and editing modal
+ * Courses View - Akademie Trutnov
+ * High information density catalog, real-time search, MŠMT accreditation badges, modal management
  */
 import { Course } from "../types";
 import { coursesApi, CreateCoursePayload } from "../api/coursesApi";
@@ -17,14 +17,26 @@ export class CoursesView {
   private container: HTMLElement | null = null;
   private searchInput: HTMLInputElement | null = null;
   private filterChips: NodeListOf<HTMLButtonElement> | null = null;
+  private countPill: HTMLElement | null = null;
+  private kpiCoursesCount: HTMLElement | null = null;
+
   private form: HTMLFormElement | null = null;
   private formError: HTMLElement | null = null;
   private modalTitle: HTMLElement | null = null;
+
+  private onScheduleTermCallback?: (courseId: string) => void;
+
+  constructor(options?: { onScheduleTerm?: (courseId: string) => void }) {
+    this.onScheduleTermCallback = options?.onScheduleTerm;
+  }
 
   public init(): void {
     this.container = document.getElementById("courses-list");
     this.searchInput = document.getElementById("filter-search-course") as HTMLInputElement;
     this.filterChips = document.querySelectorAll<HTMLButtonElement>(".filter-chip");
+    this.countPill = document.getElementById("courses-count-pill");
+    this.kpiCoursesCount = document.getElementById("kpi-courses-count");
+
     this.form = document.getElementById("form-course") as HTMLFormElement;
     this.formError = document.getElementById("form-course-error");
     this.modalTitle = document.getElementById("modal-course-title");
@@ -34,6 +46,13 @@ export class CoursesView {
   }
 
   private bindEvents(): void {
+    // Quick search bar trigger from header
+    const btnQuickSearch = document.getElementById("btn-quick-search");
+    btnQuickSearch?.addEventListener("click", () => {
+      this.searchInput?.focus();
+      this.searchInput?.select();
+    });
+
     // Search input
     this.searchInput?.addEventListener("input", (e) => {
       this.searchQuery = (e.target as HTMLInputElement).value.toLowerCase().trim();
@@ -45,11 +64,12 @@ export class CoursesView {
       chip.addEventListener("click", () => {
         this.filterChips?.forEach((c) => {
           c.className =
-            "filter-chip px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors";
+            "filter-chip text-slate-600 dark:text-slate-400 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800";
         });
         chip.className =
-          "filter-chip px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800";
-        this.filterType = (chip.getAttribute("data-filter") as any) || "all";
+          "filter-chip bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800 font-semibold";
+        this.filterType =
+          (chip.getAttribute("data-filter") as "all" | "accredited" | "standard") || "all";
         this.render();
       });
     });
@@ -70,10 +90,18 @@ export class CoursesView {
   public async load(): Promise<void> {
     try {
       this.courses = await coursesApi.getAll();
+      if (this.kpiCoursesCount) {
+        this.kpiCoursesCount.textContent = this.courses.length.toString();
+      }
       this.render();
-    } catch (err: any) {
-      Toast.error(err.message || "Nepodařilo se načíst seznam kurzů.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Nepodařilo se načíst seznam kurzů.";
+      Toast.error(msg);
     }
+  }
+
+  public getCourses(): Course[] {
+    return this.courses;
   }
 
   private render(): void {
@@ -91,50 +119,104 @@ export class CoursesView {
       return true;
     });
 
+    if (this.countPill) {
+      this.countPill.textContent = `${filtered.length} z ${this.courses.length} programů`;
+    }
+
     if (filtered.length === 0) {
       this.container.innerHTML = `
-        <div class="col-span-full py-16 text-center bg-white dark:bg-slate-800/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
-          <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto text-slate-400 mb-3">
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <div class="col-span-full py-12 text-center bg-white dark:bg-slate-900 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+          <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto text-slate-400 mb-2.5">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           </div>
-          <p class="text-sm font-medium text-slate-600 dark:text-slate-300">Žádné kurzy neodpovídají zadanému filtru.</p>
-          <p class="text-xs text-slate-400 mt-1">Zkuste změnit vyhledávací dotaz nebo vybrat jinou kategorii.</p>
+          <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">Žádné kurzy neodpovídají zadanému filtru.</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Zkuste změnit hledaný výraz nebo zvolit kategorii "Všechny programy".</p>
         </div>
       `;
       return;
     }
 
-    filtered.forEach((course) => {
+    filtered.forEach((course, index) => {
       const card = document.createElement("div");
       card.className =
-        "card-box flex flex-col justify-between hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200";
+        "card-box flex flex-col justify-between hover:border-emerald-500/50 dark:hover:border-emerald-500/40 transition-all duration-150";
 
       const formattedPrice = Number(course.price).toLocaleString("cs-CZ");
+      const courseCode = `AT-K${String(index + 1).padStart(2, "0")}`;
 
       card.innerHTML = `
         <div>
-          <div class="flex items-center justify-between gap-2 mb-3">
-            ${
-              course.isAccredited
-                ? '<span class="badge-chip badge-chip-green font-medium">Akreditováno MŠMT</span>'
-                : '<span class="badge-chip badge-chip-blue font-medium">Firemní kurz</span>'
-            }
-            <span class="text-base font-bold text-slate-900 dark:text-white">${formattedPrice} Kč</span>
+          <div class="flex items-center justify-between gap-2 mb-2.5">
+            <div class="flex items-center gap-1.5">
+              <span class="font-mono text-[10px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700/80">
+                ${courseCode}
+              </span>
+              ${
+                course.isAccredited
+                  ? '<span class="badge-chip badge-chip-green">MŠMT Akreditace</span>'
+                  : '<span class="badge-chip badge-chip-slate">Firemní program</span>'
+              }
+            </div>
+            <span class="text-xs font-bold font-mono text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800/80 px-2 py-0.5 rounded border border-slate-200/80 dark:border-slate-700/80">
+              ${formattedPrice} Kč
+            </span>
           </div>
-          <h3 class="text-base font-bold text-slate-900 dark:text-white mb-2 leading-snug">${course.title}</h3>
-          <p class="text-xs text-slate-600 dark:text-slate-400 mb-4 line-clamp-3 leading-relaxed">${course.annotation}</p>
+
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-1.5 leading-snug tracking-tight">
+            ${course.title}
+          </h3>
+
+          <p class="text-xs text-slate-600 dark:text-slate-400 mb-3.5 line-clamp-3 leading-relaxed">
+            ${course.annotation}
+          </p>
         </div>
-        <div class="pt-4 border-t border-slate-100 dark:border-slate-700/80 flex items-center justify-between mt-auto">
-          <span class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
-            <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            ${course.hours} hodin výuky
+
+        <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between mt-auto">
+          <span class="text-[11px] font-mono font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1">
+            <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            ${course.hours} hod.
           </span>
-          <div class="flex items-center gap-2">
-            <button class="btn-secondary-tw btn-sm-tw btn-edit-course" data-id="${course.id}">Upravit</button>
-            <button class="btn-danger-tw btn-sm-tw btn-delete-course" data-id="${course.id}">Smazat</button>
+          <div class="flex items-center gap-1.5">
+            <button
+              class="btn-primary-tw btn-sm-tw btn-schedule-course"
+              data-id="${course.id}"
+              title="Vypsat nový termín pro tento kurz"
+            >
+              Vypsat termín
+            </button>
+            <button
+              class="btn-secondary-tw btn-sm-tw btn-edit-course"
+              data-id="${course.id}"
+              title="Upravit parametry kurzu"
+            >
+              Upravit
+            </button>
+            <button
+              class="btn-ghost-tw btn-sm-tw btn-delete-course text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+              data-id="${course.id}"
+              title="Smazat kurz z katalogu"
+            >
+              Smazat
+            </button>
           </div>
         </div>
       `;
+
+      // Schedule event
+      const scheduleBtn = card.querySelector(".btn-schedule-course");
+      scheduleBtn?.addEventListener("click", () => {
+        if (this.onScheduleTermCallback) {
+          this.onScheduleTermCallback(course.id);
+        } else {
+          // Trigger custom event
+          document.dispatchEvent(
+            new CustomEvent("akademie:schedule-course", { detail: { courseId: course.id } })
+          );
+        }
+      });
 
       // Edit event
       const editBtn = card.querySelector(".btn-edit-course");
@@ -152,7 +234,7 @@ export class CoursesView {
     this.isEditing = false;
     this.editingCourseId = null;
 
-    if (this.modalTitle) this.modalTitle.textContent = "Nový kurz";
+    if (this.modalTitle) this.modalTitle.textContent = "Nový vzdělávací program";
     if (this.form) this.form.reset();
     if (this.formError) this.formError.style.display = "none";
 
@@ -163,7 +245,7 @@ export class CoursesView {
     this.isEditing = true;
     this.editingCourseId = course.id;
 
-    if (this.modalTitle) this.modalTitle.textContent = "Upravit kurz";
+    if (this.modalTitle) this.modalTitle.textContent = "Upravit vzdělávací program";
     if (this.formError) this.formError.style.display = "none";
 
     const titleInput = document.getElementById("course-title") as HTMLInputElement;
@@ -206,17 +288,18 @@ export class CoursesView {
     try {
       if (this.isEditing && this.editingCourseId) {
         await coursesApi.update(this.editingCourseId, payload);
-        Toast.success("Kurz byl úspěšně aktualizován.");
+        Toast.success("Vzdělávací program byl úspěšně aktualizován.");
       } else {
         await coursesApi.create(payload);
-        Toast.success("Nový kurz byl úspěšně vytvořen.");
+        Toast.success("Nový vzdělávací program byl úspěšně vytvořen.");
       }
 
       Modal.close("modal-course");
       await this.load();
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (this.formError) {
-        this.formError.textContent = err.message || "Chyba při ukládání kurzu.";
+        const msg = err instanceof Error ? err.message : "Chyba při ukládání kurzu.";
+        this.formError.textContent = msg;
         this.formError.style.display = "block";
       }
     }
@@ -232,8 +315,9 @@ export class CoursesView {
       const msg = await coursesApi.delete(course.id);
       Toast.success(msg);
       await this.load();
-    } catch (err: any) {
-      Toast.error(err.message || "Nepodařilo se smazat kurz.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Nepodařilo se smazat kurz.";
+      Toast.error(msg);
     }
   }
 }

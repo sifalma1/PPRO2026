@@ -44,35 +44,39 @@ export class Toast {
       }
     > = {
       success: {
-        bg: "bg-white dark:bg-slate-800",
-        border: "border-emerald-500/40 shadow-emerald-500/10",
-        text: "text-slate-800 dark:text-slate-100",
-        iconColor: "text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60",
+        bg: "bg-white dark:bg-slate-900",
+        border: "border-emerald-500/30 dark:border-emerald-500/30 shadow-lg shadow-emerald-950/10",
+        text: "text-slate-900 dark:text-slate-100",
+        iconColor:
+          "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800/60",
         defaultTitle: "Úspěšně provedeno",
         iconSvg: `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
       },
       error: {
-        bg: "bg-white dark:bg-slate-800",
-        border: "border-rose-500/40 shadow-rose-500/10",
-        text: "text-slate-800 dark:text-slate-100",
-        iconColor: "text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-950/60",
+        bg: "bg-white dark:bg-slate-900",
+        border: "border-rose-500/30 dark:border-rose-500/30 shadow-lg shadow-rose-950/10",
+        text: "text-slate-900 dark:text-slate-100",
+        iconColor:
+          "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/70 border border-rose-200 dark:border-rose-800/60",
         defaultTitle: "Došlo k chybě",
         iconSvg: `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`,
       },
       warning: {
-        bg: "bg-white dark:bg-slate-800",
-        border: "border-amber-500/40 shadow-amber-500/10",
-        text: "text-slate-800 dark:text-slate-100",
-        iconColor: "text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/60",
+        bg: "bg-white dark:bg-slate-900",
+        border: "border-amber-500/30 dark:border-amber-500/30 shadow-lg shadow-amber-950/10",
+        text: "text-slate-900 dark:text-slate-100",
+        iconColor:
+          "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/70 border border-amber-200 dark:border-amber-800/60",
         defaultTitle: "Upozornění",
         iconSvg: `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
       },
       info: {
-        bg: "bg-white dark:bg-slate-800",
-        border: "border-blue-500/40 shadow-blue-500/10",
-        text: "text-slate-800 dark:text-slate-100",
-        iconColor: "text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-950/60",
-        defaultTitle: "Informace",
+        bg: "bg-white dark:bg-slate-900",
+        border: "border-slate-300 dark:border-slate-700 shadow-lg shadow-slate-950/10",
+        text: "text-slate-900 dark:text-slate-100",
+        iconColor:
+          "text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700",
+        defaultTitle: "Systémová informace",
         iconSvg: `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`,
       },
     };
@@ -80,7 +84,7 @@ export class Toast {
     const cfg = typeConfigs[type];
     const headerTitle = title || cfg.defaultTitle;
 
-    toast.className = `p-3.5 rounded-xl shadow-xl border flex items-start gap-3 animate-fadeIn transition-all duration-300 min-w-[300px] max-w-md ${cfg.bg} ${cfg.border}`;
+    toast.className = `p-3 rounded-lg border flex items-start gap-2.5 animate-fadeIn transition-all duration-200 min-w-[280px] max-w-sm ${cfg.bg} ${cfg.border}`;
     toast.setAttribute("role", "alert");
 
     toast.innerHTML = `

@@ -1,6 +1,7 @@
 /**
- * Terms & Waitlist View
- * Manages course terms, capacity enforcement, student enrollments and waitlist promotion (ADR-02)
+ * Terms & Waitlist View - Akademie Trutnov
+ * Manages course terms, capacity limits, segmented meters, waitlist queuing (ADR-02),
+ * and student enrollments.
  */
 import { CourseTerm, Enrollment } from "../types";
 import { termsApi, CreateTermPayload, CreateEnrollmentPayload } from "../api/termsApi";
@@ -19,6 +20,8 @@ export class TermsView {
   private detailTermTitle: HTMLElement | null = null;
   private detailTermInfo: HTMLElement | null = null;
   private enrollmentsTableBody: HTMLElement | null = null;
+  private kpiTermsCount: HTMLElement | null = null;
+  private kpiWaitlistStatus: HTMLElement | null = null;
 
   private formTerm: HTMLFormElement | null = null;
   private formTermError: HTMLElement | null = null;
@@ -26,12 +29,20 @@ export class TermsView {
   private formEnrollmentError: HTMLElement | null = null;
   private enrollmentTermNotice: HTMLElement | null = null;
 
+  private onSwitchToAttendance?: (termId: string) => void;
+
+  constructor(options?: { onSwitchToAttendance?: (termId: string) => void }) {
+    this.onSwitchToAttendance = options?.onSwitchToAttendance;
+  }
+
   public init(): void {
     this.termsTableBody = document.getElementById("terms-table-body");
     this.termDetailBox = document.getElementById("term-detail-box");
     this.detailTermTitle = document.getElementById("detail-term-title");
     this.detailTermInfo = document.getElementById("detail-term-info");
     this.enrollmentsTableBody = document.getElementById("enrollments-table-body");
+    this.kpiTermsCount = document.getElementById("kpi-terms-count");
+    this.kpiWaitlistStatus = document.getElementById("kpi-waitlist-status");
 
     this.formTerm = document.getElementById("form-term") as HTMLFormElement;
     this.formTermError = document.getElementById("form-term-error");
@@ -72,13 +83,27 @@ export class TermsView {
   public async load(): Promise<void> {
     try {
       this.terms = await termsApi.getAll();
+
+      // Update KPI
+      if (this.kpiTermsCount) {
+        this.kpiTermsCount.textContent = this.terms.length.toString();
+      }
+      const totalWaitlist = this.terms.reduce((acc, t) => acc + (t.waitlistCount || 0), 0);
+      if (this.kpiWaitlistStatus) {
+        this.kpiWaitlistStatus.textContent =
+          totalWaitlist > 0
+            ? `${totalWaitlist} náhradníků v pořadníku`
+            : "Pořadník náhradníků prázdný";
+      }
+
       this.renderTerms();
 
       if (this.selectedTermId) {
         await this.selectTerm(this.selectedTermId);
       }
-    } catch (err: any) {
-      Toast.error(err.message || "Nepodařilo se načíst termíny kurzů.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Nepodařilo se načíst termíny kurzů.";
+      Toast.error(msg);
     }
   }
 
@@ -113,7 +138,7 @@ export class TermsView {
       if (isCompleted) {
         statusBadge = '<span class="badge-chip badge-chip-blue">Ukončen</span>';
       } else if (isFull) {
-        statusBadge = '<span class="badge-chip badge-chip-yellow">Kapacita naplněna</span>';
+        statusBadge = '<span class="badge-chip badge-chip-yellow">Kapacita plná</span>';
       } else {
         statusBadge = '<span class="badge-chip badge-chip-green">Volná místa</span>';
       }
@@ -128,34 +153,80 @@ export class TermsView {
         tr.classList.add("row-selected");
       }
 
+      const fillPercentage = Math.min(100, Math.round((term.confirmedCount / term.capacity) * 100));
+
       tr.innerHTML = `
-        <td class="font-bold text-slate-900 dark:text-white">${term.courseTitle}</td>
-        <td class="text-xs">${term.startDate} až ${term.endDate}</td>
-        <td class="text-xs text-slate-600 dark:text-slate-300">${term.classroomName || "Neuvedena"}</td>
+        <td>
+          <div class="font-bold text-slate-900 dark:text-white">${term.courseTitle}</div>
+          <div class="font-mono text-[10px] text-slate-400 mt-0.5">ID: ${term.id.slice(0, 8)}...</div>
+        </td>
+        <td class="font-mono text-xs">
+          <span>${term.startDate}</span>
+          <span class="text-slate-400 mx-1">→</span>
+          <span>${term.endDate}</span>
+        </td>
+        <td class="text-xs text-slate-700 dark:text-slate-300">
+          <div class="font-medium">${term.classroomName || "Neuvedena"}</div>
+        </td>
         <td>
           <div class="flex items-center gap-2">
-            <span class="text-xs font-bold text-slate-900 dark:text-white">${term.confirmedCount} / ${term.capacity}</span>
-            <div class="w-16 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden hidden sm:block">
-              <div class="h-full ${isFull ? "bg-amber-500" : "bg-blue-600"} rounded-full" style="width: ${Math.min(100, Math.round((term.confirmedCount / term.capacity) * 100))}%;"></div>
+            <span class="font-mono text-xs font-bold ${isFull ? "text-amber-600 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400"}">
+              ${term.confirmedCount} / ${term.capacity}
+            </span>
+            <div class="w-20 h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden shrink-0">
+              <div
+                class="h-full rounded-full transition-all duration-300 ${isFull ? "bg-amber-500" : "bg-emerald-600"}"
+                style="width: ${fillPercentage}%;"
+              ></div>
             </div>
           </div>
           ${
             term.waitlistCount > 0
-              ? `<div class="text-[11px] text-amber-600 dark:text-amber-400 font-semibold mt-0.5">${term.waitlistCount} v pořadníku</div>`
-              : ""
+              ? `<div class="mt-1">
+                  <span class="badge-chip badge-chip-yellow text-[10px]">
+                    ADR-02: ${term.waitlistCount} ${term.waitlistCount === 1 ? "náhradník" : "náhradníci"}
+                  </span>
+                 </div>`
+              : `<div class="text-[10px] text-slate-400 mt-0.5 font-mono">Volno: ${Math.max(0, term.capacity - term.confirmedCount)} míst</div>`
           }
         </td>
-        <td class="text-xs text-slate-500 dark:text-slate-400">${lecturersList}</td>
+        <td class="text-xs text-slate-600 dark:text-slate-400">${lecturersList}</td>
         <td>${statusBadge}</td>
         <td class="text-right">
-          <button class="btn-secondary-tw btn-sm-tw btn-view-term" data-id="${term.id}">
-            Detail & Přihlášky
-          </button>
+          <div class="inline-flex items-center gap-1.5">
+            <button
+              class="btn-secondary-tw btn-sm-tw btn-view-term"
+              data-id="${term.id}"
+              title="Zobrazit detail přihlášek a pořadník náhradníků"
+            >
+              Přihlášky (${term.confirmedCount + term.waitlistCount})
+            </button>
+            <button
+              class="btn-ghost-tw btn-sm-tw btn-jump-attendance text-emerald-700 dark:text-emerald-400"
+              data-id="${term.id}"
+              title="Přejít do evidence docházky pro tento termín"
+            >
+              Docházka
+            </button>
+          </div>
         </td>
       `;
 
       const viewBtn = tr.querySelector(".btn-view-term");
       viewBtn?.addEventListener("click", () => this.selectTerm(term.id));
+
+      const attBtn = tr.querySelector(".btn-jump-attendance");
+      attBtn?.addEventListener("click", () => {
+        if (this.onSwitchToAttendance) {
+          this.onSwitchToAttendance(term.id);
+        } else {
+          document.dispatchEvent(
+            new CustomEvent("akademie:switch-tab", {
+              detail: { tab: "attendance", termId: term.id },
+            })
+          );
+        }
+      });
 
       this.termsTableBody?.appendChild(tr);
     });
@@ -173,14 +244,20 @@ export class TermsView {
       this.detailTermTitle.textContent = `Přihlášky a pořadník: ${term.courseTitle}`;
     }
     if (this.detailTermInfo) {
-      this.detailTermInfo.textContent = `Termín: ${term.startDate} až ${term.endDate} • Učebna: ${term.classroomName} • Obsazenost: ${term.confirmedCount} / ${term.capacity} míst (V pořadníku: ${term.waitlistCount})`;
+      this.detailTermInfo.innerHTML = `
+        Termín: <strong class="font-mono text-slate-900 dark:text-white">${term.startDate} až ${term.endDate}</strong> •
+        Učebna: <strong class="text-slate-900 dark:text-white">${term.classroomName}</strong> •
+        Obsazenost: <strong class="font-mono text-slate-900 dark:text-white">${term.confirmedCount} / ${term.capacity} míst</strong>
+        ${term.waitlistCount > 0 ? ` • (<span class="text-amber-600 dark:text-amber-400 font-semibold font-mono">${term.waitlistCount} v pořadníku ADR-02</span>)` : ""}
+      `;
     }
 
     try {
       this.enrollments = await termsApi.getEnrollments(termId);
       this.renderEnrollments();
-    } catch (err: any) {
-      Toast.error(err.message || "Nepodařilo se načíst přihlášky k termínu.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Nepodařilo se načíst přihlášky k termínu.";
+      Toast.error(msg);
     }
   }
 
@@ -192,7 +269,7 @@ export class TermsView {
       this.enrollmentsTableBody.innerHTML = `
         <tr>
           <td colspan="6" class="text-center py-8 text-slate-400">
-            Na tento termín se zatím nikdo nepřihlásil.
+            Na tento termín se zatím nikdo nepřihlásil. Použijte tlačítko "Zaregistrovat studenta" výše.
           </td>
         </tr>
       `;
@@ -202,13 +279,13 @@ export class TermsView {
     this.enrollments.forEach((enr) => {
       let statusHtml = "";
       if (enr.status === "CONFIRMED") {
-        statusHtml = '<span class="badge-chip badge-chip-green font-medium">Potvrzeno</span>';
+        statusHtml = '<span class="badge-chip badge-chip-green">Potvrzeno</span>';
       } else if (enr.status === "WAITLIST") {
-        statusHtml = `<span class="badge-chip badge-chip-yellow font-medium">Náhradník #${enr.waitlistPosition || 1}</span>`;
+        statusHtml = `<span class="badge-chip badge-chip-yellow">Náhradník #${enr.waitlistPosition || 1} (ADR-02)</span>`;
       } else if (enr.status === "CANCELLED") {
-        statusHtml = '<span class="badge-chip badge-chip-red font-medium">Zrušeno</span>';
+        statusHtml = '<span class="badge-chip badge-chip-red">Zrušeno</span>';
       } else if (enr.status === "COMPLETED") {
-        statusHtml = '<span class="badge-chip badge-chip-blue font-medium">Absolvováno</span>';
+        statusHtml = '<span class="badge-chip badge-chip-blue">Absolvováno</span>';
       }
 
       const dateStr = new Date(enr.submittedAt).toLocaleString("cs-CZ", {
@@ -219,15 +296,23 @@ export class TermsView {
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td class="font-bold text-slate-900 dark:text-white">${enr.studentName}</td>
-        <td class="text-xs text-slate-600 dark:text-slate-400">${enr.studentEmail}</td>
-        <td class="text-xs">${enr.studentPhone || "-"} ${enr.studentOrganization ? `<span class="text-slate-400">(${enr.studentOrganization})</span>` : ""}</td>
-        <td class="text-xs text-slate-500">${dateStr}</td>
+        <td>
+          <div class="font-bold text-slate-900 dark:text-white">${enr.studentName}</div>
+          ${enr.note ? `<div class="text-[11px] text-slate-400 mt-0.5 truncate max-w-xs">Pozn.: ${enr.note}</div>` : ""}
+        </td>
+        <td class="font-mono text-xs text-slate-600 dark:text-slate-400">${enr.studentEmail}</td>
+        <td class="text-xs">
+          <div class="font-mono text-slate-700 dark:text-slate-300">${enr.studentPhone || "-"}</div>
+          ${enr.studentOrganization ? `<div class="text-[11px] text-slate-400">${enr.studentOrganization}</div>` : ""}
+        </td>
+        <td class="font-mono text-xs text-slate-500">${dateStr}</td>
         <td>${statusHtml}</td>
         <td class="text-right">
           ${
             canCancel
-              ? `<button class="btn-danger-tw btn-sm-tw btn-cancel-enroll" data-id="${enr.id}">Zrušit účast</button>`
+              ? `<button class="btn-ghost-tw btn-sm-tw btn-cancel-enroll text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40" data-id="${enr.id}">
+                  Zrušit účast
+                 </button>`
               : '<span class="text-slate-400 text-xs">-</span>'
           }
         </td>
@@ -243,7 +328,7 @@ export class TermsView {
   private async handleCancelEnrollment(enr: Enrollment): Promise<void> {
     const isConfirmedSpot = enr.status === "CONFIRMED";
     const promptMsg = isConfirmedSpot
-      ? `Opravdu chcete zrušit účast studenta ${enr.studentName}? Zrušením se uvolní místo a první náhradník z pořadníku bude automaticky povýšen na potvrzeného!`
+      ? `Opravdu chcete zrušit účast studenta ${enr.studentName}?\n\nPravidlo fronty ADR-02: Zrušením se uvolní místo a první náhradník z pořadníku bude automaticky povýšen na potvrzeného!`
       : `Opravdu chcete odebrat studenta ${enr.studentName} z pořadníku náhradníků?`;
 
     const confirmed = window.confirm(promptMsg);
@@ -253,12 +338,13 @@ export class TermsView {
       const res = await termsApi.cancelEnrollment(enr.id);
       Toast.success(res.message);
       await this.load();
-    } catch (err: any) {
-      Toast.error(err.message || "Nepodařilo se zrušit přihlášku.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Nepodařilo se zrušit přihlášku.";
+      Toast.error(msg);
     }
   }
 
-  private async openCreateTermModal(): Promise<void> {
+  public async openCreateTermModal(preselectedCourseId?: string): Promise<void> {
     if (this.formTerm) this.formTerm.reset();
     if (this.formTermError) this.formTermError.style.display = "none";
 
@@ -270,29 +356,32 @@ export class TermsView {
       ]);
 
       const courseSelect = document.getElementById("term-course-select") as HTMLSelectElement;
-      const roomSelect = document.getElementById("term-classroom-select") as HTMLSelectElement;
-      const lectSelect = document.getElementById("term-lecturer-select") as HTMLSelectElement;
-
       if (courseSelect) {
-        courseSelect.innerHTML = courses
-          .map(
-            (c) =>
-              `<option value="${c.id}">${c.title} (${c.hours}h • ${Number(c.price).toLocaleString("cs-CZ")} Kč)</option>`
-          )
-          .join("");
-      }
-
-      if (roomSelect) {
-        roomSelect.innerHTML =
-          `<option value="">-- Bez učebny (bude upřesněno) --</option>` +
-          classrooms
-            .map((r) => `<option value="${r.id}">${r.name} (kapacita ${r.capacity})</option>`)
+        courseSelect.innerHTML =
+          `<option value="">-- Zvolte vzdělávací program --</option>` +
+          courses
+            .map(
+              (c) =>
+                `<option value="${c.id}" ${c.id === preselectedCourseId ? "selected" : ""}>${c.title} (${c.hours} hod. – ${c.isAccredited ? "MŠMT" : "Firemní"})</option>`
+            )
             .join("");
       }
 
+      const classSelect = document.getElementById("term-classroom-select") as HTMLSelectElement;
+      if (classSelect) {
+        classSelect.innerHTML =
+          `<option value="">-- Vyberte učebnu v Trutnově --</option>` +
+          classrooms
+            .map(
+              (cr) => `<option value="${cr.id}">${cr.name} (kapacita ${cr.capacity} míst)</option>`
+            )
+            .join("");
+      }
+
+      const lectSelect = document.getElementById("term-lecturer-select") as HTMLSelectElement;
       if (lectSelect) {
         lectSelect.innerHTML =
-          `<option value="">-- Zvolte lektora --</option>` +
+          `<option value="">-- Zvolte garanta kurzu --</option>` +
           lecturers
             .map(
               (l) => `<option value="${l.id}">${l.name} (${l.specialization || "Lektor"})</option>`
@@ -301,8 +390,9 @@ export class TermsView {
       }
 
       Modal.open("modal-term");
-    } catch (err: any) {
-      Toast.error("Nepodařilo se načíst číselníky pro vypsání termínu.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Chyba při přípravě formuláře termínu.";
+      Toast.error(msg);
     }
   }
 
@@ -319,7 +409,8 @@ export class TermsView {
       (document.getElementById("term-capacity") as HTMLInputElement).value,
       10
     );
-    const lectId = (document.getElementById("term-lecturer-select") as HTMLSelectElement).value;
+    const lecturerId =
+      (document.getElementById("term-lecturer-select") as HTMLSelectElement).value || undefined;
 
     const payload: CreateTermPayload = {
       courseId,
@@ -327,7 +418,7 @@ export class TermsView {
       startDate,
       endDate,
       capacity,
-      lecturerIds: lectId ? [lectId] : undefined,
+      lecturerIds: lecturerId ? [lecturerId] : [],
     };
 
     try {
@@ -335,9 +426,10 @@ export class TermsView {
       Toast.success("Nový termín kurzu byl úspěšně vypsán.");
       Modal.close("modal-term");
       await this.load();
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (this.formTermError) {
-        this.formTermError.textContent = err.message || "Chyba při vypisování termínu.";
+        const msg = err instanceof Error ? err.message : "Chyba při vytváření termínu.";
+        this.formTermError.textContent = msg;
         this.formTermError.style.display = "block";
       }
     }
@@ -345,7 +437,7 @@ export class TermsView {
 
   private openEnrollmentModal(): void {
     if (!this.selectedTermId) {
-      Toast.warning("Nejprve vyberte termín ze seznamu výše.");
+      Toast.warning("Nejprve vyberte termín ze seznamu.");
       return;
     }
 
@@ -355,23 +447,21 @@ export class TermsView {
     if (this.formEnrollment) this.formEnrollment.reset();
     if (this.formEnrollmentError) this.formEnrollmentError.style.display = "none";
 
-    const hiddenId = document.getElementById("enrollment-term-id") as HTMLInputElement;
-    if (hiddenId) hiddenId.value = term.id;
+    const termIdInput = document.getElementById("enrollment-term-id") as HTMLInputElement;
+    if (termIdInput) termIdInput.value = this.selectedTermId;
 
-    const isFull = term.confirmedCount >= term.capacity;
     if (this.enrollmentTermNotice) {
+      const isFull = term.confirmedCount >= term.capacity;
       this.enrollmentTermNotice.innerHTML = `
-        <div class="font-bold text-slate-900 dark:text-white mb-0.5">Termín: ${term.courseTitle}</div>
-        <div class="text-xs text-slate-500 dark:text-slate-400 mb-2">Období: ${term.startDate} až ${term.endDate} • Obsazeno ${term.confirmedCount} z ${term.capacity} míst</div>
-        ${
-          isFull
-            ? `<div class="p-2 rounded bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-xs font-semibold">
-                ⚠️ Kapacita kurzu je plně obsazena! Student bude zařazen jako náhradník #${term.waitlistCount + 1} do pořadníku (ADR-02).
-               </div>`
-            : `<div class="p-2 rounded bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs font-semibold">
-                ✓ Volná místa k dispozici – student získá ihned potvrzené místo v kurzu.
-               </div>`
-        }
+        <div class="p-2.5 rounded-lg ${isFull ? "bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300" : "bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300"} text-xs mb-3">
+          <strong>${term.courseTitle}</strong> (${term.startDate} až ${term.endDate})<br/>
+          Obsazeno: ${term.confirmedCount} z ${term.capacity} míst.
+          ${
+            isFull
+              ? `<span class="block mt-1 font-semibold text-amber-900 dark:text-amber-200">Kapacita termínu je naplněna! Student bude automaticky zařazen do pořadníku na pozici Náhradník #${term.waitlistCount + 1} (ADR-02).</span>`
+              : '<span class="block mt-1 text-emerald-900 dark:text-emerald-200">Na termínu jsou volná místa – student bude zaregistrován jako POTVRZENÝ.</span>'
+          }
+        </div>
       `;
     }
 
@@ -382,26 +472,45 @@ export class TermsView {
     if (!this.selectedTermId || !this.formEnrollment) return;
     if (this.formEnrollmentError) this.formEnrollmentError.style.display = "none";
 
+    const firstName = (
+      document.getElementById("student-first-name") as HTMLInputElement
+    ).value.trim();
+    const lastName = (
+      document.getElementById("student-last-name") as HTMLInputElement
+    ).value.trim();
+    const email = (document.getElementById("student-email") as HTMLInputElement).value.trim();
+    const phone = (document.getElementById("student-phone") as HTMLInputElement).value.trim();
+    const organization = (
+      document.getElementById("student-organization") as HTMLInputElement
+    ).value.trim();
+    const note = (document.getElementById("student-note") as HTMLInputElement).value.trim();
+
     const payload: CreateEnrollmentPayload = {
-      firstName: (document.getElementById("student-first-name") as HTMLInputElement).value.trim(),
-      lastName: (document.getElementById("student-last-name") as HTMLInputElement).value.trim(),
-      email: (document.getElementById("student-email") as HTMLInputElement).value.trim(),
-      phone:
-        (document.getElementById("student-phone") as HTMLInputElement).value.trim() || undefined,
-      organization:
-        (document.getElementById("student-organization") as HTMLInputElement).value.trim() ||
-        undefined,
-      note: (document.getElementById("student-note") as HTMLInputElement).value.trim() || undefined,
+      firstName,
+      lastName,
+      email,
+      phone: phone || undefined,
+      organization: organization || undefined,
+      note: note || undefined,
     };
 
     try {
-      const res = await termsApi.createEnrollment(this.selectedTermId, payload);
-      Toast.success(res.message);
+      const result = await termsApi.createEnrollment(this.selectedTermId, payload);
+      const isConfirmed = result.status === "CONFIRMED";
+      if (isConfirmed) {
+        Toast.success(`Student ${firstName} ${lastName} byl úspěšně zaregistrován na termín.`);
+      } else {
+        Toast.warning(
+          `Kapacita termínu byla plná. Student ${firstName} ${lastName} byl zařazen do pořadníku na pozici Náhradník #${result.waitlistPosition} (ADR-02).`
+        );
+      }
+
       Modal.close("modal-enrollment");
       await this.load();
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (this.formEnrollmentError) {
-        this.formEnrollmentError.textContent = err.message || "Chyba při odesílání přihlášky.";
+        const msg = err instanceof Error ? err.message : "Chyba při podávání přihlášky.";
+        this.formEnrollmentError.textContent = msg;
         this.formEnrollmentError.style.display = "block";
       }
     }

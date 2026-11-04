@@ -62,6 +62,51 @@ export class Header {
       });
     });
 
+    // Keyboard shortcuts: 1-6 for tabs, '/' for search, '?' for shortcuts dialog
+    document.addEventListener("keydown", (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      const isInput =
+        activeEl instanceof HTMLInputElement ||
+        activeEl instanceof HTMLTextAreaElement ||
+        activeEl instanceof HTMLSelectElement ||
+        activeEl?.getAttribute("contenteditable") === "true";
+
+      // Allow '/' to focus search even if nothing focused
+      if (e.key === "/" && !isInput) {
+        e.preventDefault();
+        const searchInput = document.getElementById("filter-search-course") as HTMLInputElement;
+        if (this.activeTab !== "courses") {
+          this.setActiveTab("courses");
+          this.onTabChange("courses");
+        }
+        setTimeout(() => {
+          searchInput?.focus();
+          searchInput?.select();
+        }, 50);
+        return;
+      }
+
+      if (isInput) return;
+
+      const tabMap: Record<string, string> = {
+        "1": "courses",
+        "2": "terms",
+        "3": "attendance",
+        "4": "certificates",
+        "5": "lecturers",
+        "6": "analytics",
+      };
+
+      if (tabMap[e.key]) {
+        e.preventDefault();
+        const targetTab = tabMap[e.key];
+        if (targetTab !== this.activeTab) {
+          this.setActiveTab(targetTab);
+          this.onTabChange(targetTab);
+        }
+      }
+    });
+
     this.initTheme();
   }
 

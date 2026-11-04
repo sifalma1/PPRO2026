@@ -1,6 +1,7 @@
 /**
- * Certificates & Graduates View
- * Manages certificate registry with format AT-YYYY-XXXX, term closure, and lecturer waiver workflow (ADR-01)
+ * Certificates & Graduates View - Akademie Trutnov
+ * Official registry of issued certificates (AT-YYYY-XXXX), term closure (ADR-01),
+ * lecturer waiver workflow, and representative certificate preview/print dialog.
  */
 import { Certificate, CourseTerm } from "../types";
 import { certificatesApi } from "../api/certificatesApi";
@@ -16,6 +17,7 @@ export class CertificatesView {
   private completeTermSelect: HTMLSelectElement | null = null;
   private btnCompleteTerm: HTMLElement | null = null;
   private btnOpenIssueWaiver: HTMLElement | null = null;
+  private kpiCertsCount: HTMLElement | null = null;
 
   private formWaiver: HTMLFormElement | null = null;
   private formWaiverError: HTMLElement | null = null;
@@ -26,6 +28,7 @@ export class CertificatesView {
     this.completeTermSelect = document.getElementById("complete-term-select") as HTMLSelectElement;
     this.btnCompleteTerm = document.getElementById("btn-complete-term");
     this.btnOpenIssueWaiver = document.getElementById("btn-open-issue-waiver");
+    this.kpiCertsCount = document.getElementById("kpi-certs-count");
 
     this.formWaiver = document.getElementById("form-waiver") as HTMLFormElement;
     this.formWaiverError = document.getElementById("form-waiver-error");
@@ -53,6 +56,21 @@ export class CertificatesView {
       e.preventDefault();
       await this.handleWaiverSubmit();
     });
+
+    // Print certificate button inside modal
+    const btnPrintCert = document.getElementById("btn-print-certificate");
+    btnPrintCert?.addEventListener("click", () => {
+      window.print();
+    });
+
+    // Listen for custom event from other views
+    document.addEventListener("akademie:preview-certificate", ((
+      e: CustomEvent<{ certificate: Certificate }>
+    ) => {
+      if (e.detail?.certificate) {
+        this.openCertificatePreview(e.detail.certificate);
+      }
+    }) as EventListener);
   }
 
   public async load(): Promise<void> {
@@ -65,11 +83,21 @@ export class CertificatesView {
       this.certificates = certificates;
       this.terms = terms;
 
+      if (this.kpiCertsCount) {
+        this.kpiCertsCount.textContent = this.certificates.length.toString();
+      }
+
       this.renderCertificates();
       this.renderTermSelect();
-    } catch (err: any) {
-      Toast.error(err.message || "Nepodařilo se načíst osvědčení o absolvování.");
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "Nepodařilo se načíst osvědčení o absolvování.";
+      Toast.error(msg);
     }
+  }
+
+  public getCertificates(): Certificate[] {
+    return this.certificates;
   }
 
   private renderTermSelect(): void {
@@ -79,7 +107,7 @@ export class CertificatesView {
       this.terms
         .map(
           (t) =>
-            `<option value="${t.id}">${t.courseTitle} (${t.startDate} až ${t.endDate}) [${t.status}]</option>`
+            `<option value="${t.id}">${t.courseTitle} (${t.startDate} až ${t.endDate}) [${t.status === "COMPLETED" ? "Už uzavřen" : "Aktivní"}]</option>`
         )
         .join("");
   }
@@ -91,8 +119,8 @@ export class CertificatesView {
     if (this.certificates.length === 0) {
       this.certificatesTableBody.innerHTML = `
         <tr>
-          <td colspan="6" class="text-center py-10 text-slate-400">
-            Zatím nebyla vystavena žádná osvědčení. Uzavřete termín nebo udělte výjimku lektora.
+          <td colspan="7" class="text-center py-10 text-slate-400">
+            Zatím nebyla vystavena žádná osvědčení. Uzavřete termín kurzu nebo udělte lektorskou výjimku.
           </td>
         </tr>
       `;
@@ -101,34 +129,77 @@ export class CertificatesView {
 
     this.certificates.forEach((c) => {
       const waiverHtml = c.hasWaiver
-        ? `<span class="badge-chip badge-chip-yellow font-medium cursor-help" title="Důvod výjimky: ${c.waiverReason || "Uděleno lektorem"}">
+        ? `<span class="badge-chip badge-chip-yellow cursor-help" title="Důvod výjimky lektora: ${c.waiverReason || "Schváleno lektorem"}">
             Výjimka lektora (ADR-01)
            </span>`
-        : `<span class="badge-chip badge-chip-green font-medium">Standardní (≥ 70 %)</span>`;
+        : `<span class="badge-chip badge-chip-green">Standardní (≥ 70 %)</span>`;
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>
-          <span class="font-mono font-bold text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800">
+          <span class="font-mono font-bold text-xs text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
             ${c.certificateNumber}
           </span>
         </td>
         <td>
-          <strong class="text-slate-900 dark:text-white">${c.studentName}</strong>
-          <div class="text-xs text-slate-400">${c.studentEmail}</div>
+          <div class="font-bold text-slate-900 dark:text-white">${c.studentName}</div>
+          <div class="font-mono text-[11px] text-slate-500">${c.studentEmail}</div>
         </td>
-        <td class="text-xs font-medium">${c.courseTitle}</td>
-        <td class="text-xs text-slate-500">${c.issueDate}</td>
+        <td class="text-xs font-medium text-slate-800 dark:text-slate-200">${c.courseTitle}</td>
+        <td class="font-mono text-xs text-slate-500">${c.issueDate}</td>
         <td>
-          <span class="font-bold text-xs ${c.attendanceRate >= 70 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}">
+          <span class="font-mono font-bold text-xs ${c.attendanceRate >= 70 ? "text-emerald-700 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}">
             ${c.attendanceRate} %
           </span>
         </td>
         <td>${waiverHtml}</td>
+        <td class="text-right">
+          <button
+            class="btn-secondary-tw btn-sm-tw btn-view-certificate"
+            data-id="${c.id}"
+            title="Otevřít reprezentativní náhled osvědčení pro tisk"
+          >
+            Náhled diplomu
+          </button>
+        </td>
       `;
+
+      const viewBtn = tr.querySelector(".btn-view-certificate");
+      viewBtn?.addEventListener("click", () => this.openCertificatePreview(c));
 
       this.certificatesTableBody?.appendChild(tr);
     });
+  }
+
+  public openCertificatePreview(cert: Certificate): void {
+    const numEl = document.getElementById("cert-view-number");
+    const studentEl = document.getElementById("cert-view-student");
+    const emailEl = document.getElementById("cert-view-email");
+    const courseEl = document.getElementById("cert-view-course");
+    const attEl = document.getElementById("cert-view-attendance");
+    const dateEl = document.getElementById("cert-view-issue-date");
+    const footerDateEl = document.getElementById("cert-view-footer-date");
+    const waiverStatusEl = document.getElementById("cert-view-waiver-status");
+
+    if (numEl) numEl.textContent = cert.certificateNumber;
+    if (studentEl) studentEl.textContent = cert.studentName;
+    if (emailEl) emailEl.textContent = cert.studentEmail;
+    if (courseEl) courseEl.textContent = cert.courseTitle;
+    if (attEl) attEl.textContent = `${cert.attendanceRate} % docházky`;
+    if (dateEl) dateEl.textContent = cert.issueDate;
+    if (footerDateEl) footerDateEl.textContent = cert.issueDate;
+
+    if (waiverStatusEl) {
+      if (cert.hasWaiver) {
+        waiverStatusEl.textContent = `Výjimka lektora dle ADR-01 (${cert.waiverReason || "Uděleno"})`;
+        waiverStatusEl.className = "font-semibold text-amber-700 dark:text-amber-400 ml-1";
+      } else {
+        waiverStatusEl.textContent = "Standardní absolvování (splněno ≥ 70 % docházky)";
+        waiverStatusEl.className = "font-semibold text-emerald-700 dark:text-emerald-400 ml-1";
+      }
+    }
+
+    Modal.open("modal-certificate-preview");
   }
 
   private async handleCompleteTerm(): Promise<void> {
@@ -140,7 +211,7 @@ export class CertificatesView {
 
     const term = this.terms.find((t) => t.id === termId);
     const confirmed = window.confirm(
-      `Opravdu chcete uzavřít termín "${term?.courseTitle || ""}"? Systém automaticky vystaví osvědčení všem studentům, kteří dosáhli alespoň 70% docházky (ADR-01).`
+      `Opravdu chcete uzavřít termín "${term?.courseTitle || ""}"?\n\nSystém automaticky vyhodnotí prezenční listiny a vystaví osvědčení všem studentům, kteří dosáhli alespoň 70% docházky (ADR-01).`
     );
     if (!confirmed) return;
 
@@ -148,17 +219,18 @@ export class CertificatesView {
       const res = await certificatesApi.completeTerm(termId);
       Toast.success(res.message);
       await this.load();
-    } catch (err: any) {
-      Toast.error(err.message || "Nepodařilo se uzavřít termín kurzu.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Nepodařilo se uzavřít termín kurzu.";
+      Toast.error(msg);
     }
   }
 
-  private async openWaiverModal(): Promise<void> {
+  public async openWaiverModal(): Promise<void> {
     if (this.formWaiver) this.formWaiver.reset();
     if (this.formWaiverError) this.formWaiverError.style.display = "none";
 
     if (!this.waiverEnrollmentSelect) return;
-    this.waiverEnrollmentSelect.innerHTML = `<option value="">Načítám způsobilé přihlášky studentů...</option>`;
+    this.waiverEnrollmentSelect.innerHTML = `<option value="">Načítám přihlášky studentů...</option>`;
     Modal.open("modal-waiver");
 
     try {
@@ -167,7 +239,6 @@ export class CertificatesView {
         const enrollments = await termsApi.getEnrollments(term.id);
         for (const enr of enrollments) {
           if (enr.status === "CONFIRMED" || enr.status === "COMPLETED") {
-            // Check if certificate is not already issued
             const alreadyHasCert = this.certificates.some((c) => c.enrollmentId === enr.id);
             if (!alreadyHasCert) {
               options += `<option value="${enr.id}">${enr.studentName} – ${term.courseTitle} (${enr.studentEmail})</option>`;
@@ -178,7 +249,7 @@ export class CertificatesView {
 
       this.waiverEnrollmentSelect.innerHTML =
         options || `<option value="">Žádní studenti bez dosud vystaveného osvědčení</option>`;
-    } catch (err: any) {
+    } catch {
       Toast.error("Chyba při načítání přihlášek pro udělení výjimky.");
     }
   }
@@ -212,14 +283,18 @@ export class CertificatesView {
     try {
       const cert = await certificatesApi.issueWithWaiver(enrollmentId, waiverReason);
       Toast.success(
-        `Osvědčení č. ${cert.certificateNumber} bylo úspěšně vystaveno na základě výjimky!`
+        `Osvědčení č. ${cert.certificateNumber} bylo úspěšně vystaveno na základě výjimky lektora!`
       );
       Modal.close("modal-waiver");
       await this.load();
-    } catch (err: any) {
+
+      // Show preview right after issuing
+      this.openCertificatePreview(cert);
+    } catch (err: unknown) {
       if (this.formWaiverError) {
-        this.formWaiverError.textContent =
-          err.message || "Chyba při vystavování osvědčení s výjimkou.";
+        const msg =
+          err instanceof Error ? err.message : "Chyba při vystavování osvědčení s výjimkou.";
+        this.formWaiverError.textContent = msg;
         this.formWaiverError.style.display = "block";
       }
     }

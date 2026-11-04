@@ -2,155 +2,190 @@
 
 > **Předmět:** Pokročilé programování (PPRO), ZS 2026/2027  
 > **Semestrální projekt:** Zadání C – Kurzy vzdělávacího centra  
-> **Klient:** Ing. Lucie Bartošová, Akademie Trutnov  
+> **Klient:** Ing. Lucie Bartošová, ředitelka Akademie Trutnov  
 > **Autor:** Marek Šifalda  
-> **Status dokumentu:** Jediný zdroj pravdy (Single Source of Truth – technická a architektonická dokumentace)
+> **Status dokumentu:** Jediný závazný zdroj pravdy (Single Source of Truth – technická a architektonická dokumentace dle [AGENTS.md](file:///C:/Users/skitt/Documents/PPRO/AGENTS.md))
 
 ---
 
 ## Obsah
 
 1. [Kontext a specifikace klienta](#1-kontext-a-specifikace-klienta)
-   - 1.1 [Výchozí stav a motivace](#11-výchozí-stav-jak-to-v-akademii-trutnov-funguje-dnes)
+   - 1.1 [Výchozí stav a motivace](#11-výchozí-stav-a-motivace)
    - 1.2 [Funkční požadavky klienta](#12-funkční-požadavky-klienta)
-   - 1.3 [Obchodní pravidla a invarianty](#13-obchodní-pravidla-na-čem-klient-trvá)
+   - 1.3 [Obchodní pravidla a invarianty](#13-obchodní-pravidla-a-invarianty)
    - 1.4 [Role uživatelů v systému (Aktéři)](#14-role-uživatelů-v-systému-aktéři)
 2. [Otevřené body a Seznam architektonických rozhodnutí (ADR)](#2-otevřené-body-a-seznam-architektonických-rozhodnutí-adr)
-   - [ADR-01: Kritéria dokončení kurzu a certifikace](#adr-01-kritéria-dokončení-kurzu-a-certifikace)
-   - [ADR-02: Posun z pořadníku při uvolnění místa](#adr-02-posun-z-pořadníku-při-uvolnění-místa)
-   - [ADR-03: Souběh termínů téhož kurzu](#adr-03-souběh-termínů-téhož-kurzu)
-   - [ADR-04: Přihlášení studenta po zahájení kurzu](#adr-04-přihlášení-studenta-po-zahájení-kurzu)
-   - [ADR-05: Více lektorů na termínu a výukové dny](#adr-05-více-lektorů-na-termínu-a-výukové-dny)
-   - [ADR-06: Vyhodnocení vhodnosti Strapi CMS jako administrace](#adr-06-vyhodnocení-vhodnosti-strapi-cms-jako-administrace)
-3. [Architektura a technický návrh](#3-architektura-a-technický-návrh)
-   - 3.1 [Třívrstvá architektura a vrstvy aplikace](#31-vrstvy-aplikace)
-   - 3.2 [Sekvenční diagram: Zrušení přihlášky a kaskáda pořadníku (ADR-02)](#32-sekvenční-diagram-zrušení-přihlášky-a-kaskáda-pořadníku-adr-02)
-   - 3.3 [Sekvenční diagram: Uzavření termínu a certifikace (ADR-01)](#33-sekvenční-diagram-uzavření-termínu-a-vystavení-osvědčení-adr-01)
+   - [ADR-01: Kritéria dokončení kurzu a certifikace (pravidlo 70 % + lektorská výjimka)](#adr-01-kritéria-dokončení-kurzu-a-certifikace-pravidlo-70--lektorská-výjimka)
+   - [ADR-02: Automatický transakční posun z čekací listiny (pořadníku) při uvolnění místa](#adr-02-automatický-transakční-posun-z-čekací-listiny-pořadníku-při-uvolnění-místa)
+   - [ADR-03: Zákaz souběhu aktivních přihlášek na stejný kurz](#adr-03-zákaz-souběhu-aktivních-přihlášek-na-stejný-kurz)
+   - [ADR-04: Testovací a perzistentní strategie (In-Memory repozitáře vs. Produkční PostgreSQL 16 v Dockeru) a pravidlo dodatečného zápisu](#adr-04-testovací-a-perzistentní-strategie-in-memory-repozitáře-vs-produkční-postgresql-16-v-dockeru-a-pravidlo-dodatečného-zápisu)
+   - [ADR-05: Více lektorů na termínu a rozpad na výukové dny (M:N)](#adr-05-více-lektorů-na-termínu-a-rozpad-na-výukové-dny-mn)
+   - [ADR-06: Vyhodnocení vhodnosti Strapi CMS jako administrace (Zamítnuto)](#adr-06-vyhodnocení-vhodnosti-strapi-cms-jako-administrace-zamítnuto)
+3. [Třívrstvá architektura a technický návrh](#3-třívrstvá-architektura-a-technický-návrh)
+   - 3.1 [Třívrstvá architektura a vrstvy aplikace](#31-třívrstvá-architektura-a-vrstvy-aplikace)
+   - 3.2 [Sekvenční diagram: Vypsání termínu a přihlášení s čekací listinou (ADR-02)](#32-sekvenční-diagram-vypsání-termínu-a-přihlášení-s-čekací-listinou-adr-02)
+   - 3.3 [Sekvenční diagram: Zápis docházky na výukovém dni a lektorská výjimka (ADR-01, ADR-05)](#33-sekvenční-diagram-zápis-docházky-na-výukovém-dni-a-lektorská-výjimka-adr-01-adr-05)
+   - 3.4 [Sekvenční diagram: Uzavření termínu a vystavení osvědčení (ADR-01)](#34-sekvenční-diagram-uzavření-termínu-a-vystavení-osvědčení-adr-01)
 4. [Doménový a datový model (English Model & Data Dictionary)](#4-doménový-a-datový-model-english-model--data-dictionary)
-   - 4.1 [Mermaid ER Diagram](#41-mermaid-er-diagram)
+   - 4.1 [Mermaid ER Diagram (10 entit)](#41-mermaid-er-diagram-10-entit)
    - 4.2 [Katalog a specifikace doménových entit](#42-katalog-a-specifikace-doménových-entit)
-5. [Infrastruktura a spuštění projektu](#5-infrastruktura-a-spuštění-projektu)
-   - 5.1 [Použitý technologický stack](#51-použitý-technologický-stack)
-   - 5.2 [Spuštění v Dockeru (doporučeno pro obhajobu)](#52-lokální-spuštění-v-dockeru-doporučeno-pro-obhajobu)
-   - 5.3 [Lokální vývojové spuštění (bez Dockeru)](#53-lokální-vývojové-spuštění-bez-dockeru)
-   - 5.4 [Kompletní katalog REST API rozhraní a JSON příklady](#54-kompletní-katalog-rest-api-rozhraní-a-json-příklady)
-6. [Testovací strategie](#6-testovací-strategie)
-   - 6.1 [Přehled doménových unit testů (Node test runner – 20 testů)](#61-přehled-doménových-unit-testů-20-testů)
-   - 6.2 [Přehled integračních End-to-End testů (Node test runner – 9 testů)](#62-přehled-integračních-end-to-end-testů-testapi-creation-flowstestts--9-testů)
-   - 6.3 [Komplexní testovací sada v Jestu s TypeScript & ESM (71 testů)](#63-komplexní-testovací-sada-v-jestu-testjest--71-testů)
-   - 6.4 [Spuštění testů a souhrnný přehled](#64-spuštění-testů-a-souhrnný-přehled)
-   - 6.5 [Kvalita kódu, linting a formátování (ESLint + Prettier)](#65-kvalita-kódu-linting-a-formátování-eslint--prettier)
-7. [Stav implementace, Roadmapa a Changelog](#7-stav-implementace-roadmapa-a-changelog)
-   - 7.1 [Aktuální stav implementace požadavků](#71-aktuální-stav-implementace-požadavků)
-   - 7.2 [Historie verzí (Changelog)](#72-historie-verzí-changelog)
-   - 7.3 [Roadmapa dalšího rozvoje](#73-roadmapa-dalšího-rozvoje)
+5. [Frontendová architektura (Vite + TypeScript + Tailwind CSS)](#5-frontendová-architektura-vite--typescript--tailwind-css)
+   - 5.1 [Architektonický koncept a vrstvy frontendu](#51-architektonický-koncept-a-vrstvy-frontendu)
+   - 5.2 [Struktura adresáře frontend/src/ a popis modulů](#52-struktura-adresáře-frontendsrc-a-popis-modulů)
+   - 5.3 [Komponenty uživatelského rozhraní (Header, Modal, Toast)](#53-komponenty-uživatelského-rozhraní-header-modal-toast)
+   - 5.4 [Design Tokens, Tailwind konfigurace a Dark/Light Mode](#54-design-tokens-tailwind-konfigurace-a-darklight-mode)
+   - 5.5 [Produkční build a integrace s Express backendem](#55-produkční-build-a-integrace-s-express-backendem)
+6. [Kompletní katalog REST API rozhraní](#6-kompletní-katalog-rest-api-rozhraní)
+   - 6.1 [Konvence a společné formáty odpovědí](#61-konvence-a-společné-formáty-odpovědí)
+   - 6.2 [Kurzy (/api/courses)](#62-kurzy-apicourses)
+   - 6.3 [Termíny a přihlášky s čekací listinou (/api/terms, /api/enrollments)](#63-termíny-a-přihlášky-s-čekací-listinou-apiterms-apienrollments)
+   - 6.4 [Evidence docházky a výukové dny (/api/attendance)](#64-evidence-docházky-a-výukové-dny-apiattendance)
+   - 6.5 [Osvědčení a certifikáty (/api/certificates)](#65-osvědčení-a-certifikáty-apicertificates)
+   - 6.6 [Číselníky a manažerská analytika (/api/lecturers, /api/classrooms, /api/students, /api/analytics, /health)](#66-číselníky-a-manažerská-analytika-apilecturers-apiclassrooms-apistudents-apianalytics-health)
+   - 6.7 [Zpětně kompatibilní české aliasy](#67-zpětně-kompatibilní-české-aliasy)
+7. [Infrastruktura a spuštění projektu](#7-infrastruktura-a-spuštění-projektu)
+   - 7.1 [Použitý technologický stack](#71-použitý-technologický-stack)
+   - 7.2 [Lokální spuštění v Dockeru (doporučeno pro obhajobu)](#72-lokální-spuštění-v-dockeru-doporučeno-pro-obhajobu)
+   - 7.3 [Lokální vývojové spuštění (bez Dockeru)](#73-lokální-vývojové-spuštění-bez-dockeru)
+   - 7.4 [Přehled všech npm skriptů](#74-přehled-všech-npm-skriptů)
+8. [Testovací strategie a zajištění kvality](#8-testovací-strategie-a-zajištění-kvality)
+   - 8.1 [Přehled testovací strategie (dvoustupňový testovací harness)](#81-přehled-testovací-strategie-dvoustupňový-testovací-harness)
+   - 8.2 [Nativní Node test runner (29 testů – 20 unit + 9 E2E)](#82-nativní-node-test-runner-29-testů--20-unit--9-e2e)
+   - 8.3 [Komplexní testovací sada v Jestu s TypeScript & ESM (71 testů)](#83-komplexní-testovací-sada-v-jestu-s-typescript--esm-71-testů)
+   - 8.4 [Souhrnná tabulka testovacího pokrytí (100 testů, 100% pass)](#84-souhrnná-tabulka-testovacího-pokrytí-100-testů-100-pass)
+   - 8.5 [Kvalita kódu, linting a formátování (ESLint + Prettier)](#85-kvalita-kódu-linting-a-formátování-eslint--prettier)
+9. [Přehled plnění požadavků zadání klienta (100% HOTOVO)](#9-přehled-plnění-požadavků-zadání-klienta-100-hotovo)
+   - 9.1 [Tabulka plnění 8 bodů zadání](#91-tabulka-plnění-8-bodů-zadání)
+10. [Historie verzí (Changelog) a Roadmapa](#10-historie-verzí-changelog-a-roadmapa)
+    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.5.0)](#101-historie-verzí-changelog-v100-až-v150)
+    - 10.2 [Roadmapa dalšího rozvoje](#102-roadmapa-dalšího-rozvoje)
 
 ---
 
 ## 1. Kontext a specifikace klienta
 
-### 1.1 Výchozí stav (Jak to v Akademii Trutnov funguje dnes)
+### 1.1 Výchozí stav a motivace
 
-Akademie Trutnov pořádá přibližně 40 rekvalifikačních a firemních kurzů ročně za účasti externích lektorů. Aktuální agenda je vedena manuálně:
+Akademie Trutnov pořádá přibližně 40 rekvalifikačních a firemních kurzů ročně za účasti externích odborných lektorů. Do zavedení tohoto informačního systému byla veškerá provozní agenda vedena neudržitelným manuálním způsobem:
 
-- Zájemci se hlásí webovým formulářem do e-mailu, odkud jsou přihlášky ručně přepisovány do excelové tabulky (jedna záložka na kurz).
-- Kapacity kurzů jsou hlídány pouze od oka. Pořadník náhradníků je řešen poznámkami tužkou na okraji papíru.
-- Když účastník na poslední chvíli odřekne, recepce ztrácí čas zjišťováním, kdo je první na řadě, a hrozí propadnutí místa.
-- Osvědčení o absolvování jsou ručně připravována v MS Wordu. Čísla osvědčení jsou odvozována ručním čítáním, což již v minulosti vedlo k vystavení duplicitních čísel certifikátů.
+- **E-maily a přepisování do Excelu:** Zájemci o kurzy odesílali přihlášky z jednoduchého webového formuláře na centrální e-mail recepce. Pracovníci recepce následně údaje ručně přepisovali do rozsáhlé excelové tabulky (jedna záložka pro každý vypsaný kurz).
+- **Subjektivní hlídání kapacit a papírový pořadník:** Kapacity učeben a termínů byly kontrolovány pouze odhadem. Čekací listina náhradníků byla evidována na papírových lístečcích a poznámkách po okrajích tiskopisů.
+- **Propadnutí míst při odřeknutí studenta:** Pokud přihlášený student na poslední chvíli zrušil svou účast (např. den před začátkem kurzu), recepce musela zdlouhavě dohledávat kontakty na náhradníky. Než se podařilo zájemce kontaktovat, kurz byl zahájen a uvolněné místo propadlo bez náhrady, což znamenalo přímou finanční ztrátu pro centrum.
+- **Riziko duplicitních certifikátů v MS Wordu:** Osvědčení o absolvování rekvalifikačních kurzů byla ručně generována ve wordových šablonách. Čísla certifikátů byla odvozována ručním čítáním, což v minulosti vedlo k vystavení identických evidenčních čísel pro různé studenty a následným komplikacím při kontrolách z dotačních úřadů (Úřad práce ČR, MPSV).
+- **Absence manažerského přehledu:** Vedení centra nemělo okamžitý přehled o vytížení učeben, sumáři skutečně odučených hodin jednotlivých lektorů pro měsíční fakturaci ani o loajalitě studentů přihlašujících se na více kurzů ročně.
 
 ### 1.2 Funkční požadavky klienta
 
-1. **Evidence kurzů (`courses`):** Název, textová anotace, hodinový rozsah, základní cena, příznak akreditace MŠMT/MPSV.
-2. **Termíny kurzů (`course_terms`):** Jeden kurz se opakuje vícekrát ročně. Termín má přesné datum od–do, místo konání (učebnu) a kapacitu odvozenou od parametrů učebny.
-3. **Lektoři a jejich přiřazení (`lecturers`, `term_lecturers`):** Evidence externích lektorů. Lektor může vést více termínů, na delších kurzech se mohou střídat dva i více lektorů.
-4. **Přihlášky studentů na termín (`enrollments`, `students`):** Student se může zapsat na více kurzů, na daném termínu je zapsáno více studentů.
+Na základě konzultací s ředitelkou vzdělávacího centra **Ing. Lucií Bartošovou** bylo definováno následujících 8 klíčových oblastí agendy:
+
+1. **Evidence kurzů (`courses`):** Katalog vzdělávacích programů zahrnující název kurzu, podrobnou textovou anotaci, celkový hodinový rozsah, základní cenu (včetně podpory bezplatných úvodních seminářů s cenou 0 Kč) a příznak oficiální akreditace MŠMT / MPSV.
+2. **Termíny kurzů (`course_terms`):** Možnost vypsat tentýž kurz vícekrát v průběhu kalendářního roku. Každý termín má definováno datum zahájení a ukončení, přiřazenou konkrétní učebnu a maximální kapacitu odvozenou od parametrů učebny.
+3. **Lektoři a jejich přiřazení (`lecturers`, `term_lecturers`):** Adresář externích i interních lektorů s jejich odbornou specializací. Jeden lektor může vést více různých termínů a na delších kurzech se mohou střídat dva i více lektorů (vazba M:N).
+4. **Přihlášky studentů na termín (`enrollments`, `students`):** Student se může přihlásit na více kurzů současně. Na daném termínu je zapsána skupina studentů.
 5. **Kapacita a pořadník (Waiting list):**
-   - Po naplnění kapacity termínu jsou další zájemci automaticky zařazeni do pořadníku s přesnou evidencí pořadí.
-   - Při uvolnění kapacity (zrušení přihlášky) je ihned garantován posun prvního náhradníka v pořadí.
-6. **Evidence docházky (`teaching_days`, `attendance`):** Záznam účasti studentů na jednotlivých výukových dnech vícedenních termínů.
+   - Po dosažení maximální kapacity termínu systém nepovolí overbooking, nýbrž další zájemce automaticky zařadí do pořadníku s přesně evidovanou pozicí (`waitlist_position = 1, 2, ...`).
+   - Při zrušení potvrzené přihlášky je transakčně garantován okamžitý automatický posun prvního náhradníka na potvrzené místo bez manuálního zásahu personálu.
+6. **Evidence docházky (`teaching_days`, `attendance`):** Záznam docházky a prezence studentů na jednotlivých výukových dnech a blocích vícedenních termínů.
 7. **Dokončení kurzu a osvědčení (`certificates`):**
-   - Uzavření termínu a vygenerování seznamu absolventů.
-   - Vystavení osvědčení s garantovaně unikátním evidenčním číslem (`AT-YYYY-XXXX`) a datem vydání (ADR-01).
+   - Hromadné uzavření termínu po proběhnutí všech výukových dnů.
+   - Vyhodnocení docházky a automatické vystavení certifikátů studentům splňujícím docházkový limit (ADR-01).
+   - Generování celosvětově unikátního čísla osvědčení ve formátu `AT-YYYY-XXXX`.
 8. **Analytické přehledy (`analytics`):**
-   - Vytížení a procentuální naplněnost termínů.
-   - Sumář odučených hodin za jednotlivé lektory.
-   - Přehled studentů přihlášených na více než jeden kurz v daném roce.
+   - Procentuální vytížení a naplněnost termínů vůči maximální kapacitě.
+   - Sumář skutečně odučených hodin za jednotlivé lektory pro podklady k fakturaci.
+   - Přehled věrných studentů zapsaných na více kurzů v daném roce.
 
-### 1.3 Obchodní pravidla (Na čem klient trvá)
+### 1.3 Obchodní pravidla a invarianty
 
-- **Striktní strop kapacity:** Kapacitu termínu nelze za žádných okolností překročit (žádný overbooking).
-- **Integrita pořadníku:** Pořadí zájemců v pořadníku se nesmí přeskakovat.
-- **Unikátnost osvědčení:** Číslo osvědčení musí být v rámci celého systému celosvětově unikátní. Již vydané osvědčení je neměnné (auditní stopa).
-- **Nemažeme historii:** Zrušená přihláška se fyzicky z databáze nemaže; zůstává dohledatelná ve stavu `CANCELLED` včetně časového razítka a důvodu zrušení.
+Systém striktně vymáhá následující byznys pravidla na úrovni aplikačních služeb i databázových omezení:
+
+- **Striktní strop kapacity (Zero Overbooking):** Kapacita termínu nesmí být nikdy překročena. Jakmile počet potvrzených přihlášek (`status = 'CONFIRMED'`) dosáhne hodnoty `capacity`, každý další zájemce je přepnut do stavu `WAITLIST`.
+- **Integrita a sekvenčnost pořadníku:** Pozice náhradníků na čekací listině tvoří nepřerušenou číselnou řadu začínající od 1. Pořadí se nikdy nesmí přeskočit.
+- **Globální unikátnost a neměnnost osvědčení:** Číslo certifikátu ve formátu `AT-YYYY-XXXX` je generováno z atomické sekvence v databázi. Jednou vydané osvědčení je trvale archivováno a nesmí být přepsáno ani smazáno (auditní stopa pro akreditační komisi).
+- **Zákaz fyzického mazání historie (Audit Log):** Zrušená přihláška se z databáze neodstraňuje příkazem `DELETE`, nýbrž je označena stavem `CANCELLED` včetně časového razítka a případné poznámky o důvodu zrušení.
 
 ### 1.4 Role uživatelů v systému (Aktéři)
 
 1. **Recepce & Administrátor:**
-   - Spravuje nabídku kurzů a vypisuje termíny s přiřazením učeben.
-   - Zapisuje studenty na termíny a řeší případná storna přihlášek.
-   - Uzavírá termíny a spouští hromadné generování certifikátů.
+   - Zakládá a edituje kurzy, vypisuje termíny a přiřazuje jim učebny.
+   - Provádí registraci studentů na termíny, spravuje čekací listinu a odbavuje případná storna.
+   - Provádí formální uzavření termínu a iniciuje vystavení osvědčení.
 2. **Lektor:**
-   - Zobrazuje si rozvrh svých výukových dnů.
-   - Provádí zápis docházky (prezenční listinu) po skončení každého výukového bloku.
-   - Má pravomoc udělit výjimku studentovi s docházkou pod 70 % s povinným písemným odůvodněním.
-3. **Vedení vzdělávacího centra (Klient):**
-   - Sleduje manažerské výkazy: procentuální vytížení učeben/termínů, odučené hodiny lektorů pro fakturaci a věrnostní přehled studentů.
+   - Prohlíží si rozvrh svých výukových dnů.
+   - Zapisuje prezenci účastníků (přítomen / nepřítomen / omluven) po skončení každého výukového dne.
+   - Má pravomoc udělit výjimku z docházky studentovi, který nesplnil limit 70 %, na základě odborného posouzení a doloženého náhradního úkolu (s povinným písemným odůvodněním).
+3. **Vedení vzdělávacího centra (Klient – Ing. Lucie Bartošová):**
+   - Využívá manažerský dashboard pro kontrolu rentability, vytíženosti učeben a schvalování hodin lektorů před vyplacením honorářů.
 
 ---
 
 ## 2. Otevřené body a Seznam architektonických rozhodnutí (ADR)
 
-Následující přehled dokumentuje klíčová architektonická rozhodnutí řešící protichůdné požadavky klienta:
+Následující přehled dokumentuje klíčová architektonická rozhodnutí řešící protichůdné požadavky a nejasnosti v zadání klienta:
 
-| #          | Otevřený bod klienta / Rozhodnutí                      | Klíčové dilema                                                | Přijaté architektonické rozhodnutí                                                                                                                                                                                                                                                                            |
-| ---------- | ------------------------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **ADR-01** | **Kritéria dokončení kurzu a certifikace**             | 70% docházka vs. subjektivní posouzení lektorem               | **Hybridní model s pravidlem 70 % + veto/výjimka lektora:** Systém automaticky kvalifikuje studenta při dosažení alespoň 70% účasti. Lektor má možnost udělit výjimku (s povinným písemným odůvodněním min. 5 znaků) nebo naopak neudělit zápočet z odborných důvodů. Číslo osvědčení má tvar `AT-YYYY-XXXX`. |
-| **ADR-02** | **Posun z pořadníku při uvolnění místa**               | Zcela automatický zápis vs. manuální potvrzování              | **Okamžitý transakční posun z pořadníku:** Při zrušení potvrzené přihlášky transakce automaticky povýší prvního čekatele v pořadníku (`waitlist_position = 1`) na potvrzenou účast a posune pořadí ostatních čekatelů o 1 dopředu.                                                                            |
-| **ADR-03** | **Souběh termínů téhož kurzu**                         | Možnost podat přihlášku na dva termíny naráz                  | **Zákaz souběhu aktivních přihlášek na stejný kurz:** Student smí mít na stejný kurz pouze jednu platnou (potvrzenou) přihlášku. Je však povoleno být zapsán v pořadníku na jiný termín.                                                                                                                      |
-| **ADR-04** | **Přihlášení studenta po zahájení kurzu**              | Pravidlo „nejde to“ vs. neformální výjimky                    | **Řízená výjimka administrátora do 20 % dotace:** Po zahájení kurzu je standardní registrace uzamčena. Dodatečný zápis smí provést pouze recepce/administrátor s označením výjimky, a to maximálně do proběhnutí 20 % hodinové dotace.                                                                        |
-| **ADR-05** | **Více lektorů na termínu a výukové dny**              | Střídání lektorů vs. agregace hodin na lektora                | **Rozpad termínu na výukové dny (`TeachingDay`) s vazbou M:N:** Termín se skládá z jednotlivých výukových dnů/bloků, z nichž každý má přiřazeného konkrétního lektora. Přehledy agregují skutečně odučené hodiny přes tyto dílčí bloky.                                                                       |
-| **ADR-06** | **Vyhodnocení vhodnosti Strapi CMS jako administrace** | Použít headless CMS Strapi vs. vlastní modulární administraci | **Zamítnuto – Vlastní modulární SPA administrace:** Zhodnocení Strapi ukázalo, že pro potřeby předmětu PPRO a specifikaci Akademie Trutnov je Strapi nevhodné (viz detailní analýza níže).                                                                                                                    |
+| #          | Otevřený bod klienta / Rozhodnutí                                    | Klíčové dilema                                                                       | Přijaté architektonické rozhodnutí                                                                                                                                                                                                                                                                                      |
+| ---------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ADR-01** | **Kritéria dokončení kurzu a certifikace**                           | 70% docházka vs. subjektivní posouzení lektorem                                      | **Hybridní model s pravidlem 70 % + lektorská výjimka:** Systém automaticky kvalifikuje studenta při dosažení alespoň 70% účasti. Lektor má možnost udělit výjimku (s povinným písemným odůvodněním min. 5 znaků) nebo naopak neudělit zápočet z odborných důvodů. Číslo osvědčení má garantovaný tvar `AT-YYYY-XXXX`.  |
+| **ADR-02** | **Posun z čekací listiny (pořadníku) při uvolnění místa**            | Zcela automatický zápis vs. manuální potvrzování recepcí                             | **Okamžitý atomický posun v rámci DB transakce:** Při stornu potvrzené přihlášky transakce s řádkovým zamykáním (`FOR UPDATE`) okamžitě povýší prvního čekatele (`waitlist_position = 1`) na potvrzenou účast a posune pořadí všech zbývajících čekatelů o 1 dopředu.                                                   |
+| **ADR-03** | **Zákaz souběhu aktivních přihlášek na stejný kurz**                 | Možnost podat přihlášku na dva termíny naráz vs. blokace míst                        | **Striktní zákaz souběhu potvrzených přihlášek:** Student smí mít na tentýž kurz pouze jednu platnou potvrzenou přihlášku (`CONFIRMED`). Zápis do pořadníku (`WAITLIST`) na alternativní termín je povolen jako záloha.                                                                                                 |
+| **ADR-04** | **Testovací a perzistentní strategie a pravidlo dodatečného zápisu** | Závislost testů na externí DB vs. In-memory repozitáře; registrace po zahájení kurzu | **Dvoustupňová architektura úložiště:** Produkce využívá robustní PostgreSQL 16 s řízenými migracemi v Dockeru. Testy využívají in-memory repozitáře věrně simulující transakční logiku pro bleskový a izolovaný běh. Dodatečný zápis po zahájení kurzu je povolen pouze administrátorovi do max. 20 % hodinové dotace. |
+| **ADR-05** | **Více lektorů na termínu a rozpad na výukové dny**                  | Agregace hodin na lektora vs. střídání lektorů na kurzu                              | **Rozpad termínu na výukové dny (`TeachingDay`) s vazbou M:N:** Termín kurzu se skládá z jednotlivých výukových dnů, z nichž každý má přiřazeného konkrétního vyučujícího lektora. Analytika agreguje skutečně odučené hodiny přes tyto dílčí bloky.                                                                    |
+| **ADR-06** | **Vyhodnocení vhodnosti Strapi CMS jako administrace**               | Použít generované headless CMS Strapi vs. vlastní SPA administraci                   | **Zamítnuto – Vlastní modulární SPA administrace v Tailwind CSS:** Strapi bylo po důkladné analýze zamítnuto z důvodu porušení principů 3-vrstvé architektury PPRO, nekontrolovatelných systémových migrací a vysoké režie.                                                                                             |
 
-### ADR-01: Kritéria dokončení kurzu a certifikace
+---
+
+### ADR-01: Kritéria dokončení kurzu a certifikace (pravidlo 70 % + lektorská výjimka)
 
 - **Kontext:** Klient požaduje jednoznačná pravidla pro vystavení osvědčení o absolvování kurzu, avšak praxe ukazuje, že striktní procento docházky může poškodit studenty s omluvenou absencí a vyřešeným náhradním úkolem.
 - **Rozhodnutí:**
-  - Výchozí hranice úspěšného absolvování je stanovena na **70 % docházky** (poměr `attended_days / total_days`).
+  - Výchozí hranice úspěšného absolvování je stanovena na **70 % docházky** (poměr `attended_days / total_days >= 0.70`).
   - Systém při uzavření termínu automaticky vystaví osvědčení všem studentům splňujícím hranici >= 70 %.
-  - Pro studenty pod 70 % má lektor/administrátor možnost vystavit osvědčení na základě **výjimky (`has_waiver = true`)**, která **vyžaduje písemné zdůvodnění o minimální délce 5 znaků** (např. doložení lékařské zprávy, individuální projekt).
+  - Pro studenty s docházkou pod 70 % má lektor/administrátor možnost vystavit osvědčení na základě **výjimky (`has_waiver = true`)**, která **vyžaduje písemné zdůvodnění o minimální délce 5 znaků** (např. doložení lékařské zprávy, vypracování doplňkového projektu).
   - Každé osvědčení obdrží celosvětově unikátní evidenční kód ve formátu `AT-YYYY-XXXX` generovaný z atomické čítací sekvence v databázi.
+- **Důsledky:** Spravedlivý systém pro studenty, splnění legislativních nároků MŠMT na rekvalifikace a vyloučení lidské chyby při číslování diplomů.
 
-### ADR-02: Posun z pořadníku při uvolnění místa
+### ADR-02: Automatický transakční posun z čekací listiny (pořadníku) při uvolnění místa
 
 - **Kontext:** V případě odřeknutí účastníka na poslední chvíli docházelo v minulosti k prodlevám a prázdným místům v kurzu.
 - **Rozhodnutí:**
-  - Systém implementuje **automatický a atomický posun v rámci jediné transakce** (`BEGIN ... COMMIT`).
-  - Pokud je zrušena potvrzená přihláška (`CONFIRMED`), transakce okamžitě vybere náhradníka s `waitlist_position = 1`, změní jeho status na `CONFIRMED`, vynuluje jeho pozici a sníží pozice všech zbývajících čekatelů o 1 (`waitlist_position = waitlist_position - 1`).
+  - Systém implementuje **automatický a atomický posun v rámci jediné databázové transakce** (`BEGIN ... COMMIT`) s explicitním řádkovým zámkem `SELECT ... FOR UPDATE`.
+  - Pokud je zrušena potvrzená přihláška (`CONFIRMED`), transakce okamžitě vybere náhradníka s `waitlist_position = 1`, změní jeho status na `CONFIRMED`, vynuluje jeho pozici v pořadníku a sníží pozice všech zbývajících čekatelů o 1 (`waitlist_position = waitlist_position - 1`).
   - Pokud je zrušena přihláška z pořadníku (`WAITLIST`), transakce posune dopředu pouze zájemce zařazené za zrušenou pozicí.
+- **Důsledky:** Nulové prodlevy, maximální vytíženost kurzů a zamezení race conditions při souběžných požadavcích.
 
-### ADR-03: Souběh termínů téhož kurzu
+### ADR-03: Zákaz souběhu aktivních přihlášek na stejný kurz
 
-- **Kontext:** Klient zaznamenal případy, kdy se jeden student přihlásil na dva termíny stejného rekvalifikačního kurzu naráz, čímž blokoval kapacitu jiným zájemcům.
+- **Kontext:** Klient zaznamenal případy, kdy se jeden student přihlásil na dva různé termíny stejného rekvalifikačního kurzu naráz, čímž blokoval kapacitu jiným zájemcům.
 - **Rozhodnutí:**
   - Student smí mít pro daný kurz pouze **jednu aktivní potvrzenou přihlášku** (`CONFIRMED`).
+  - Pokus o přihlášení na další termín téhož kurzu ve stavu `CONFIRMED` je aplikační službou i databází odmítnut chybou `400 Bad Request`.
   - Zápis do pořadníku (`WAITLIST`) na alternativní termín je povolen jako záloha pro případ zrušení hlavního termínu.
+- **Důsledky:** Ochrana dostupnosti kurzů pro ostatní uchazeče a eliminace spekulativních registrací.
 
-### ADR-04: Přihlášení studenta po zahájení kurzu
+### ADR-04: Testovací a perzistentní strategie (In-Memory repozitáře vs. Produkční PostgreSQL 16 v Dockeru) a pravidlo dodatečného zápisu
 
-- **Kontext:** Pozdní zájemci se občas pokoušejí přihlásit na kurz, který již započal.
+- **Kontext:**
+  1. Vývoj a automatizované testování vyžadují okamžitou zpětnou vazbu bez nutnosti startovat těžký databázový engine při každém běhu unit testů.
+  2. Praxe přináší situace, kdy se student chce přihlásit do kurzu až po jeho oficiálním zahájení.
 - **Rozhodnutí:**
-  - Veřejná registrace je po datu `start_date` automaticky zablokována.
-  - Administrátor/recepce má možnost udělit výjimku pro pozdní zápis maximálně do chvíle, kdy proběhlo **méně než 20 % celkové hodinové dotace kurzu**, aby byla garantována možnost splnit 70% docházku.
+  - **Architektura úložiště a testovatelnost:** Třívrstvá architektura důsledně odděluje rozhraní repozitářů od jejich konkrétní implementace.
+    - _Produkční prostředí:_ Využívá relační databázi **PostgreSQL 16** v Dockeru s verzovanými SQL migracemi (`001` až `005`) a plnou transakční podporou.
+    - _Testovací prostředí:_ Všechny doménové unit testy (Node test runner i Jest) využívají stavové **In-Memory repozitáře** (`InMemoryCourseRepository`, `InMemoryTermRepository`, `InMemoryAttendanceRepository`, `InMemoryCertificateRepository`). Tyto repozitáře plně a deterministicky simulují atomické transakce, kaskádový posun na čekací listině i validační invarianty bez externích závislostí.
+    - _Integrační testy:_ Ověřují kompletní HTTP a perzistentní průchody přes Supertest a Node E2E test runner.
+  - **Pravidlo dodatečného zápisu:** Veřejný zápis studentů se po datu `start_date` automaticky uzamkne. Dodatečný zápis smí provést pouze recepce/administrátor formou řízené výjimky, a to maximálně do okamžiku, kdy proběhlo **méně než 20 % celkové hodinové dotace kurzu**, aby byla garantována možnost splnit povinnou 70% docházku.
+- **Důsledky:** Bleskový běh testovacích sad (vteřiny), 100% determinismus a stabilita CI/CD pipeline, jasně definovaná pravidla pro pozdní zápisy.
 
-### ADR-05: Více lektorů na termínu a výukové dny
+### ADR-05: Více lektorů na termínu a rozpad na výukové dny (M:N)
 
-- **Kontext:** Delší rekvalifikační kurzy (např. Účetnictví 80 hodin) vyučuje více specialistů (mzdová účetní, daňový poradce).
+- **Kontext:** Rozsáhlé rekvalifikační kurzy (např. _Mzdové účetnictví_ 80 hodin) vyučuje více specialistů (mzdová účetní, daňový poradce, právník pro zákoník práce).
 - **Rozhodnutí:**
-  - Termín je modelován jako složený celek: kromě vazby `term_lecturers` (M:N) je rozpadnut na jednotlivé **výukové dny (`TeachingDay`)**.
-  - Každý výukový den má přesné datum, hodinový rozsah, téma a konkrétního vyučujícího lektora.
+  - Termín kurzu je modelován jako složený celek: kromě vazební tabulky `term_lecturers` (M:N) je rozpadnut na jednotlivé **výukové dny (`TeachingDay`)**.
+  - Každý výukový den má definováno konkrétní datum, hodinový rozsah, téma a referenci na vyučujícího lektora.
   - Manažerské výkazy hodin lektorů se počítají agregací přes tyto výukové bloky, což zaručuje přesné podklady pro fakturaci.
+- **Důsledky:** Přesná evidence výuky, možnost detailního rozpisu lektorů a podklad pro výpočet docházky studentů po jednotlivých dnech.
 
-### ADR-06: Vyhodnocení vhodnosti Strapi CMS jako administrace
+### ADR-06: Vyhodnocení vhodnosti Strapi CMS jako administrace (Zamítnuto)
 
 Dotaz zadavatele: _„Zkus zjistit, zdali je vhodné použít Strapi jako administraci.“_
 
@@ -169,97 +204,225 @@ Dotaz zadavatele: _„Zkus zjistit, zdali je vhodné použít Strapi jako admini
 
 ---
 
-## 3. Architektura a technický návrh
+## 3. Třívrstvá architektura a technický návrh
 
-Projekt je navržen v souladu s pravidly předmětu **PPRO** jako modulární třívrstvá aplikace s jednosměrnými závislostmi. Veškeré názvy tříd, metod, rozhraní, databázových entit a tabulek jsou **v anglickém jazyce**.
+Projekt je navržen v souladu s pravidly předmětu **PPRO** jako modulární třívrstvá aplikace se striktně **jednosměrnými závislostmi**. Veškeré názvy tříd, metod, rozhraní, doménových modelů a databázových entit jsou důsledně **v anglickém jazyce**.
 
 ```mermaid
 graph TD
-    UI["Presentation Layer<br/>Express REST API / Tailwind CSS Web UI"] --> APP["Application & Domain Layer<br/>CourseService, TermService, AttendanceService, CertificateService"]
-    APP --> DATA["Persistence Layer<br/>PostgresCourseRepository, PostgresTermRepository, PostgresAttendanceRepository, PostgresCertificateRepository"]
-    DATA --> DB[("Relational Database in Docker<br/>PostgreSQL 16")]
+    subgraph Presentation_Layer["1. Prezentační vrstva (Presentation Layer)"]
+        UI["Web SPA (Tailwind CSS, Vite, TS)<br/>frontend/src/"]
+        Router["Express REST API Router & Controllers<br/>src/presentation/"]
+    end
+
+    subgraph Domain_Application_Layer["2. Aplikační a doménová vrstva (Application & Domain)"]
+        Services["Domain Services (CourseService, TermService, AttendanceService, CertificateService)<br/>src/application/services/"]
+        Entities["Domain Entities & Invariants (Course, CourseTerm, Enrollment, TeachingDay, ...)<br/>src/domain/entities/"]
+        Interfaces["Repository Interfaces (ICourseRepository, ...)<br/>src/domain/repositories/"]
+    end
+
+    subgraph Persistence_Layer["3. Perzistentní vrstva (Infrastructure & Persistence)"]
+        Repos["PostgreSQL Repositories (PostgresCourseRepository, ...)<br/>src/infrastructure/database/"]
+        Pool["pg Connection Pool & Transactions<br/>src/infrastructure/database/db.ts"]
+    end
+
+    subgraph External_Database["Databázový kontejner v Dockeru"]
+        Postgres[("PostgreSQL 16 Relational Database<br/>Migrations 001 až 005")]
+    end
+
+    UI -->|HTTP Fetch / JSON| Router
+    Router -->|DTOs & Method Calls| Services
+    Services -->|Validates Invariants| Entities
+    Services -->|Depends on abstraction| Interfaces
+    Repos -.->|Implements| Interfaces
+    Services -->|Invokes Data Access| Repos
+    Repos -->|SQL Queries & Transactions| Pool
+    Pool -->|TCP / Port 5432| Postgres
 ```
 
-### 3.1 Vrstvy aplikace
+### 3.1 Třívrstvá architektura a vrstvy aplikace
 
-1. **Presentation Layer (`src/presentation/`):**
-   - Obsluhuje HTTP požadavky, mapuje DTO a zprostředkovává REST rozhraní i webovou administraci v Tailwind CSS.
-   - Neobsahuje žádnou doménovou logiku ani přímé SQL dotazy.
-2. **Application & Domain Layer (`src/application/`, `src/domain/`):**
-   - Zajišťuje byznys logiku: validace kurzů, atomická správa kapacit termínů, čekací listina (ADR-02), výpočet procenta docházky (ADR-01, ADR-05) a vydávání osvědčení.
-   - Entitní modely jsou nezávislé na frameworku Express i databázi.
-3. **Persistence Layer (`src/infrastructure/`):**
-   - Implementuje repozitáře s přístupem do PostgreSQL přes connection pool.
-   - Zajišťuje transakční bezpečnost (`BEGIN / COMMIT / ROLLBACK`) při posunech v pořadníku a vydávání certifikátů.
+1. **Prezentační vrstva (`src/presentation/` & `frontend/`):**
+   - Obsluhuje HTTP komunikaci, mapuje vstupní data na DTOs, vrací odpovídající HTTP stavové kódy (200, 201, 400, 404, 500) a servíruje modulární webovou SPA administraci.
+   - Nekoná žádná byznys rozhodnutí ani neobsahuje přímé databázové dotazy.
+2. **Aplikační a doménová vrstva (`src/application/`, `src/domain/`):**
+   - Zapouzdřuje obchodní pravidla, výpočty a doménové invarianty.
+   - Stará se o validaci kurzů, atomickou správu kapacit, čekací listinu náhradníků (ADR-02), zákaz souběhu přihlášek (ADR-03), kalkulaci 70% docházky (ADR-01, ADR-05) a vystavování osvědčení.
+   - Doménové entity jsou čisté TypeScript objekty nezávislé na frameworku Express i databázi.
+3. **Perzistentní vrstva (`src/infrastructure/`):**
+   - Zajišťuje ukládání a načítání dat z databáze PostgreSQL 16 přes `pg.Pool`.
+   - Implementuje repozitářový vzor a stará se o transakční integritu (`BEGIN`, `COMMIT`, `ROLLBACK`) a řádkové zamykání (`SELECT ... FOR UPDATE`) při posunech v pořadníku.
 
-### 3.2 Sekvenční diagram: Zrušení přihlášky a kaskáda pořadníku (ADR-02)
+---
+
+### 3.2 Sekvenční diagram: Vypsání termínu a přihlášení s čekací listinou (ADR-02)
+
+Diagram ilustruje životní cyklus termínu, přihlášení studentů do vyčerpání kapacity, automatické zařazení dalšího studenta na čekací listinu a transakční kaskádový posun náhradníka při zrušení přihlášky:
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Reception as Recepce / Uživatel
-    participant Controller as TermController
-    participant Service as TermService
-    participant Repo as PostgresTermRepository
+    actor Admin as Recepce / Administrátor
+    actor Student as Student (Zájemce)
+    participant TermCtrl as TermController
+    participant TermSvc as TermService
+    participant TermRepo as PostgresTermRepository
     participant DB as PostgreSQL (Transaction)
 
-    Reception->>Controller: POST /api/enrollments/:id/cancel
-    Controller->>Service: cancelEnrollment(enrollmentId)
-    Service->>Repo: cancelEnrollment(enrollmentId)
-    Repo->>DB: BEGIN TRANSACTION
-    Repo->>DB: SELECT status, waitlist_position FROM enrollments WHERE id = :id FOR UPDATE
-    Repo->>DB: UPDATE enrollments SET status = 'CANCELLED', waitlist_position = NULL WHERE id = :id
-    alt Byla zrušena potvrzená přihláška (CONFIRMED)
-        Repo->>DB: SELECT id FROM enrollments WHERE term_id = :termId AND status = 'WAITLIST' AND waitlist_position = 1
-        Repo->>DB: UPDATE enrollments SET status = 'CONFIRMED', waitlist_position = NULL WHERE id = :promotedId
-        Repo->>DB: UPDATE enrollments SET waitlist_position = waitlist_position - 1 WHERE term_id = :termId AND status = 'WAITLIST' AND waitlist_position > 1
-    else Byla zrušena přihláška z pořadníku (WAITLIST)
-        Repo->>DB: UPDATE enrollments SET waitlist_position = waitlist_position - 1 WHERE term_id = :termId AND status = 'WAITLIST' AND waitlist_position > :oldPos
-    end
-    Repo->>DB: COMMIT TRANSACTION
-    Repo-->>Service: { success: true, promotedStudentId }
-    Service-->>Controller: result
-    Controller-->>Reception: 200 OK + JSON zpráva o automatickém posunu
+    Note over Admin,DB: Krok 1: Vypsání termínu kurzu s kapacitou
+    Admin->>TermCtrl: POST /api/terms (courseId, classroomId, dates, capacity=1)
+    TermCtrl->>TermSvc: createTerm(dto)
+    TermSvc->>TermRepo: createTerm(termData)
+    TermRepo->>DB: INSERT INTO course_terms (...) RETURNING id
+    DB-->>TermRepo: termId
+    TermRepo-->>TermSvc: termId
+    TermSvc-->>TermCtrl: { termId, status: "PLANNED" }
+    TermCtrl-->>Admin: 201 Created
+
+    Note over Student,DB: Krok 2: Přihlášení studenta 1 (volná kapacita)
+    Student->>TermCtrl: POST /api/terms/:id/enrollments (Student 1)
+    TermCtrl->>TermSvc: createEnrollment(termId, studentDto)
+    TermSvc->>TermRepo: createEnrollment(termId, studentDto)
+    TermRepo->>DB: BEGIN TRANSACTION
+    TermRepo->>DB: SELECT capacity, confirmedCount FROM terms WHERE id = :id FOR UPDATE
+    TermRepo->>DB: INSERT INTO enrollments (status = 'CONFIRMED', waitlist_position = NULL)
+    TermRepo->>DB: COMMIT TRANSACTION
+    TermRepo-->>TermSvc: { id: e1, status: "CONFIRMED" }
+    TermSvc-->>TermCtrl: EnrollmentResponseDto
+    TermCtrl-->>Student: 201 Created (Potvrzeno)
+
+    Note over Student,DB: Krok 3: Přihlášení studenta 2 (kapacita plná -> Waitlist ADR-02)
+    Student->>TermCtrl: POST /api/terms/:id/enrollments (Student 2)
+    TermCtrl->>TermSvc: createEnrollment(termId, studentDto)
+    TermSvc->>TermRepo: createEnrollment(termId, studentDto)
+    TermRepo->>DB: BEGIN TRANSACTION
+    TermRepo->>DB: Kapacita naplněna (confirmed = 1, capacity = 1)
+    TermRepo->>DB: INSERT INTO enrollments (status = 'WAITLIST', waitlist_position = 1)
+    TermRepo->>DB: COMMIT TRANSACTION
+    TermRepo-->>TermSvc: { id: e2, status: "WAITLIST", position: 1 }
+    TermSvc-->>TermCtrl: EnrollmentResponseDto
+    TermCtrl-->>Student: 201 Created (Zařazeno do pořadníku #1)
+
+    Note over Admin,DB: Krok 4: Storno účasti studenta 1 a automatický posun studenta 2 (ADR-02)
+    Admin->>TermCtrl: POST /api/enrollments/:e1/cancel
+    TermCtrl->>TermSvc: cancelEnrollment(e1)
+    TermSvc->>TermRepo: cancelEnrollment(e1)
+    TermRepo->>DB: BEGIN TRANSACTION
+    TermRepo->>DB: SELECT status FROM enrollments WHERE id = e1 FOR UPDATE
+    TermRepo->>DB: UPDATE enrollments SET status = 'CANCELLED' WHERE id = e1
+    TermRepo->>DB: SELECT id FROM enrollments WHERE term_id = :id AND status = 'WAITLIST' AND waitlist_position = 1 FOR UPDATE
+    TermRepo->>DB: UPDATE enrollments SET status = 'CONFIRMED', waitlist_position = NULL WHERE id = e2
+    TermRepo->>DB: UPDATE enrollments SET waitlist_position = waitlist_position - 1 WHERE term_id = :id AND waitlist_position > 1
+    TermRepo->>DB: COMMIT TRANSACTION
+    TermRepo-->>TermSvc: { success: true, promotedStudentId: s2 }
+    TermSvc-->>TermCtrl: result
+    TermCtrl-->>Admin: 200 OK (Přihláška zrušena, náhradník #1 automaticky potvrzen)
 ```
 
-### 3.3 Sekvenční diagram: Uzavření termínu a vystavení osvědčení (ADR-01)
+---
+
+### 3.3 Sekvenční diagram: Zápis docházky na výukovém dni a lektorská výjimka (ADR-01, ADR-05)
+
+Diagram zobrazuje evidenci výukového dne s lektorem (ADR-05), záznam docházky a proces udělení lektorské výjimky s povinným odůvodněním (ADR-01):
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Admin as Lektor / Administrátor
-    participant Controller as CertificateController
-    participant Service as CertificateService
-    participant Repo as PostgresCertificateRepository
+    actor Lecturer as Vyučující lektor
+    participant AttCtrl as AttendanceController
+    participant AttSvc as AttendanceService
+    participant CertCtrl as CertificateController
+    participant CertSvc as CertificateService
+    participant AttRepo as PostgresAttendanceRepository
     participant DB as PostgreSQL
 
-    Admin->>Controller: POST /api/terms/:termId/complete
-    Controller->>Service: completeTerm(termId)
-    Service->>Repo: completeTerm(termId)
-    Repo->>DB: UPDATE course_terms SET status = 'COMPLETED' WHERE id = :termId
-    Repo->>DB: SELECT e.id, e.student_id FROM enrollments e WHERE e.term_id = :termId AND e.status IN ('CONFIRMED', 'COMPLETED')
-    loop Pro každého studenta
-        Repo->>DB: Spočti docházku (attended_days / total_days * 100)
-        alt Docházka >= 70 %
-            Repo->>DB: Atomicky inkrementuj certificate_counter pro daný rok
-            Repo->>DB: INSERT INTO certificates (AT-YYYY-XXXX, attendance_rate, ...)
-            Repo->>DB: UPDATE enrollments SET status = 'COMPLETED' WHERE id = :enrollmentId
+    Note over Lecturer,DB: Krok 1: Vytvoření výukového dne (ADR-05)
+    Lecturer->>AttCtrl: POST /api/attendance/terms/:termId/days (lecturerId, date, hours=8, topic)
+    AttCtrl->>AttSvc: createTeachingDay(dto)
+    AttSvc->>AttRepo: createTeachingDay(data)
+    AttRepo->>DB: INSERT INTO teaching_days (...) RETURNING id
+    DB-->>AttRepo: dayId
+    AttRepo-->>AttSvc: dayId
+    AttSvc-->>AttCtrl: { dayId, message: "Teaching day created" }
+    AttCtrl-->>Lecturer: 201 Created
+
+    Note over Lecturer,DB: Krok 2: Záznam docházky studenta
+    Lecturer->>AttCtrl: POST /api/attendance/days/:dayId/mark (studentId, isPresent=true)
+    AttCtrl->>AttSvc: markAttendance(dayId, studentId, isPresent, note)
+    AttSvc->>AttRepo: markAttendance(data)
+    AttRepo->>DB: INSERT INTO attendance (day_id, student_id, is_present) ON CONFLICT DO UPDATE
+    DB-->>AttRepo: success
+    AttRepo-->>AttSvc: success
+    AttSvc-->>AttCtrl: { success: true }
+    AttCtrl-->>Lecturer: 200 OK
+
+    Note over Lecturer,DB: Krok 3: Vyhodnocení docházky a udělení lektorské výjimky (ADR-01)
+    Lecturer->>AttCtrl: GET /api/attendance/terms/:termId/summary
+    AttCtrl->>AttSvc: getTermSummary(termId)
+    AttSvc->>AttRepo: getTermSummary(termId)
+    AttRepo->>DB: SELECT student, attended_days, total_days FROM ...
+    DB-->>AttRepo: attendanceRate = 60.0% (méně než 70 % -> qualifiesForCertificate = false)
+    AttRepo-->>AttSvc: summaryData
+    AttSvc-->>AttCtrl: summaryData
+    AttCtrl-->>Lecturer: 200 OK (Student nesplňuje limit)
+
+    Lecturer->>CertCtrl: POST /api/certificates/issue (enrollmentId, hasWaiver=true, waiverReason="Doložena lékařská zpráva...")
+    CertCtrl->>CertSvc: issueCertificate(dto)
+    CertSvc->>CertSvc: Validace: hasWaiver === true && waiverReason.length >= 5
+    CertSvc->>AttRepo: issueCertificate(dto)
+    AttRepo->>DB: INSERT INTO certificates (AT-YYYY-XXXX, has_waiver=true, ...)
+    DB-->>AttRepo: certData
+    AttRepo-->>CertSvc: certData
+    CertSvc-->>CertCtrl: CertificateResponseDto
+    CertCtrl-->>Lecturer: 201 Created (Osvědčení vystaveno na základě výjimky)
+```
+
+---
+
+### 3.4 Sekvenční diagram: Uzavření termínu a vystavení osvědčení (ADR-01)
+
+Diagram zachycuje proces hromadného vyhodnocení termínu, kdy systém automaticky vystaví certifikáty všem účastníkům s docházkou >= 70 %:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Admin as Administrátor / Recepce
+    participant CertCtrl as CertificateController
+    participant CertSvc as CertificateService
+    participant CertRepo as PostgresCertificateRepository
+    participant DB as PostgreSQL (Transaction)
+
+    Admin->>CertCtrl: POST /api/terms/:termId/complete
+    CertCtrl->>CertSvc: completeTerm(termId)
+    CertSvc->>CertRepo: completeTerm(termId)
+    CertRepo->>DB: BEGIN TRANSACTION
+    CertRepo->>DB: UPDATE course_terms SET status = 'COMPLETED' WHERE id = :termId
+    CertRepo->>DB: SELECT id, student_id FROM enrollments WHERE term_id = :termId AND status = 'CONFIRMED'
+
+    loop Pro každého studenta na termínu
+        CertRepo->>DB: Spočti poměr docházky (attendedDays / totalDays * 100)
+        alt Docházka >= 70 % (ADR-01)
+            CertRepo->>DB: Atomicky inkrementuj certificate_seq pro daný rok
+            CertRepo->>DB: INSERT INTO certificates (certificate_number = 'AT-YYYY-XXXX', ...)
+            CertRepo->>DB: UPDATE enrollments SET status = 'COMPLETED' WHERE id = :enrollmentId
         else Docházka < 70 % (bez výjimky)
-            Repo-->>Repo: Přeskoč automatické vystavení (vyžaduje výjimku lektora)
+            CertRepo-->>CertRepo: Přeskoč automatické vystavení (vyžaduje schválenou lektorskou výjimku)
         end
     end
-    Repo-->>Service: { issuedCount, certificates }
-    Service-->>Controller: result
-    Controller-->>Admin: 200 OK + seznam vygenerovaných certifikátů
+
+    CertRepo->>DB: COMMIT TRANSACTION
+    CertRepo-->>CertSvc: { termId, issuedCount, certificates: [...] }
+    CertSvc-->>CertCtrl: CompleteTermResponseDto
+    CertCtrl-->>Admin: 200 OK (Seznam nově vystavených osvědčení)
 ```
 
 ---
 
 ## 4. Doménový a datový model (English Model & Data Dictionary)
 
-### 4.1 Mermaid ER Diagram
+### 4.1 Mermaid ER Diagram (10 entit)
 
-Kompletní doménový model obsahuje 10 entit a tabulek v anglickém jazyce včetně bohatých relací M:N a 1:N:
+Kompletní databázový a doménový model obsahuje **10 entit** a tabulek v anglickém jazyce s bohatými vazbami M:N a 1:N:
 
 ```mermaid
 erDiagram
@@ -277,191 +440,217 @@ erDiagram
 
     Course {
         uuid id PK
-        string title
-        text annotation
-        int hours
-        decimal price
-        boolean is_accredited
+        string title "VARCHAR(150)"
+        text annotation "TEXT"
+        int hours "INT"
+        decimal price "NUMERIC(10,2)"
+        boolean is_accredited "BOOLEAN"
     }
+
     Classroom {
         uuid id PK
-        string name
-        string address
-        int capacity
+        string name "VARCHAR(100)"
+        string address "VARCHAR(255)"
+        int capacity "INT"
     }
+
     Lecturer {
         uuid id PK
-        string first_name
-        string last_name
-        string email UK
-        string phone
-        string specialization
+        string first_name "VARCHAR(100)"
+        string last_name "VARCHAR(100)"
+        string email "VARCHAR(150) UK"
+        string phone "VARCHAR(50)"
+        string specialization "VARCHAR(200)"
     }
+
     CourseTerm {
         uuid id PK
-        uuid course_id FK
-        uuid classroom_id FK
-        date start_date
-        date end_date
-        int capacity
+        uuid course_id "UUID FK"
+        uuid classroom_id "UUID FK"
+        date start_date "DATE"
+        date end_date "DATE"
+        int capacity "INT"
         string status "PLANNED | IN_PROGRESS | COMPLETED | CANCELLED"
     }
+
     TermLecturer {
-        uuid term_id FK
-        uuid lecturer_id FK
+        uuid term_id "UUID FK PK"
+        uuid lecturer_id "UUID FK PK"
         string role "lead | assistant | guest"
     }
+
     Student {
         uuid id PK
-        string first_name
-        string last_name
-        string email UK
-        string phone
-        string organization
+        string first_name "VARCHAR(100)"
+        string last_name "VARCHAR(100)"
+        string email "VARCHAR(150) UK"
+        string phone "VARCHAR(50)"
+        string organization "VARCHAR(150)"
     }
+
     Enrollment {
         uuid id PK
-        uuid term_id FK
-        uuid student_id FK
-        datetime submitted_at
+        uuid term_id "UUID FK"
+        uuid student_id "UUID FK"
+        datetime submitted_at "TIMESTAMPTZ"
         string status "CONFIRMED | WAITLIST | CANCELLED | COMPLETED"
-        int waitlist_position
-        text note
+        int waitlist_position "INT NULL"
+        text note "TEXT"
     }
+
     TeachingDay {
         uuid id PK
-        uuid term_id FK
-        uuid lecturer_id FK
-        date day_date
-        int hours
-        string topic
+        uuid term_id "UUID FK"
+        uuid lecturer_id "UUID FK"
+        date day_date "DATE"
+        int hours "INT"
+        string topic "VARCHAR(255)"
     }
+
     Attendance {
         uuid id PK
-        uuid teaching_day_id FK
-        uuid student_id FK
-        boolean is_present
-        string note
+        uuid teaching_day_id "UUID FK"
+        uuid student_id "UUID FK"
+        boolean is_present "BOOLEAN"
+        string note "VARCHAR(255)"
     }
+
     Certificate {
         uuid id PK
-        uuid enrollment_id FK
-        uuid student_id FK
-        uuid term_id FK
-        string certificate_number UK "AT-YYYY-XXXX"
-        date issue_date
-        decimal attendance_rate
-        boolean has_waiver
-        text waiver_reason
+        uuid enrollment_id "UUID FK UK"
+        uuid student_id "UUID FK"
+        uuid term_id "UUID FK"
+        string certificate_number "VARCHAR(50) UK (AT-YYYY-XXXX)"
+        date issue_date "DATE"
+        decimal attendance_rate "NUMERIC(5,2)"
+        boolean has_waiver "BOOLEAN"
+        text waiver_reason "TEXT"
     }
 ```
 
 ### 4.2 Katalog a specifikace doménových entit
 
-| Entita           | Tabulka v DB     | Klíčové atributy & Typy                                                                                                                                                                                                                    | Doménové invarianty a byznys pravidla                                                                                                     |
-| ---------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| **Course**       | `courses`        | `id` (UUID), `title` (VARCHAR 150), `annotation` (TEXT), `hours` (INT), `price` (NUMERIC 10,2), `is_accredited` (BOOLEAN)                                                                                                                  | Název 3–150 znaků; anotace min. 10 znaků; hodiny kladné celé číslo > 0; cena nezáporná.                                                   |
-| **Classroom**    | `classrooms`     | `id` (UUID), `name` (VARCHAR 100), `address` (VARCHAR 255), `capacity` (INT)                                                                                                                                                               | Kapacita učebny > 0; kapacita termínu nesmí překročit kapacitu učebny.                                                                    |
-| **Lecturer**     | `lecturers`      | `id` (UUID), `first_name` (VARCHAR 100), `last_name` (VARCHAR 100), `email` (VARCHAR 150 UNIQUE), `phone` (VARCHAR 50), `specialization` (VARCHAR 200)                                                                                     | Unikátní validní e-mail; jméno a příjmení min. 2 znaky.                                                                                   |
-| **CourseTerm**   | `course_terms`   | `id` (UUID), `course_id` (UUID FK), `classroom_id` (UUID FK), `start_date` (DATE), `end_date` (DATE), `capacity` (INT), `status` (VARCHAR 30)                                                                                              | `start_date <= end_date`; kapacita > 0; stavy: `PLANNED`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`.                                        |
-| **TermLecturer** | `term_lecturers` | `term_id` (UUID FK), `lecturer_id` (UUID FK), `role` (VARCHAR 50)                                                                                                                                                                          | Vazba M:N pro střídání více lektorů na jednom termínu kurzu.                                                                              |
-| **Student**      | `students`       | `id` (UUID), `first_name` (VARCHAR 100), `last_name` (VARCHAR 100), `email` (VARCHAR 150 UNIQUE), `phone` (VARCHAR 50), `organization` (VARCHAR 150)                                                                                       | Unikátní validní e-mail studenta napříč celým systémem.                                                                                   |
-| **Enrollment**   | `enrollments`    | `id` (UUID), `term_id` (UUID FK), `student_id` (UUID FK), `submitted_at` (TIMESTAMPTZ), `status` (VARCHAR 30), `waitlist_position` (INT), `note` (TEXT)                                                                                    | Stavy: `CONFIRMED`, `WAITLIST`, `CANCELLED`, `COMPLETED`. Pokud `WAITLIST`, musí mít kladné pořadí. Nemaže se (pouze status `CANCELLED`). |
-| **TeachingDay**  | `teaching_days`  | `id` (UUID), `term_id` (UUID FK), `lecturer_id` (UUID FK), `day_date` (DATE), `hours` (INT), `topic` (VARCHAR 255)                                                                                                                         | Hodiny výukového bloku > 0; téma min. 3 znaky; přiřazen vyučující lektor (ADR-05).                                                        |
-| **Attendance**   | `attendance`     | `id` (UUID), `teaching_day_id` (UUID FK), `student_id` (UUID FK), `is_present` (BOOLEAN), `note` (VARCHAR 255)                                                                                                                             | Unikátní dvojice `(teaching_day_id, student_id)`; eviduje účast a omluvenky studentů.                                                     |
-| **Certificate**  | `certificates`   | `id` (UUID), `enrollment_id` (UUID FK UNIQUE), `student_id` (UUID FK), `term_id` (UUID FK), `certificate_number` (VARCHAR 50 UNIQUE), `issue_date` (DATE), `attendance_rate` (NUMERIC 5,2), `has_waiver` (BOOLEAN), `waiver_reason` (TEXT) | Číslo ve formátu `AT-YYYY-XXXX`. Vyžaduje docházku >= 70 %, nebo `has_waiver = true` s písemným odůvodněním min. 5 znaků (ADR-01).        |
+Následující tabulka specifikuje všech 10 entit doménového modelu, odpovídající SQL tabulky a jejich byznys invarianty:
+
+| Entita           | Tabulka v DB     | Klíčové atributy & Typy                                                                                                                                                                                                               | Doménové invarianty a byznys pravidla                                                                                                                                                        |
+| ---------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Course**       | `courses`        | `id` (UUID PK), `title` (VARCHAR 150), `annotation` (TEXT), `hours` (INT), `price` (NUMERIC 10,2), `is_accredited` (BOOLEAN)                                                                                                          | Název 3–150 znaků; anotace min. 10 znaků; hodiny kladné celé číslo > 0; cena nezáporná (povoleno 0 Kč pro bezplatné workshopy).                                                              |
+| **Classroom**    | `classrooms`     | `id` (UUID PK), `name` (VARCHAR 100), `address` (VARCHAR 255), `capacity` (INT)                                                                                                                                                       | Kapacita učebny > 0; kapacita přiřazeného termínu nesmí překročit fyzickou kapacitu učebny.                                                                                                  |
+| **Lecturer**     | `lecturers`      | `id` (UUID PK), `first_name` (VARCHAR 100), `last_name` (VARCHAR 100), `email` (VARCHAR 150 UK), `phone` (VARCHAR 50), `specialization` (VARCHAR 200)                                                                                 | Unikátní formátově platný e-mail; jméno a příjmení min. 2 znaky; specializace pro přiřazování ke kurzům.                                                                                     |
+| **CourseTerm**   | `course_terms`   | `id` (UUID PK), `course_id` (UUID FK), `classroom_id` (UUID FK), `start_date` (DATE), `end_date` (DATE), `capacity` (INT), `status` (VARCHAR 30)                                                                                      | `start_date <= end_date`; kapacita > 0; stavy: `PLANNED`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`.                                                                                           |
+| **TermLecturer** | `term_lecturers` | `term_id` (UUID FK PK), `lecturer_id` (UUID FK PK), `role` (VARCHAR 50)                                                                                                                                                               | Složený primární klíč pro vazbu M:N. Umožňuje střídání více lektorů na jednom termínu kurzu.                                                                                                 |
+| **Student**      | `students`       | `id` (UUID PK), `first_name` (VARCHAR 100), `last_name` (VARCHAR 100), `email` (VARCHAR 150 UK), `phone` (VARCHAR 50), `organization` (VARCHAR 150)                                                                                   | Unikátní platný e-mail studenta napříč celým systémem; volitelný název vysílající organizace/firmy.                                                                                          |
+| **Enrollment**   | `enrollments`    | `id` (UUID PK), `term_id` (UUID FK), `student_id` (UUID FK), `submitted_at` (TIMESTAMPTZ), `status` (VARCHAR 30), `waitlist_position` (INT NULL), `note` (TEXT)                                                                       | Stavy: `CONFIRMED`, `WAITLIST`, `CANCELLED`, `COMPLETED`. Pokud `WAITLIST`, musí mít kladné pořadové číslo `waitlist_position >= 1`. Nikdy se nemaže fyzicky (soft delete přes `CANCELLED`). |
+| **TeachingDay**  | `teaching_days`  | `id` (UUID PK), `term_id` (UUID FK), `lecturer_id` (UUID FK), `day_date` (DATE), `hours` (INT), `topic` (VARCHAR 255)                                                                                                                 | Hodiny výukového bloku > 0; téma min. 3 znaky; přiřazen konkrétní vyučující lektor pro daný den (ADR-05).                                                                                    |
+| **Attendance**   | `attendance`     | `id` (UUID PK), `teaching_day_id` (UUID FK), `student_id` (UUID FK), `is_present` (BOOLEAN), `note` (VARCHAR 255)                                                                                                                     | Unikátní kompozitní index `(teaching_day_id, student_id)`. Záznam prezence účastníka a případné omluvy.                                                                                      |
+| **Certificate**  | `certificates`   | `id` (UUID PK), `enrollment_id` (UUID FK UK), `student_id` (UUID FK), `term_id` (UUID FK), `certificate_number` (VARCHAR 50 UK), `issue_date` (DATE), `attendance_rate` (NUMERIC 5,2), `has_waiver` (BOOLEAN), `waiver_reason` (TEXT) | Garantovaný formát čísla `AT-YYYY-XXXX`. Podmínka: `attendance_rate >= 70.0%`, nebo `has_waiver = true` s písemným zdůvodněním min. 5 znaků (ADR-01). Neměnné.                               |
 
 ---
 
-## 5. Infrastruktura a spuštění projektu
+## 5. Frontendová architektura (Vite + TypeScript + Tailwind CSS)
 
-### 5.1 Použitý technologický stack
+### 5.1 Architektonický koncept a vrstvy frontendu
 
-- **Běhové prostředí:** Node.js 22 LTS (TypeScript 5.7, ES Modules, `strict` mode)
-- **Prezentační vrstva:**
-  - **Backend REST API:** Express 4.21 s typovanými kontrolery a routami
-  - **Modulární Frontend SPA:** Moderní frontend postavený na **Vite 6** + **TypeScript** + **Tailwind CSS 3.4**:
-    - Umístění zdrojových kódů v samostatném adresáři [`frontend/`](frontend/):
-      - [`frontend/src/api/`](frontend/src/api/): Typovaný REST API klient (`coursesApi.ts`, `termsApi.ts`, `attendanceApi.ts`, `certificatesApi.ts`, `dictionariesApi.ts`)
-      - [`frontend/src/components/`](frontend/src/components/): Znovupoužitelné komponenty (`Header.ts`, `Modal.ts`, `Toast.ts`)
-      - [`frontend/src/views/`](frontend/src/views/): Modulární obrazovky (`CoursesView.ts`, `TermsView.ts`, `AttendanceView.ts`, `CertificatesView.ts`, `LecturersView.ts`, `AnalyticsView.ts`)
-    - Dark/Light režim s okamžitým přepnutím a perzistencí v `localStorage`
-    - Přístupný modální dialog (podpora klávesy ESC, kliknutí na pozadí, focus trapping, animace)
-    - Toast notifikační systém (úspěch, chyba, varování, info s automatickým dojezdem)
-    - Produkční build přes Vite s automatickým bundle hashováním a minifikací do `public/` servírované Expressem
-- **Aplikační vrstva:** Doménové služby ([`CourseService`](src/application/services/CourseService.ts), [`TermService`](src/application/services/TermService.ts), [`AttendanceService`](src/application/services/AttendanceService.ts), [`CertificateService`](src/application/services/CertificateService.ts)), DTOs a striktní validace doménových invariantů
-- **Perzistentní vrstva:** PostgreSQL 16 (přes `pg` connection pool), řízené verzované SQL migrace (`migrations/001` až `005`)
-- **Kontejnerizace:** Docker & Docker Compose (vícestupňový `Dockerfile` s buildem Vite frontendu a TypeScript backendu)
+Původní monolitický skript byl v rámci refaktoringu verze 1.4.0 nahrazen moderní, plně modulární architekturou Single Page Application (SPA) v adresáři [`frontend/src/`](file:///C:/Users/skitt/Documents/PPRO/frontend/src/).
 
-### 5.2 Lokální spuštění v Dockeru (doporučeno pro obhajobu)
+Frontend je postaven na moderním toolingu **Vite 6** s přímou kompilací **TypeScriptu** a utility-first stylingem v **Tailwind CSS 3.4**. Řešení nevyžaduje těžké frameworky typu React či Angular, což zajišťuje minimální velikost výsledného produkčního bundlu (< 35 kB gzip) a okamžité načtení v prohlížeči.
 
-Celý stack (databáze PostgreSQL 16 + automatické migrace + webová aplikace s Tailwind CSS) se spouští jediným příkazem:
-
-```bash
-docker compose up --build
+```text
+frontend/src/
+├── api/                   # Typovaný REST API klient s ošetřením chyb
+│   ├── apiClient.ts       # Centrální fetch wrapper, JSON parsing a error handling
+│   ├── coursesApi.ts      # API volání pro kurzy (katalog, CRUD, filtry)
+│   ├── termsApi.ts        # API volání pro termíny a přihlášky (včetně storna a čekací listiny)
+│   ├── attendanceApi.ts   # API volání pro výukové dny a zápis prezenčky
+│   ├── certificatesApi.ts # API volání pro uzavření termínu a lektorské výjimky
+│   └── dictionariesApi.ts # API volání pro lektory, učebny a manažerskou analytiku
+├── components/            # Znovupoužitelné UI komponenty
+│   ├── Header.ts          # Horní navigace, stavové odznaky, přepínač Dark/Light režimu
+│   ├── Modal.ts           # Přístupný modální dialog (WAI-ARIA, ESC listener, backdrop, focus lock)
+│   └── Toast.ts           # Globální notifikační systém (success, error, warning, info zprávy)
+├── views/                 # Samostatné obrazovky pro jednotlivé agendy
+│   ├── CoursesView.ts     # Správa nabídky kurzů, vyhledávání, filtrace akreditace
+│   ├── TermsView.ts       # Rozvrh termínů, progress bary obsazenosti, správa studentů a čekatelů
+│   ├── AttendanceView.ts  # Volba výukového dne, prezenční listina s interaktivním zaškrtáváním
+│   ├── CertificatesView.ts# Vydaná osvědčení, uzavření termínu, dialog lektorské výjimky
+│   ├── LecturersView.ts   # Přehled lektorů a kapacit učeben
+│   └── AnalyticsView.ts   # Manažerský dashboard (vytížení, odučené hodiny, věrní studenti)
+├── main.ts                # Vstupní bod SPA, router/tab manager, inicializace tématu
+├── style.css              # Vstupní Tailwind CSS direktivy, custom animace, proměnné
+└── types.ts               # Sdílená TypeScript rozhraní pro frontendové modely
 ```
 
-Aplikace bude následně dostupná:
+### 5.2 Struktura adresáře frontend/src/ a popis modulů
 
-- **Webový informační systém:** [http://localhost:3000](http://localhost:3000)
-- **REST API kurzů:** [http://localhost:3000/api/courses](http://localhost:3000/api/courses)
-- **REST API termínů:** [http://localhost:3000/api/terms](http://localhost:3000/api/terms)
-- **REST API docházky:** [http://localhost:3000/api/attendance](http://localhost:3000/api/attendance)
-- **REST API certifikátů:** [http://localhost:3000/api/certificates](http://localhost:3000/api/certificates)
-- **Health check:** [http://localhost:3000/health](http://localhost:3000/health)
+- **`main.ts`:** Inicializuje aplikaci, stará se o přepínání mezi 6 záložkami (Tabs navigation) bez reloadu stránky a načítá uložené barevné téma z `localStorage`.
+- **`api/apiClient.ts`:** Poskytuje unifikovaný wrapper nad nativním `window.fetch`. Automaticky přidává hlavičky `Content-Type: application/json`, ošetřuje HTTP chyby (400, 404, 500) a vrací typované odpovědi.
+- **`views/TermsView.ts`:** Vizualizuje naplněnost termínů pomocí barevných progress barů kapacity. Umožňuje zapsat nového studenta (s okamžitou vizuální odezvou zařazení na potvrzené místo nebo na čekací listinu) i provést storno přihlášky s okamžitým posunem náhradníka dle ADR-02.
+- **`views/AttendanceView.ts`:** Umožňuje vybrat konkrétní termín, zobrazit seznam výukových dnů, přidat nový výukový den s přiřazeným lektorem (ADR-05) a jedním kliknutím zaznamenat prezenci účastníků. Současně zobrazuje progress bar docházky a indikátor splnění 70% podmínky.
+- **`views/CertificatesView.ts`:** Nabízí tlačítko pro hromadné uzavření termínu a vystavení osvědčení studentům nad 70 % i formulář pro udělení výjimky lektora s povinným odůvodněním pro studenty pod 70 % (ADR-01).
 
-Ukončení kontejnerů:
+### 5.3 Komponenty uživatelského rozhraní (Header, Modal, Toast)
 
-```bash
-docker compose down
-```
+- **`Header.ts`:** Generuje čistý navigační panel s logem vzdělávacího centra Akademie Trutnov, indikátorem verze, navigačními taby a interaktivním tlačítkem pro přepnutí Dark/Light režimu s ikonou slunce/měsíce.
+- **`Modal.ts`:** Plně přístupný modální dialog. Podporuje zavření stiskem klávesy `Escape`, kliknutím mimo dialogové okno (backdrop click), uzamčení posunu stránky na pozadí (`overflow: hidden`) a plynulou animaci `scaleIn`.
+- **`Toast.ts`:** Toastový notifikační systém zobrazující zprávy v pravém horním rohu obrazovky. Podporuje 4 typy hlášení (úspěch, chyba, varování, informace) s automatickým časovačem skrytí (default 4000 ms) a možností manuálního zavření křížkem.
 
-### 5.3 Lokální vývojové spuštění (bez Dockeru)
+### 5.4 Design Tokens, Tailwind konfigurace a Dark/Light Mode
 
-1. Spusťte PostgreSQL databázi na portu 5432 (dle údajů v `.env` – vzor v `.env.example`).
-2. Nainstalujte závislosti a spusťte vývojový režim:
+- **Tailwind CSS konfigurace (`tailwind.config.js`):** Nastaven `darkMode: "class"`, což umožňuje plynulé přepínání stylů třídou `dark` na kořenovém elementu `<html>`.
+- **Paleta barev:**
+  - _Light mode:_ Neutrální šedá pozadí `bg-slate-50`, karty `bg-white`, texty `text-slate-800`, primární akcenty v indigové a modré barvě `indigo-600` / `blue-600`.
+  - _Dark mode:_ Tmavá grafitová pozadí `dark:bg-slate-900`, karty `dark:bg-slate-800`, ohraničení `dark:border-slate-700`, texty `dark:text-slate-100`.
+- **Perzistence volby:** Uživatelská volba se okamžitě ukládá do `localStorage.getItem("theme")`. Pokud uživatel téma dosud nenastavil, systém automaticky detekuje systémovou preferenci OS přes `window.matchMedia("(prefers-color-scheme: dark)")`.
 
-```bash
-# 1. Instalace závislostí
-npm install
+### 5.5 Produkční build a integrace s Express backendem
 
-# 2. Aplikace verzovaných SQL migrací do PostgreSQL
-npm run migrate
-
-# 3. Zkompilování frontendu (Vite + Tailwind) a backendu (tsc)
-npm run build
-
-# 4. Spuštění v hot-reload vývojovém režimu (Express API + statické soubory)
-npm run dev
-
-# (Volitelné) Samostatný vývojový Vite HMR dev server pro frontend:
-npm run dev:client
-```
+- Příkaz `npm run build:client` spustí optimalizátor **Vite**, který zkompiluje TypeScript, aplikuje Tailwind CSS utility třídy, provede minifikaci a vygeneruje statické produkční soubory do adresáře [`public/`](file:///C:/Users/skitt/Documents/PPRO/public/).
+- Express server servíruje statické soubory z adresáře `public/` jako fallback pro kořenovou routu `GET /`.
 
 ---
 
-### 5.4 Kompletní katalog REST API rozhraní a JSON příklady
+## 6. Kompletní katalog REST API rozhraní
 
-Systém nabízí čisté REST rozhraní s podporou anglických endpointů a zpětnou kompatibilitou pro české aliasy.
+### 6.1 Konvence a společné formáty odpovědí
 
-#### 1. Kurzy (`courses`)
+Veškeré REST endpointy komunikují ve formátu **JSON** v kódování **UTF-8**.
 
-| Metoda   | Endpoint           | Popis                                                                       |
-| -------- | ------------------ | --------------------------------------------------------------------------- |
-| `GET`    | `/api/courses`     | Seznam kurzů (volitelné query filtry: `?accredited=true\|false&query=text`) |
-| `GET`    | `/api/courses/:id` | Detail vybraného kurzu                                                      |
-| `POST`   | `/api/courses`     | Vytvoření nového kurzu s validací polí                                      |
-| `PUT`    | `/api/courses/:id` | Aktualizace kurzu                                                           |
-| `DELETE` | `/api/courses/:id` | Smazání kurzu                                                               |
+- **Úspěšná odpověď (200 OK / 201 Created):**
+  ```json
+  {
+    "success": true,
+    "message": "Operace proběhla úspěšně.",
+    "data": { ... }
+  }
+  ```
+- **Chybová odpověď (400 Bad Request / 404 Not Found / 500 Internal Error):**
+  ```json
+  {
+    "success": false,
+    "error": "Podrobný popis chyby nebo porušeného invariantu."
+  }
+  ```
 
-**Příklad: Vytvoření kurzu (`POST /api/courses`)**
+---
 
-_Request Payload (JSON):_
+### 6.2 Kurzy (`/api/courses`)
+
+| Metoda   | Endpoint           | Popis                                                                          |
+| -------- | ------------------ | ------------------------------------------------------------------------------ |
+| `GET`    | `/api/courses`     | Seznam kurzů (volitelné query parametry: `?accredited=true\|false&query=text`) |
+| `GET`    | `/api/courses/:id` | Detail vybraného kurzu dle UUID                                                |
+| `POST`   | `/api/courses`     | Vytvoření nového kurzu s validací polí                                         |
+| `PUT`    | `/api/courses/:id` | Aktualizace údajů kurzu                                                        |
+| `DELETE` | `/api/courses/:id` | Odstranění kurzu                                                               |
+
+#### Příklad: Vytvoření nového kurzu (`POST /api/courses`)
+
+_Request Body (JSON):_
 
 ```json
 {
   "title": "Mzdové účetnictví a personalistika",
-  "annotation": "Komplexní rekvalifikační kurz se zaměřením na zákoník práce, odvody a mzdy.",
+  "annotation": "Komplexní rekvalifikační kurz se zaměřením na zákoník práce, odvody, sociální pojištění a mzdy.",
   "hours": 80,
   "price": 14900,
   "isAccredited": true
@@ -477,7 +666,7 @@ _Response (201 Created):_
   "data": {
     "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
     "title": "Mzdové účetnictví a personalistika",
-    "annotation": "Komplexní rekvalifikační kurz se zaměřením na zákoník práce, odvody a mzdy.",
+    "annotation": "Komplexní rekvalifikační kurz se zaměřením na zákoník práce, odvody, sociální pojištění a mzdy.",
     "hours": 80,
     "price": 14900,
     "isAccredited": true,
@@ -487,22 +676,31 @@ _Response (201 Created):_
 }
 ```
 
+_Response při chybné validaci (400 Bad Request):_
+
+```json
+{
+  "success": false,
+  "error": "Course title must be at least 3 characters long."
+}
+```
+
 ---
 
-#### 2. Termíny a přihlášky (`terms`, `enrollments`)
+### 6.3 Termíny a přihlášky s čekací listinou (`/api/terms`, `/api/enrollments`)
 
-| Metoda | Endpoint                      | Popis                                                                           |
-| ------ | ----------------------------- | ------------------------------------------------------------------------------- |
-| `GET`  | `/api/terms`                  | Seznam termínů (včetně obsazenosti, kapacity a lektorů)                         |
-| `GET`  | `/api/terms/:id`              | Detail termínu                                                                  |
-| `POST` | `/api/terms`                  | Vypsání nového termínu s učebnou a lektory                                      |
-| `GET`  | `/api/terms/:id/enrollments`  | Seznam přihlášených studentů a čekatelů v pořadníku                             |
-| `POST` | `/api/terms/:id/enrollments`  | Zápis studenta na termín (potvrzení místa nebo zařazení na waitlist dle ADR-02) |
-| `POST` | `/api/enrollments/:id/cancel` | Zrušení přihlášky s okamžitým automatickým posunem náhradníka (ADR-02)          |
+| Metoda | Endpoint                      | Popis                                                                     |
+| ------ | ----------------------------- | ------------------------------------------------------------------------- |
+| `GET`  | `/api/terms`                  | Seznam termínů (včetně obsazenosti, kapacity a lektorů)                   |
+| `GET`  | `/api/terms/:id`              | Detail konkrétního termínu                                                |
+| `POST` | `/api/terms`                  | Vypsání nového termínu s učebnou a kapacitou                              |
+| `GET`  | `/api/terms/:id/enrollments`  | Seznam přihlášených studentů a čekatelů v pořadníku                       |
+| `POST` | `/api/terms/:id/enrollments`  | Zápis studenta na termín (potvrzení nebo zařazení na Waitlist dle ADR-02) |
+| `POST` | `/api/enrollments/:id/cancel` | Zrušení přihlášky s automatickým posunem náhradníka (ADR-02)              |
 
-**Příklad: Zápis studenta s volnou kapacitou (`POST /api/terms/:id/enrollments`)**
+#### Příklad: Zápis studenta na termín (`POST /api/terms/:id/enrollments`)
 
-_Request Payload (JSON):_
+_Request Body (JSON):_
 
 ```json
 {
@@ -511,11 +709,11 @@ _Request Payload (JSON):_
   "email": "jan.novak@example.cz",
   "phone": "+420 777 123 456",
   "organization": "Město Trutnov",
-  "note": "Požadavek na fakturaci pro zaměstnavatele"
+  "note": "Fakturovat zaměstnavateli"
 }
 ```
 
-_Response (201 Created – Potvrzeno):_
+_Response při volné kapacitě (201 Created – Potvrzeno):_
 
 ```json
 {
@@ -532,7 +730,7 @@ _Response (201 Created – Potvrzeno):_
 }
 ```
 
-_Response (201 Created – Po naplnění kapacity zařazeno do pořadníku ADR-02):_
+_Response při naplněné kapacitě (201 Created – Zařazeno do pořadníku ADR-02):_
 
 ```json
 {
@@ -549,9 +747,9 @@ _Response (201 Created – Po naplnění kapacity zařazeno do pořadníku ADR-0
 }
 ```
 
-**Příklad: Storno přihlášky a automatická kaskáda náhradníka (`POST /api/enrollments/:id/cancel`)**
+#### Příklad: Storno přihlášky s automatickým posunem (`POST /api/enrollments/:id/cancel`)
 
-_Response (200 OK – Náhradník #1 okamžitě povýšen):_
+_Response (200 OK):_
 
 ```json
 {
@@ -567,25 +765,25 @@ _Response (200 OK – Náhradník #1 okamžitě povýšen):_
 
 ---
 
-#### 3. Evidence docházky (`attendance`)
+### 6.4 Evidence docházky a výukové dny (`/api/attendance`)
 
-| Metoda | Endpoint                                | Popis                                                                      |
-| ------ | --------------------------------------- | -------------------------------------------------------------------------- |
-| `GET`  | `/api/attendance/terms/:termId/days`    | Seznam výukových dnů termínu (ADR-05)                                      |
-| `POST` | `/api/attendance/terms/:termId/days`    | Vytvoření výukového dne s lektorem a hodinovým rozsahem                    |
-| `GET`  | `/api/attendance/days/:dayId`           | Prezenční listina studentů na vybraném výukovém dni                        |
-| `POST` | `/api/attendance/days/:dayId/mark`      | Záznam přítomnosti studenta na výuce                                       |
-| `GET`  | `/api/attendance/terms/:termId/summary` | Přehled procentuální docházky studentů a vyhodnocení 70% pravidla (ADR-01) |
+| Metoda | Endpoint                                | Popis                                                          |
+| ------ | --------------------------------------- | -------------------------------------------------------------- |
+| `GET`  | `/api/attendance/terms/:termId/days`    | Seznam výukových dnů termínu (ADR-05)                          |
+| `POST` | `/api/attendance/terms/:termId/days`    | Vytvoření výukového dne s lektorem a hodinovým rozsahem        |
+| `GET`  | `/api/attendance/days/:dayId`           | Prezenční listina účastníků vybraného dne                      |
+| `POST` | `/api/attendance/days/:dayId/mark`      | Zápis přítomnosti studenta na výuce                            |
+| `GET`  | `/api/attendance/terms/:termId/summary` | Přehled docházky termínu s vyhodnocením pravidla 70 % (ADR-01) |
 
-**Příklad: Záznam přítomnosti studenta (`POST /api/attendance/days/:dayId/mark`)**
+#### Příklad: Zápis docházky studenta (`POST /api/attendance/days/:dayId/mark`)
 
-_Request Payload (JSON):_
+_Request Body (JSON):_
 
 ```json
 {
   "studentId": "c3d4e5f6-a7b8-9c0d-1e2f-3a4b5c6d7e8f",
   "isPresent": true,
-  "note": "Účast v plném rozsahu"
+  "note": "Účast v plném rozsahu výukového bloku"
 }
 ```
 
@@ -598,7 +796,7 @@ _Response (200 OK):_
 }
 ```
 
-**Příklad: Souhrn docházky termínu (`GET /api/attendance/terms/:termId/summary`)**
+#### Příklad: Souhrn docházky termínu (`GET /api/attendance/terms/:termId/summary`)
 
 _Response (200 OK):_
 
@@ -633,16 +831,16 @@ _Response (200 OK):_
 
 ---
 
-#### 4. Osvědčení a certifikáty (`certificates`)
+### 6.5 Osvědčení a certifikáty (`/api/certificates`)
 
 | Metoda | Endpoint                      | Popis                                                                              |
 | ------ | ----------------------------- | ---------------------------------------------------------------------------------- |
-| `POST` | `/api/terms/:termId/complete` | Uzavření termínu a hromadné vystavení osvědčení kvalifikovaným studentům (>= 70 %) |
-| `GET`  | `/api/certificates`           | Seznam všech vydaných certifikátů v systému                                        |
-| `GET`  | `/api/certificates/:id`       | Detail konkrétního certifikátu                                                     |
-| `POST` | `/api/certificates/issue`     | Individuální vystavení certifikátu se schválenou lektorskou výjimkou (ADR-01)      |
+| `POST` | `/api/terms/:termId/complete` | Hromadné uzavření termínu a vystavení osvědčení kvalifikovaným studentům (>= 70 %) |
+| `GET`  | `/api/certificates`           | Seznam všech vydaných osvědčení v systému                                          |
+| `GET`  | `/api/certificates/:id`       | Detail konkrétního osvědčení                                                       |
+| `POST` | `/api/certificates/issue`     | Vystavení osvědčení se schválenou lektorskou výjimkou (ADR-01)                     |
 
-**Příklad: Hromadné uzavření termínu (`POST /api/terms/:termId/complete`)**
+#### Příklad: Hromadné uzavření termínu (`POST /api/terms/:termId/complete`)
 
 _Response (200 OK):_
 
@@ -667,9 +865,9 @@ _Response (200 OK):_
 }
 ```
 
-**Příklad: Vystavení certifikátu na základě výjimky lektora (`POST /api/certificates/issue`)**
+#### Příklad: Vystavení osvědčení na výjimku lektora (`POST /api/certificates/issue`)
 
-_Request Payload (JSON):_
+_Request Body (JSON):_
 
 ```json
 {
@@ -699,17 +897,17 @@ _Response (201 Created):_
 
 ---
 
-#### 5. Číselníky a analytické manažerské výkazy (`analytics`)
+### 6.6 Číselníky a manažerská analytika (`/api/lecturers`, `/api/classrooms`, `/api/students`, `/api/analytics`, `/health`)
 
-| Metoda | Endpoint          | Popis                                                                                        |
-| ------ | ----------------- | -------------------------------------------------------------------------------------------- |
-| `GET`  | `/api/lecturers`  | Seznam lektorů, jejich specializace a celkový součet odučených hodin                         |
-| `GET`  | `/api/classrooms` | Seznam učeben a jejich maximální kapacity                                                    |
-| `GET`  | `/api/students`   | Seznam studentů a počet jejich aktivních přihlášek                                           |
-| `GET`  | `/api/analytics`  | Manažerské výkazy dle bodu 8 zadání (vytížení kapacit, hodiny lektorů, vícekurzoví studenti) |
-| `GET`  | `/health`         | Healthcheck stavu aplikace                                                                   |
+| Metoda | Endpoint          | Popis                                                                                           |
+| ------ | ----------------- | ----------------------------------------------------------------------------------------------- |
+| `GET`  | `/api/lecturers`  | Seznam lektorů, jejich specializace a celkový součet odučených hodin                            |
+| `GET`  | `/api/classrooms` | Seznam učeben a jejich maximální fyzická kapacita                                               |
+| `GET`  | `/api/students`   | Adresář studentů a počet jejich aktivních přihlášek                                             |
+| `GET`  | `/api/analytics`  | Manažerské ukazatele dle bodu 8 zadání (vytížení termínů, hodiny lektorů, vícekurzoví studenti) |
+| `GET`  | `/health`         | Kontrola provozuschopnosti aplikace (health check vracející status 200 a stav UP)               |
 
-**Příklad: Manažerská analytika (`GET /api/analytics`)**
+#### Příklad: Manažerská analytika (`GET /api/analytics`)
 
 _Response (200 OK):_
 
@@ -743,341 +941,344 @@ _Response (200 OK):_
         "studentName": "Jan Novák",
         "email": "jan.novak@example.cz",
         "enrolledCoursesCount": 2,
-        "enrolledCourses": ["Mzdové účetnictví a personalistika", "Daňový specialista"]
+        "enrolledCourses": ["Mzdové účetnictví a personalistika", "Daňový specialista pro praxi"]
       }
     ]
   }
 }
 ```
 
-_(Poznámka: Pro zpětnou kompatibilitu jsou na serveru zachovány i původní české aliasy jako `/api/kurzy`, `/api/terminy`, `/api/prihlasky`, `/api/osvedceni`, `/api/prehledy`.)_
+### 6.7 Zpětně kompatibilní české aliasy
+
+Pro zajištění stoprocentní zpětné kompatibility s původní specifikací podporuje Express router i české aliasy:
+
+- `/api/kurzy` -> zrcadlí `/api/courses`
+- `/api/terminy` -> zrcadlí `/api/terms`
+- `/api/prihlasky` -> zrcadlí `/api/enrollments`
+- `/api/osvedceni` -> zrcadlí `/api/certificates`
+- `/api/lektori` -> zrcadlí `/api/lecturers`
+- `/api/ucebny` -> zrcadlí `/api/classrooms`
+- `/api/studenti` -> zrcadlí `/api/students`
+- `/api/prehledy` -> zrcadlí `/api/analytics`
 
 ---
 
-## 6. Testovací strategie
+## 7. Infrastruktura a spuštění projektu
 
-Projekt disponuje ucelenou sadou testů spouštěných nativním Node test runnerem (`node --test`). Testovací strategie kombinuje **20 izolovaných doménových unit testů** ověřujících byznys logiku a invarianty a **9 integračních End-to-End testů** ověřujících reálný průchod API a perzistenci dat.
+### 7.1 Použitý technologický stack
 
-### 6.1 Přehled doménových unit testů (20 testů)
+- **Běhové prostředí:** Node.js 22 LTS (TypeScript 5.7, ES Modules, `strict` typování).
+- **Backend framework:** Express 4.21 s typovanými kontrolery a DTOs.
+- **Frontend SPA:** Vite 6 + TypeScript + Tailwind CSS 3.4 (Dark/Light mode, modály, toast systém).
+- **Databáze:** PostgreSQL 16 Alpine řízená přes `docker-compose.yml`.
+- **Databázové migrace:** Vlastní migrační runner aplikující verzované SQL skripty (`migrations/001` až `005`).
+- **Testovací nástroje:** Nativní Node Test Runner (`node --test`), Jest 30 s ESM presetem `ts-jest` a Supertest.
+- **Kvalita kódu:** ESLint 10 (Flat Config) s `typescript-eslint` a Prettier 3.
 
-#### 1. Sada: `CourseService and Course Entity` ([`test/CourseService.test.ts`](test/CourseService.test.ts) – 7 testů)
+---
 
-- `Successfully creates course with valid parameters`: Ověření správné tvorby kurzu se všemi povinnými parametry.
+### 7.2 Lokální spuštění v Dockeru (doporučeno pro obhajobu)
+
+Celý aplikační stack (databáze PostgreSQL 16 s automatickou inicializací schématu + produkční build aplikace) se spouští jediným příkazem:
+
+```bash
+docker compose up --build
+```
+
+Kontejnery projdou automatickým health checkem. Aplikace je následně dostupná:
+
+- **Webový informační systém (SPA):** [http://localhost:3000](http://localhost:3000)
+- **REST API kurzů:** [http://localhost:3000/api/courses](http://localhost:3000/api/courses)
+- **REST API termínů a přihlášek:** [http://localhost:3000/api/terms](http://localhost:3000/api/terms)
+- **REST API docházky:** [http://localhost:3000/api/attendance](http://localhost:3000/api/attendance)
+- **REST API osvědčení:** [http://localhost:3000/api/certificates](http://localhost:3000/api/certificates)
+- **Manažerské výkazy a analytika:** [http://localhost:3000/api/analytics](http://localhost:3000/api/analytics)
+- **Health check:** [http://localhost:3000/health](http://localhost:3000/health)
+
+Ukončení běhu kontejnerů:
+
+```bash
+docker compose down
+```
+
+---
+
+### 7.3 Lokální vývojové spuštění (bez Dockeru)
+
+Pro lokální vývoj na stanici bez Dockeru:
+
+1. Zajistěte běžící instanci PostgreSQL 16 na portu 5432 (nastavení připojení viz `.env` dle vzoru [`.env.example`](file:///C:/Users/skitt/Documents/PPRO/.env.example)).
+2. Spusťte následující příkazy:
+
+```bash
+# 1. Instalace závislostí
+npm install
+
+# 2. Spuštění verzovaných SQL migrací do PostgreSQL
+npm run migrate
+
+# 3. Zkompilování frontendu (Vite bundle) a backendu (TypeScript)
+npm run build
+
+# 4. Spuštění vývojového serveru s hot-reloadem (tsx watch)
+npm run dev
+```
+
+Volitelně pro okamžitý HMR (Hot Module Replacement) vývoj frontendu:
+
+```bash
+npm run dev:client
+```
+
+---
+
+### 7.4 Přehled všech npm skriptů
+
+| Příkaz                 | Popis                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------- |
+| `npm run build`        | Spustí kompletní produkční sestavení frontendu (`build:client`) i backendu (`build:server`) |
+| `npm run build:client` | Zkompiluje frontend přes Vite (bundle do složky `public/`)                                  |
+| `npm run build:server` | Zkompiluje backendový TypeScript přes `tsc` do složky `dist/`                               |
+| `npm start`            | Spustí zkompilovaný produkční backend (`node dist/index.js`)                                |
+| `npm run dev`          | Spustí vývojový backend s automatickým restartem při změně kódu (`tsx watch`)               |
+| `npm run dev:client`   | Spustí samostatný Vite dev server s HMR pro okamžitý vývoj UI                               |
+| `npm run migrate`      | Provede řízené SQL migrace proti konfigurované PostgreSQL databázi                          |
+| `npm test`             | Spustí sadu 29 testů v nativním Node test runneru (20 unit + 9 E2E testů)                   |
+| `npm run test:jest`    | Spustí komplexní sadu 71 testů v frameworku Jest (53 unit + 18 integračních)                |
+| `npm run lint`         | Zkontroluje kód celého projektu statickou analýzou ESLint (Flat Config)                     |
+| `npm run lint:fix`     | Automaticky opraví detekované formátovací a lintingové odchylky                             |
+| `npm run format:check` | Zkontroluje formátování souborů podle standardu Prettier                                    |
+| `npm run format`       | Přeformátuje všechny zdrojové soubory v repozitáři podle pravidel Prettier                  |
+
+---
+
+## 8. Testovací strategie a zajištění kvality
+
+### 8.1 Přehled testovací strategie (dvoustupňový testovací harness)
+
+Systém využívá moderní dvoustupňový testovací harness kombinující:
+
+1. **Nativní Node Test Runner (`node --test`):** Zajišťuje bleskové ověření základních doménových modelů a reálných integračních toků vytváření entit.
+2. **Jest Test Runner s TypeScript & ESM (`test:jest`):** Poskytuje hloubkové, granulární ověření doménových invariantů, simulaci transakčních stavů s in-memory mocky a integrační testování HTTP vrstvy přes Supertest.
+
+Celý repozitář obsahuje **100 plně automatizovaných testů** se **100% úspěšností (zero failures)**.
+
+---
+
+### 8.2 Nativní Node test runner (29 testů – 20 unit + 9 E2E)
+
+Sada se spouští příkazem `npm test` a obsahuje 4 testovací moduly:
+
+#### 1. Doménové invarianty kurzů ([`test/CourseService.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/CourseService.test.ts) – 7 testů)
+
+- `Successfully creates course with valid parameters`: Vytvoření platného kurzu se všemi parametry.
 - `Throws error when course title is too short (< 3 characters)`: Invariant minimální délky názvu.
-- `Throws error when course hours are non-positive`: Invariant kladné hodinové dotace (> 0).
+- `Throws error when course hours are non-positive`: Validace kladného počtu hodin (> 0).
 - `Throws error when course price is negative`: Invariant nezáporné ceny (>= 0).
-- `Filters courses by accreditation status and query text`: Filtrování nabídky kurzů dle akreditace a textového vyhledávání.
-- `Updates existing course details`: Správná editace parametrů kurzu v aplikační službě.
-- `Deletes course and verifies it no longer exists`: Korektní smazání kurzu.
+- `Filters courses by accreditation status and query text`: Filtrování nabídky dle akreditace a textu.
+- `Updates existing course details`: Editace parametrů kurzu v aplikační službě.
+- `Deletes course and verifies it no longer exists`: Odstranění kurzu z nabídky.
 
-#### 2. Sada: `CourseTerm and Enrollment Entities & Waiting List` ([`test/TermAndEnrollment.test.ts`](test/TermAndEnrollment.test.ts) – 5 testů)
+#### 2. Termíny, kapacity a čekací listina ([`test/TermAndEnrollment.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/TermAndEnrollment.test.ts) – 5 testů)
 
-- `Successfully creates valid course term with capacity`: Vytvoření platného termínu s výchozím stavem `PLANNED` a volnými místy.
-- `Correctly detects full capacity`: Detekce plné kapacity termínu (`isFull = true`, `availableSpots = 0`).
-- `Throws error when end date precedes start date`: Invariant časového intervalu (`startDate <= endDate`).
-- `Throws error when term capacity is non-positive`: Validace kladné kapacity termínu (> 0).
-- `Waitlisted enrollment requires a positive sequential position number (ADR-02)`: Invariant pořadníku: student na waitlistu musí mít kladné pořadové číslo.
+- `Successfully creates valid course term with capacity`: Vytvoření platného termínu se stavem `PLANNED`.
+- `Correctly detects full capacity`: Detekce naplněné kapacity (`isFull = true`, `availableSpots = 0`).
+- `Throws error when end date precedes start date`: Invariant chronologie termínu (`startDate <= endDate`).
+- `Throws error when term capacity is non-positive`: Invariant kladné kapacity termínu (> 0).
+- `Waitlisted enrollment requires a positive sequential position number (ADR-02)`: Pozice náhradníka musí být kladné celé číslo.
 
-#### 3. Sada: `Attendance and Certificate Entities (ADR-01 & ADR-05)` ([`test/AttendanceAndCertificate.test.ts`](test/AttendanceAndCertificate.test.ts) – 8 testů)
+#### 3. Výukové dny, docházka a certifikace ([`test/AttendanceAndCertificate.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/AttendanceAndCertificate.test.ts) – 8 testů)
 
-- `Successfully creates valid teaching day`: Vytvoření výukového bloku termínu s lektorem a hodinovou dotací.
-- `Throws error for teaching day with non-positive hours or short topic`: Validace hodin a délky tématu výukového dne.
-- `Successfully creates attendance record`: Záznam prezence studenta na výukovém dni.
-- `Issues certificate automatically when attendance rate >= 70% (ADR-01)`: Automatické vystavení osvědčení při splnění docházkové hranice 70 %.
-- `Rejects certificate issuance when attendance rate < 70% without lecturer waiver (ADR-01)`: Striktní odmítnutí certifikátu při docházce pod 70 % bez výjimky.
-- `Allows certificate when attendance < 70% with valid lecturer waiver and written justification (ADR-01)`: Úspěšné vystavení certifikátu při docházce pod 70 % na základě odůvodněné výjimky lektora.
-- `Rejects certificate waiver if written justification is missing or too short`: Odmítnutí lektorské výjimky při chybějícím nebo příliš stručném odůvodnění (< 5 znaků).
-- `Validates certificate numbering format: AT-YYYY-XXXX`: Striktní validace masky evidenčního čísla osvědčení.
+- `Successfully creates valid teaching day`: Vytvoření výukového bloku s lektorem (ADR-05).
+- `Throws error for teaching day with non-positive hours or short topic`: Validace hodin a délky tématu.
+- `Successfully creates attendance record`: Záznam prezence účastníka.
+- `Issues certificate automatically when attendance rate >= 70% (ADR-01)`: Automatické osvědčení při docházce >= 70 %.
+- `Rejects certificate issuance when attendance rate < 70% without lecturer waiver (ADR-01)`: Zamítnutí certifikátu při docházce pod 70 % bez výjimky.
+- `Allows certificate when attendance < 70% with valid lecturer waiver and written justification (ADR-01)`: Úspěšné vystavení certifikátu na základě odůvodněné výjimky lektora.
+- `Rejects certificate waiver if written justification is missing or too short`: Odmítnutí výjimky při odůvodnění kratším než 5 znaků.
+- `Validates certificate numbering format: AT-YYYY-XXXX`: Striktní validace masky čísla certifikátu.
 
-### 6.2 Přehled integračních End-to-End testů ([`test/api-creation-flows.test.ts`](test/api-creation-flows.test.ts) – 9 testů)
+#### 4. Integrační toky API ([`test/api-creation-flows.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/api-creation-flows.test.ts) – 9 E2E testů)
 
-- `Flow 1: Creating a Course via POST /api/courses`: Vytvoření akreditovaného kurzu přes HTTP API.
-- `Flow 1: Creating a Course with price 0 (free workshop)`: Vytvoření bezplatného workshopu s nulovou cenou (ověření validace `>= 0`).
-- `Flow 2: Creating a Term via POST /api/terms`: Vypsání termínu s přiřazením učebny a lektorů.
-- `Flow 3: Creating a Confirmed Enrollment via POST /api/terms/:id/enrollments`: Úspěšný zápis studenta s potvrzením místa.
-- `Flow 3: Creating a Waitlisted Enrollment when capacity is reached (ADR-02)`: Automatické zařazení do pořadníku náhradníků při naplněné kapacitě.
-- `Flow 4: Creating a Teaching Day via POST /api/attendance/terms/:termId/days`: Vytvoření výukového dne s lektorem.
-- `Flow 5: Recording Attendance via POST /api/attendance/days/:dayId/mark`: Zápis účasti studenta.
-- `Flow 6a: Completing Term via POST /api/terms/:termId/complete`: Uzavření termínu a hromadné generování certifikátů.
-- `Flow 6b: Issuing Certificate with Lecturer Waiver via POST /api/certificates/issue`: Vystavení certifikátu na výjimku lektora.
-
-### 6.3 Komplexní testovací sada v Jestu ([`test/jest/`](test/jest/) – 71 testů)
-
-Pro hloubkovou automatizovanou verifikaci celého systému byla implementována dedikovaná testovací sada v moderním frameworku **Jest** s plnou podporou **TypeScript** a **ECMAScript Modules (ESM)** prostřednictvím `ts-jest/presets/default-esm`. Testy jsou strukturovány do 5 tematických modulů s přehlednými `describe` a `it` bloky:
-
-#### 1. Sada: `CourseService and Course Entity` ([`test/jest/course.service.test.ts`](test/jest/course.service.test.ts) – 17 testů)
-
-- **Doménové invarianty entity `Course`:**
-  - Vytvoření platného kurzu se všemi parametry (název, anotace, hodiny, cena, akreditace).
-  - Povolení bezplatných kurzů a workshopů s cenou `0 Kč`.
-  - Ořezávání bílých znaků (trimming) v názvu i anotaci.
-  - Validace délky názvu (min. 3 znaky, max. 150 znaků).
-  - Validace minimální délky anotace (min. 10 znaků).
-  - Validace kladné celočíselné hodinové dotace (`hours > 0`, zákaz desetinných čísel a záporných hodnot).
-  - Zákaz záporné ceny (`price < 0`).
-- **Aplikační služba `CourseService`:**
-  - Vytvoření kurzu a návrat kompletního `CourseResponseDto`.
-  - Získání kurzu dle ID a vyhození výjimky při neexistujícím ID.
-  - Filtrování kurzů dle stavu akreditace (`isAccredited: true/false`).
-  - Textové vyhledávání v názvu i anotaci kurzu (včetně kombinace s filtrem akreditace).
-  - Aktualizace parametrů existujícího kurzu (`updateCourse`).
-  - Zabezpečení proti aktualizaci a smazání neexistujícího kurzu.
-  - Smazání kurzu a ověření jeho odstranění.
-
-#### 2. Sada: `CourseTerm and Enrollment Entities & TermService` ([`test/jest/term-and-enrollment.test.ts`](test/jest/term-and-enrollment.test.ts) – 14 testů)
-
-- **Doménová entita `CourseTerm`:**
-  - Kalkulace volných míst (`availableSpots`) a výchozí stav `PLANNED`.
-  - Detekce plné kapacity termínu (`isFull`).
-  - Invariant časového intervalu (zákaz `startDate > endDate`).
-  - Invariant kladné kapacity (`capacity > 0`).
-  - Povinná vazba na existující kurz (`courseId`).
-- **Doménová entita `Enrollment`:**
-  - Vytvoření potvrzené přihlášky se stavem `CONFIRMED`.
-  - Zařazení do pořadníku (`WAITLIST`) s kladným sekvenčním číslem pozice (ADR-02).
-  - Zákaz nekladné nebo chybějící pozice v pořadníku pro stav `WAITLIST`.
-  - Validace povinných referencí (`termId`, `studentId`).
-- **Aplikační služba `TermService` a workflow pořadníku (ADR-02 & ADR-03):**
-  - Validace vstupních parametrů při zakládání termínu a přihlášky studenta.
-  - Automatické potvrzování přihlášek do vyčerpání kapacity.
-  - Automatické přesouvání zájemců do pořadníku náhradníků po naplnění kapacity termínu (ADR-02).
-  - **Transakční postup z pořadníku při stornu:** Při zrušení potvrzeného místa je náhradník na pozici #1 automaticky povýšen na `CONFIRMED` a všem zbývajícím čekatelům je pozice snížena o 1 (ADR-02).
-  - **Zákaz souběhu (ADR-03):** Zamezení vícenásobné aktivní registrace jednoho studenta na různé termíny téhož kurzu.
-
-#### 3. Sada: `TeachingDay, Attendance Domain Entities and AttendanceService` ([`test/jest/attendance.test.ts`](test/jest/attendance.test.ts) – 12 testů)
-
-- **Doménová entita `TeachingDay` (ADR-05):**
-  - Vytvoření výukového dne s lektorem, hodinovou dotací a probíraným tématem.
-  - Trimming tématu a validace minimální délky tématu (min. 3 znaky).
-  - Validace kladné celočíselné hodinové dotace (> 0).
-  - Povinné datum výukového dne a vazba na termín.
-- **Doménová entita `Attendance`:**
-  - Záznam docházky studenta (přítomen / nepřítomen / poznámka).
-  - Validace referencí na výukový den a studenta.
-- **Aplikační služba `AttendanceService` a pravidlo 70 % (ADR-01 & ADR-05):**
-  - Validace vstupních parametrů pro zakládání výukových dnů i záznam prezence.
-  - Výpočet procentuální docházky studentů na základě proběhlých výukových dnů.
-  - Přesné vyhodnocení docházkové podmínky: docházka 100 % a 70 % splňuje kritérium pro osvědčení (`qualifiesForCertificate = true`), docházka 60 % kritérium nesplňuje (`qualifiesForCertificate = false`).
-
-#### 4. Sada: `Certificate Entity and CertificateService` ([`test/jest/certificate.test.ts`](test/jest/certificate.test.ts) – 10 testů)
-
-- **Doménová entita `Certificate` (ADR-01):**
-  - Automatické vystavení osvědčení při docházce >= 70 %.
-  - Splnění podmínky na přesné hraniční hodnotě 70.0 % docházky bez nutnosti výjimky.
-  - Zamítnutí vystavení bez schválené výjimky při docházce pod 70 %.
-  - Úspěšné vystavení osvědčení při docházce pod 70 % se schválenou lektorskou výjimkou a písemným odůvodněním.
-  - Zamítnutí výjimky při absenci nebo nedostatečné délce odůvodnění (< 5 znaků).
-  - Striktní kontrola formátu čísla certifikátu dle masky `AT-YYYY-XXXX` (např. `AT-2026-0042`).
-  - Zákaz neplatných formátů a validace rozsahu docházky (0 až 100 %).
-- **Aplikační služba `CertificateService`:**
-  - Validace vstupních parametrů při vystavování osvědčení.
-  - Hromadné uzavření termínu (`completeTerm`) s automatickým vystavením certifikátů všem kvalifikovaným studentům a možností individuálního udělení výjimky pro nekvalifikované.
-
-#### 5. Sada: `Express API Integration and Route Verification` ([`test/jest/api.integration.test.ts`](test/jest/api.integration.test.ts) – 18 testů)
-
-- **Integrační testy přes Supertest:**
-  - `GET /health` – dostupnost systému (status 200, status: "UP").
-  - `GET /api/courses` & alias `GET /api/kurzy` – katalog kurzů a český alias.
-  - `POST /api/courses` – validace chybových odpovědí (HTTP 400 při neplatném názvu, hodinách či záporné ceně).
-  - `GET /api/terms` & alias `GET /api/terminy` – seznam vypsaných termínů a 404 pro neexistující ID.
-  - `GET /api/certificates` & alias `GET /api/osvedceni` – evidence vydaných osvědčení.
-  - `POST /api/certificates/issue` – validace povinných polí přihlášky (HTTP 400).
-  - `GET /api/attendance/terms/:termId/days` – výukové dny termínu.
-  - `GET /api/attendance/terms/:termId/summary` – souhrnný docházkový výkaz.
-  - `GET /api/lecturers` & `GET /api/lektori` – číselník lektorů.
-  - `GET /api/classrooms` & `GET /api/ucebny` – číselník učeben s kapacitami.
-  - `GET /api/students` & `GET /api/studenti` – adresář studentů.
-  - `GET /api/analytics` & `GET /api/prehledy` – analytické ukazatele a statistiky.
+- `Flow 1: Creating a Course via POST /api/courses`: Vytvoření kurzu přes HTTP API.
+- `Flow 1: Creating a Course with price 0 (free workshop)`: Vytvoření bezplatného semináře s nulovou cenou.
+- `Flow 2: Creating a Term via POST /api/terms`: Vypsání termínu kurzu s učebnou.
+- `Flow 3: Creating a Confirmed Enrollment via POST /api/terms/:id/enrollments`: Potvrzený zápis studenta.
+- `Flow 3: Creating a Waitlisted Enrollment when capacity is reached (ADR-02)`: Zařazení náhradníka do pořadníku.
+- `Flow 4: Creating a Teaching Day via POST /api/attendance/terms/:termId/days`: Vytvoření výukového dne.
+- `Flow 5: Recording Attendance via POST /api/attendance/days/:dayId/mark`: Zápis docházky studenta.
+- `Flow 6a: Completing Term via POST /api/terms/:termId/complete`: Uzavření termínu a hromadné vydání certifikátů.
+- `Flow 6b: Issuing Certificate with Lecturer Waiver via POST /api/certificates/issue`: Vystavení certifikátu na lektorskou výjimku.
 
 ---
 
-### 6.4 Spuštění testů a souhrnný přehled
+### 8.3 Komplexní testovací sada v Jestu s TypeScript & ESM (71 testů)
 
-Projekt disponuje dvěma komplementárními testovacími rozhraními:
+Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresáři [`test/jest/`](file:///C:/Users/skitt/Documents/PPRO/test/jest/). Je rozdělena do 5 testovacích modulů:
 
-| Příkaz              | Runner            | Počet testů   | Popis                                                                |
-| ------------------- | ----------------- | ------------- | -------------------------------------------------------------------- |
-| `npm test`          | Node Test Runner  | 29 testů      | 20 doménových testů + 9 end-to-end integračních testů proti databázi |
-| `npm run test:jest` | Jest (TypeScript) | 71 testů      | 53 doménových unit testů + 18 integračních Supertest API testů       |
-| **Celkem**          |                   | **100 testů** | **100% úspěšnost (0 chyb, zero failures)**                           |
+#### 1. Doménová entita `Course` a `CourseService` ([`test/jest/course.service.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/course.service.test.ts) – 17 testů)
 
-#### 1. Spuštění sady Jest testů:
+- Validace parametrů entity (ořezání mezer, délka 3–150 znaků, nezáporná cena, kladné celé hodiny).
+- Povolení bezplatných kurzů a seminářů s cenou 0 Kč.
+- Use cases aplikační služby: vytvoření kurzu, vyhledání dle ID, ošetření neexistujícího záznamu, kombinované filtry akreditace a fulltextu, aktualizace a bezpečné mazání.
+
+#### 2. Entita `CourseTerm`, `Enrollment` a čekací listina ([`test/jest/term-and-enrollment.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/term-and-enrollment.test.ts) – 14 testů)
+
+- Invarianty termínu: chronologie od–do, kladná kapacita, detekce naplněnosti.
+- Invarianty přihlášky: validace stavu `CONFIRMED` a `WAITLIST` s kladným pořadím.
+- **Transakční simulace čekací listiny (ADR-02):** Automatické zařazení na waitlist po naplnění kapacity; při stornu potvrzeného místa okamžité povýšení náhradníka #1 na stav `CONFIRMED` a přepočet pořadí zbývajících čekatelů o 1 dopředu.
+- **Pravidlo zákazu souběhu (ADR-03):** Odmítnutí druhé potvrzené registrace téhož studenta na jiný termín stejného kurzu.
+
+#### 3. Výukové dny, docházka a pravidlo 70 % ([`test/jest/attendance.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/attendance.test.ts) – 12 testů)
+
+- Invarianty výukového dne: kladné hodiny, minimální délka tématu (min. 3 znaky), vazba na lektora (ADR-05).
+- Entita docházky: záznam přítomnosti a volitelné poznámky.
+- **Kalkulace docházkového limitu (ADR-01):** Přesný výpočet docházky; student s účastí 100 % a 70 % je kvalifikován (`qualifiesForCertificate = true`), student s 60 % není kvalifikován (`qualifiesForCertificate = false`).
+
+#### 4. Osvědčení a uzavření termínu ([`test/jest/certificate.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/certificate.test.ts) – 10 testů)
+
+- Automatické vydání osvědčení při docházce >= 70 %.
+- Hraniční hodnota 70.0 % nevyžaduje výjimku lektora.
+- Striktní zamítnutí certifikátu při docházce < 70 % bez schválené výjimky.
+- Schválení certifikátu s lektorskou výjimkou a písemným zdůvodněním (min. 5 znaků).
+- Validace masky evidenčního čísla `AT-YYYY-XXXX` (např. `AT-2026-0001`).
+- Hromadné uzavření termínu v `CertificateService` a automatické vystavení absolventům.
+
+#### 5. Integrační testy Express REST API přes Supertest ([`test/jest/api.integration.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/api.integration.test.ts) – 18 testů)
+
+- Ověření endpointu `/health` (HTTP 200, status "UP").
+- REST API kurzů (`GET /api/courses`, alias `GET /api/kurzy`, validace chyb 400 při neplatném zadání).
+- REST API termínů a přihlášek (`GET /api/terms`, alias `GET /api/terminy`, 404 pro neexistující ID).
+- REST API osvědčení (`GET /api/certificates`, alias `GET /api/osvedceni`, chybové stavy 400).
+- REST API docházky (`GET /api/attendance/terms/:termId/days`, `summary`).
+- Číselníky a manažerská analytika (`/api/lecturers`, `/api/classrooms`, `/api/students`, `/api/analytics` a české aliasy).
+
+---
+
+### 8.4 Souhrnná tabulka testovacího pokrytí (100 testů, 100% pass)
+
+| Testovací sada                          | Běhové prostředí  | Zaměření                                                          | Počet testů   | Výsledek                    |
+| --------------------------------------- | ----------------- | ----------------------------------------------------------------- | ------------- | --------------------------- |
+| `test/CourseService.test.ts`            | Node Test Runner  | Doménové invarianty kurzu a CRUD operace                          | 7 testů       | PASS (100 %)                |
+| `test/TermAndEnrollment.test.ts`        | Node Test Runner  | Termíny, kapacity a invarianty waitlistu (ADR-02)                 | 5 testů       | PASS (100 %)                |
+| `test/AttendanceAndCertificate.test.ts` | Node Test Runner  | Výukové dny, docházka a certifikace (ADR-01, ADR-05)              | 8 testů       | PASS (100 %)                |
+| `test/api-creation-flows.test.ts`       | Node Test Runner  | Ucelené integrační End-to-End průchody API                        | 9 testů       | PASS (100 %)                |
+| `test/jest/course.service.test.ts`      | Jest + TypeScript | Hloubkové unit testy kurzu a služeb                               | 17 testů      | PASS (100 %)                |
+| `test/jest/term-and-enrollment.test.ts` | Jest + TypeScript | Transakční posun čekací listiny (ADR-02) a zákaz souběhu (ADR-03) | 14 testů      | PASS (100 %)                |
+| `test/jest/attendance.test.ts`          | Jest + TypeScript | Výukové dny a kalkulace 70% docházky (ADR-01, ADR-05)             | 12 testů      | PASS (100 %)                |
+| `test/jest/certificate.test.ts`         | Jest + TypeScript | Generování diplomů AT-YYYY-XXXX a lektorské výjimky               | 10 testů      | PASS (100 %)                |
+| `test/jest/api.integration.test.ts`     | Jest + Supertest  | Integrační ověření Express rout, chyb a aliasů                    | 18 testů      | PASS (100 %)                |
+| **CELKEM V REPOZITÁŘI**                 |                   | **Kompletní dvoustupňový testovací harness**                      | **100 testů** | **100% ÚSPĚŠNOST (0 chyb)** |
+
+---
+
+### 8.5 Kvalita kódu, linting a formátování (ESLint + Prettier)
+
+Projekt striktně dodržuje pravidla čistého kódu a jednotného formátování:
+
+- **ESLint 10 (Flat Config):** Konfigurace [`eslint.config.js`](file:///C:/Users/skitt/Documents/PPRO/eslint.config.js) sjednocuje pravidla pro TypeScript, Node.js i klientský kód. Integruje `eslint-config-prettier` pro eliminaci kolizí pravidel.
+- **Prettier:** Konfigurace [`.prettierrc.json`](file:///C:/Users/skitt/Documents/PPRO/.prettierrc.json) stanovuje pravidla: středníky `semi: true`, dvojité uvozovky `singleQuote: false`, 2 mezery odsazení `tabWidth: 2`, šířka řádku `printWidth: 100`.
+- **Pre-commit kontrola:** Skript `.githooks/pre-commit` hlídá soulad dokumentace s prováděnými změnami v kódu před každým potvrzením commitu.
+
+Příkazy pro verifikaci kvality:
 
 ```bash
-npm run test:jest
-```
+# Spuštění statické analýzy
+npm run lint
 
-Výstup Jest test runneru:
-
-```text
-PASS test/jest/attendance.test.ts (12 tests passed)
-PASS test/jest/term-and-enrollment.test.ts (14 tests passed)
-PASS test/jest/course.service.test.ts (17 tests passed)
-PASS test/jest/certificate.test.ts (10 tests passed)
-PASS test/jest/api.integration.test.ts (18 tests passed)
-
-Test Suites: 5 passed, 5 total
-Tests:       71 passed, 71 total
-Snapshots:   0 total
-Time:        6.834 s
-Ran all test suites.
-```
-
-#### 2. Spuštění sady Node test runner testů:
-
-```bash
-npm test
-```
-
-Výstup nativního runneru:
-
-```text
-✔ Attendance and Certificate Entities (Unit Tests - ADR-01 & ADR-05) (8 tests passed)
-✔ CourseService and Course Entity (Unit Tests) (7 tests passed)
-✔ CourseTerm and Enrollment Entities & Waiting List (Unit Tests) (5 tests passed)
-✔ End-to-End API Creation Flows (Akademie Trutnov) (9 tests passed)
-
-ℹ tests 29
-ℹ suites 4
-ℹ pass 29
-ℹ fail 0
+# Kontrola shody formátování
+npm run format:check
 ```
 
 ---
 
-### 6.5 Kvalita kódu, linting a formátování (ESLint + Prettier)
+## 9. Přehled plnění požadavků zadání klienta (100% HOTOVO)
 
-Pro udržení vysoké kvality a konzistence kódu napříč celým projektem (backend v `src/`, frontend v `frontend/` i testy v `test/`) jsou integrovány standardní nástroje moderního TypeScript ekosystému:
+### 9.1 Tabulka plnění 8 bodů zadání
 
-- **ESLint (Flat Config):** Konfigurační soubor [`eslint.config.js`](eslint.config.js) využívá moderní formát Flat Config s parserem `typescript-eslint`, doporučenými pravidly (`typescript-eslint/recommended`), definicí globálních proměnných pro Node.js i prohlížeč a integrací s Prettierem (`eslint-config-prettier`).
-- **Prettier:** Konfigurace v [`.prettierrc.json`](.prettierrc.json) definuje jednotná pravidla (středníky `semi: true`, dvojité uvozovky `singleQuote: false`, 2 mezery odsazení `tabWidth: 2`, `trailingComma: "es5"`, šířka řádku `printWidth: 100`, automatické konce řádků `endOfLine: "auto"`).
-- **Ignorované cesty:** Build artefakty a cache složky (`dist/`, `node_modules/`, `public/`, `coverage/`, `.idea/`, `package-lock.json`) jsou vyloučeny v [`eslint.config.js`](eslint.config.js) i v [`.prettierignore`](.prettierignore).
+Následující přehled dokumentuje stoprocentní splnění všech akademických i klientských požadavků projektu **Zadání C (Akademie Trutnov)**:
 
-#### Npm skripty pro kontrolu kvality:
-
-| Příkaz                 | Popis                                                                     |
-| ---------------------- | ------------------------------------------------------------------------- |
-| `npm run lint`         | Spustí statickou analýzu celého projektu přes ESLint                      |
-| `npm run lint:fix`     | Provede automatické opravy detekovaných chyb a varování                   |
-| `npm run format:check` | Zkontroluje shodu formátování všech souborů s pravidly Prettier           |
-| `npm run format`       | Automaticky přeformátuje všechny soubory projektu podle pravidel Prettier |
-
----
-
-## 7. Stav implementace, Roadmapa a Changelog
-
-### 7.1 Aktuální stav implementace požadavků
-
-- [x] Inicializace Git repozitáře a propojení s GitHub `sifalma1/PPRO2026`
-- [x] Vytvoření pravidel vývoje a chování asistenta ([`AGENTS.md`](AGENTS.md))
-- [x] Zpracování zadání C a definice architektonických rozhodnutí (ADR-01 až ADR-06) v [`README.md`](README.md)
-- [x] Nastavení Git hooku pro kontrolu dokumentace před commitem ([`.githooks/pre-commit`](.githooks/pre-commit))
-- [x] Konfigurace kvality kódu a formátování ([`eslint.config.js`](eslint.config.js), [`.prettierrc.json`](.prettierrc.json), skripty `lint`, `lint:fix`, `format`, `format:check`)
-- [x] **Fáze 1 & 2 – Správa entit, anglické pojmenování a třívrstvá architektura:**
-  - [x] Třívrstvá architektura (_Presentation_, _Application_, _Infrastructure/Persistence_)
-  - [x] Přejmenování všech entit, modelů, tabulek a rozhraní do angličtiny napříč celým projektem
-  - [x] Databázové schéma a verzované SQL migrace (`001` až `005`)
-  - [x] `Dockerfile` a `docker-compose.yml` s PostgreSQL kontejnerem
-  - [x] Entita `Course` a katalog kurzů
-  - [x] Entita `Classroom` a místa konání s kapacitou
-  - [x] Entita `CourseTerm` s vazbou na kurz a učebnu
-  - [x] Entita `Lecturer` a přiřazení k termínům (vazba M:N `term_lecturers`)
-  - [x] Entita `Student` a `Enrollment` s logikou pořadníku (Waiting list, ADR-02)
-  - [x] Automatický transakční posun náhradníka z pořadníku při uvolnění místa
-  - [x] Prevence souběhu aktivních přihlášek na stejný kurz (ADR-03)
-  - [x] Manažerské přehledy a statistiky dle bodu 8 zadání
-- [x] **Fáze 3 – Evidence docházky a Osvědčení (Kompletní dokončení zadání):**
-  - [x] Entita `TeachingDay` – rozpad termínu na výukové dny s přiřazeným lektorem (ADR-05)
-  - [x] Entita `Attendance` – prezenční listina docházky po jednotlivých výukových dnech
-  - [x] Kalkulace docházky a kontrola 70% pravidla pro vystavení osvědčení (ADR-01)
-  - [x] Entita `Certificate` s garantovaně unikátním evidenčním číslem `AT-YYYY-XXXX`
-  - [x] Možnost lektorské výjimky s písemným odůvodněním pro studenty s docházkou pod 70 %
-  - [x] Webové uživatelské rozhraní v **Tailwind CSS**: 6 záložek (Kurzy, Termíny & Pořadník, Evidence docházky, Osvědčení & Absolventi, Lektoři & Učebny, Přehledy & Výkazy) včetně Dark/Light režimu
-  - [x] Komplexní sada 20 unit testů v nativním test runneru pokrývající všechna obchodní pravidla (100% úspěšnost)
-  - [x] Komplexní testovací sada v **Jestu s TypeScript & ESM** (71 testů pokrývajících doménové entity, služby, čekací listiny, docházková pravidla a Supertest REST API)
-- [x] **Zhodnocení a doporučení k administraci Strapi (ADR-06)**
+| #      | Bod zadání klienta                                                                          | Implementované komponenty & Služby                                                               | Testovací pokrytí                                                                                  | Uživatelské rozhraní (Frontend UI)                                                                                  | Stav plnění      |
+| ------ | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| **1.** | **Evidence kurzů**<br/>(název, anotace, hodiny, cena, akreditace)                           | Entita `Course`, `CourseService`, `PostgresCourseRepository`, `CourseController`                 | 24 testů (7 Node + 17 Jest unit testů, validace 0 Kč, anotace, délky názvu)                        | Obrazovka `CoursesView.ts`: katalog kurzů, fulltextové vyhledávání, filtr akreditace, modální formulář nového kurzu | **100 % HOTOVO** |
+| **2.** | **Termíny kurzů**<br/>(datum od-do, učebna, kapacita odvozená z učebny)                     | Entita `CourseTerm`, `Classroom`, `TermService`, `PostgresTermRepository`, `TermController`      | 19 testů (5 Node + 14 Jest testů: chronologie termínu, kladná kapacita, volná místa)               | Obrazovka `TermsView.ts`: přehled termínů, barevné progress bary obsazenosti, dialog vypsání nového termínu         | **100 % HOTOVO** |
+| **3.** | **Lektoři a jejich přiřazení**<br/>(externí lektoři, střídání na kurzu – M:N)               | Entita `Lecturer`, vazba `TermLecturer` (M:N), `TeachingDay`, `AttendanceService`                | Pokryto v unit testech `AttendanceAndCertificate` i `api.integration.test.ts`                      | Obrazovka `LecturersView.ts`: adresář lektorů, kontakty, specializace a přehled učeben                              | **100 % HOTOVO** |
+| **4.** | **Přihlášky studentů na termín**<br/>(student na více kurzů, skupina na termínu)            | Entita `Student`, `Enrollment`, `TermService`, transakční ukládání                               | Ověřeno v `term-and-enrollment.test.ts` i E2E tocích (Flow 3)                                      | Obrazovka `TermsView.ts`: seznam zapsaných studentů na termínu, modální formulář přihlášky s validací               | **100 % HOTOVO** |
+| **5.** | **Kapacita a čekací listina**<br/>(zákaz overbookingu, transakční posun náhradníka)         | Entita `Enrollment`, `TermService`, transakční zamykání `SELECT ... FOR UPDATE` (ADR-02, ADR-03) | 19 testů: přepnutí do stavu WAITLIST, transakční posun náhradníka #1 při stornu, zákaz souběhu     | Obrazovka `TermsView.ts`: vizualizace pořadníku čekatelů, okamžité storno s kaskádovým posunem náhradníka           | **100 % HOTOVO** |
+| **6.** | **Evidence docházky**<br/>(výukové dny termínu, prezence studentů)                          | Entita `TeachingDay`, `Attendance`, `AttendanceService`, `PostgresAttendanceRepository`          | 20 testů (8 Node + 12 Jest testů: rozpad na dny dle ADR-05, záznam účasti, výpočet procenta)       | Obrazovka `AttendanceView.ts`: výběr termínu, správa výukových dnů, interaktivní prezenčka se zaškrtáváním          | **100 % HOTOVO** |
+| **7.** | **Dokončení kurzu a osvědčení**<br/>(70% limit, certifikát AT-YYYY-XXXX, lektorská výjimka) | Entita `Certificate`, `CertificateService`, atomická sekvence čísel (ADR-01)                     | 18 testů (8 Node + 10 Jest testů: 70% limit, lektorská výjimka s odůvodněním, formát AT-YYYY-XXXX) | Obrazovka `CertificatesView.ts`: tlačítko uzavření termínu, evidence vydaných osvědčení, dialog lektorské výjimky   | **100 % HOTOVO** |
+| **8.** | **Analytické přehledy**<br/>(vytížení termínů, hodiny lektorů, vícekurzoví studenti)        | Analytické SQL agregace v repozitářích, endpoint `GET /api/analytics`                            | Integrační testy v `api.integration.test.ts` a `api-creation-flows.test.ts`                        | Obrazovka `AnalyticsView.ts`: manažerský dashboard s barevnými ukazateli vytížení, výkazem hodin a věrnými studenty | **100 % HOTOVO** |
 
 ---
 
-### 7.2 Historie verzí (Changelog)
+## 10. Historie verzí (Changelog) a Roadmapa
+
+### 10.1 Historie verzí (Changelog v1.0.0 až v1.5.0)
 
 #### Verze 1.5.0 (Aktuální verze – Komplexní automatizované testování v Jestu)
 
 - **Konfigurace testovacího frameworku Jest pro TypeScript a ESM:**
   - Plná integrace `jest`, `ts-jest` a `@types/jest` v režimu ECMAScript Modules (`"type": "module"`).
-  - Konfigurace [`jest.config.js`](jest.config.js) s presetetem `ts-jest/presets/default-esm`, `useESM: true` a mapováním modulů `moduleNameMapper` pro `.js` importy.
-  - Skript v `package.json`: `"test:jest": "node --experimental-vm-modules node_modules/jest/bin/jest.js"` – spolehlivý multiplatformní běh bez závislosti na externích nástrojích.
-- **Vytvoření komplexní sady 71 Jest testů v [`test/jest/`](test/jest/):**
-  - [`test/jest/course.service.test.ts`](test/jest/course.service.test.ts) (17 testů): Doménové invarianty `Course` (ceny včetně 0 Kč, délky názvů, hodiny) a kompletní use cases `CourseService`.
-  - [`test/jest/term-and-enrollment.test.ts`](test/jest/term-and-enrollment.test.ts) (14 testů): Invarianty termínů, plná kapacita, pořadník `WAITLIST` s automatickým transakčním posunem při stornu (ADR-02) a zákaz souběhu přihlášek (ADR-03).
-  - [`test/jest/attendance.test.ts`](test/jest/attendance.test.ts) (12 testů): Výukové dny, prezenční listiny a výpočet 70% docházkového limitu pro osvědčení (ADR-01, ADR-05).
-  - [`test/jest/certificate.test.ts`](test/jest/certificate.test.ts) (10 testů): Automatické generování certifikátů, lektorské výjimky s písemným odůvodněním a formát masky `AT-YYYY-XXXX`.
-  - [`test/jest/api.integration.test.ts`](test/jest/api.integration.test.ts) (18 testů): Integrační testy Express REST API přes **Supertest** (endpointy `/health`, kurzy, termíny, certifikáty, docházka, číselníky a české aliasy).
-- **Výsledek testovací strategie:**
-  - 100 automatizovaných testů (29 Node test runner + 71 Jest) prochází na 100 % s nulovým počtem selhání.
+  - Konfigurace [`jest.config.js`](file:///C:/Users/skitt/Documents/PPRO/jest.config.js) s presetetem `ts-jest/presets/default-esm`, `useESM: true` a mapováním modulů `moduleNameMapper` pro `.js` importy.
+  - Skript v `package.json`: `"test:jest": "node --experimental-vm-modules node_modules/jest/bin/jest.js"` – multiplatformní spuštění na Windows i Linuxu.
+- **Implementace 71 testů v Jestu ([`test/jest/`](file:///C:/Users/skitt/Documents/PPRO/test/jest/)):**
+  - [`course.service.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/course.service.test.ts) (17 testů): Doménové invarianty kurzu (podpora 0 Kč, validace délky názvu a anotace, hodiny) a kompletní use cases aplikační služby.
+  - [`term-and-enrollment.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/term-and-enrollment.test.ts) (14 testů): Invarianty termínů, plná kapacita, pořadník `WAITLIST` s transakčním posunem při stornu (ADR-02) a zákaz souběhu přihlášek (ADR-03).
+  - [`attendance.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/attendance.test.ts) (12 testů): Výukové dny, prezenční listiny a výpočet 70% docházkového limitu pro osvědčení (ADR-01, ADR-05).
+  - [`certificate.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/certificate.test.ts) (10 testů): Automatické generování certifikátů, lektorské výjimky s písemným odůvodněním a formát masky `AT-YYYY-XXXX`.
+  - [`api.integration.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/api.integration.test.ts) (18 testů): Integrační testy Express REST API přes **Supertest** (endpointy `/health`, kurzy, termíny, certifikáty, docházka, číselníky a české aliasy).
+- **Celkový výsledek testovací strategie:** 100 automatizovaných testů (29 Node test runner + 71 Jest) se 100% úspěšností (0 chyb).
 
-#### Verze 1.4.0 (Modulární Frontend SPA s Vite a TypeScriptem)
+#### Verze 1.4.0 (Modulární Frontend SPA s Vite, TypeScript a Tailwind CSS)
 
-- **Kompletní refaktoring a modularizace frontendu:**
-  - Přechod z monolitického skriptu na moderní modulární architekturu řízenou přes **Vite** a **TypeScript**.
-  - Rozpad kódu do vrstev a modulů v adresáři [`frontend/`](frontend/):
-    - `api/`: Typovaný REST API klient s centralizovaným ošetřením chyb (`coursesApi`, `termsApi`, `attendanceApi`, `certificatesApi`, `dictionariesApi`).
-    - `components/`: Samostatné komponenty (`Header` s tématem a navigací, přístupný `Modal` s ESC/backdrop listenerem a focus managementem, `Toast` notifikační systém).
-    - `views/`: Plně izolované pohledy pro každou sekci agendy (`CoursesView`, `TermsView`, `AttendanceView`, `CertificatesView`, `LecturersView`, `AnalyticsView`).
-- **UI/UX a Design System:**
-  - Moderní Tailwind CSS styl s tmavým a světlým motivem (Dark/Light mode).
-  - Vylepšené mikro-interakce: hover stavy, focus ringy, animace fadeIn a scaleIn, chip badges a responzivní zobrazení na mobilních i desktopových zařízeních.
-  - Odstranění chyb formulářů (žádné vymazání identifikátorů přes form.reset(), validace polí).
-- **Optimalizovaný build proces a Docker:**
-  - Skripty `npm run build:client` (Vite bundle) a `npm run build:server` (tsc).
-  - Multi-stage Dockerfile aktualizován pro paralelní/spolehlivý build obou částí aplikace do kontejneru.
-- **Kvalita kódu, linting a formátování (ESLint + Prettier):**
-  - Integrace ESLint 9/10 s Flat Config konfigurací ([`eslint.config.js`](eslint.config.js)) s podporou TypeScriptu a kompatibilitou s Prettierem (`eslint-config-prettier`).
-  - Nastavení Prettieru ([`.prettierrc.json`](.prettierrc.json), [`.prettierignore`](.prettierignore)) sjednocující formátovací styl kódu.
-  - Zavedení npm skriptů `npm run lint`, `npm run lint:fix`, `npm run format`, `npm run format:check`.
-  - 100% úspěšný průchod všech 29 unit a integračních testů, 0 chyb v lintu i formátování.
+- **Modularizace a vrstvy klientské části v [`frontend/src/`](file:///C:/Users/skitt/Documents/PPRO/frontend/src/):**
+  - Přechod na architekturu řízenou přes **Vite 6** a **TypeScript**.
+  - Rozdělení do vrstev: `api/` (typovaný klient), `components/` (`Header`, přístupný `Modal` s ESC/backdrop listenerem, `Toast` notifikace) a `views/` (izolované pohledy pro každou agendu).
+- **Design systém a Dark/Light režim:**
+  - Moderní Tailwind CSS styl s tmavým a světlým motivem s okamžitým přepnutím a perzistencí v `localStorage`.
+  - Mikro-interakce: hover stavy, focus ringy, animace `fadeIn` a `scaleIn`, progress bary obsazenosti.
+- **Nástroje pro kvalitu kódu (ESLint + Prettier):**
+  - Zavedení moderního Flat Configu pro ESLint ([`eslint.config.js`](file:///C:/Users/skitt/Documents/PPRO/eslint.config.js)) s podporou TypeScriptu.
+  - Sjednocení formátování přes Prettier ([`.prettierrc.json`](file:///C:/Users/skitt/Documents/PPRO/.prettierrc.json), [`.prettierignore`](file:///C:/Users/skitt/Documents/PPRO/.prettierignore)).
+  - Npm skripty `lint`, `lint:fix`, `format`, `format:check`.
 
-#### Verze 1.3.0
+#### Verze 1.3.0 (Evidence docházky, certifikace a odmítnutí Strapi)
 
-- **Kompletní dokončení Fáze 3 zadání:**
+- **Kompletní dokončení agendy Fáze 3 zadání:**
   - Implementace modulů `TeachingDay`, `Attendance` a `Certificate`.
-  - Výpočet procentuální účasti a automatické uzavírání termínů s generováním osvědčení `AT-YYYY-XXXX`.
+  - Výpočet procentuální docházky a automatické uzavírání termínů s generováním osvědčení ve formátu `AT-YYYY-XXXX`.
   - Formulář a transakční podpora pro udělování lektorských výjimek (ADR-01).
-- **Sjednocení názvů do angličtiny napříč celým projektem:**
+- **Sjednocení názvosloví do angličtiny napříč celým projektem:**
   - Modely, entity, DTOs, služby, repozitáře i PostgreSQL schéma převedeny do angličtiny (`Course`, `CourseTerm`, `Enrollment`, `Classroom`, `Lecturer`, `TeachingDay`, `Attendance`, `Certificate`).
-- **Nové stylování administrace v Tailwind CSS:**
-  - Plná integrace Tailwind CSS s Dark/Light režimem (přepínač s perzistencí v `localStorage`).
-  - Moderní komponenty (chip badges, animované modály, přehledné prezenční listiny a progress bary).
 - **Architektonická analýza Strapi (ADR-06):**
-  - Důkladné zdůvodnění nevhodnosti Strapi jako core administrace pro PPRO na FIM UHK.
-- **Testovací sada:**
-  - Rozšíření na 20 unit testů pokrývajících veškerou doménovou logiku (100% pass).
+  - Důkladné zdůvodnění nevhodnosti Strapi jako core administrace pro požadavky PPRO na FIM UHK.
 
-#### Verze 1.2.0
+#### Verze 1.2.0 (Termíny, učebny, čekací listina a manažerská analytika)
 
-- Dokončení Fáze 2 (Termíny, Učebny, Lektoři, Přihlášky s pořadníkem).
+- Dokončení Fáze 2 (Termíny, Učebny, Lektoři, Přihlášky s kapacitami).
 - Implementace atomického kaskádového posunu čekatelů z pořadníku (ADR-02).
-- Zákaz souběhu přihlášek na stejný kurz (ADR-03).
+- Zákaz souběhu aktivních přihlášek na stejný kurz (ADR-03).
 - Manažerské přehledy a statistiky dle bodu 8 zadání.
 
-#### Verze 1.1.0
+#### Verze 1.1.0 (Třívrstvá architektura a Docker)
 
-- Zprovoznění třívrstvé architektury a Docker Compose stacku.
+- Zprovoznění třívrstvé architektury a Docker Compose stacku s PostgreSQL 16.
 - Entita `Course`, migrace `001` a `002`.
-- Základní REST API a unit testy.
+- Základní REST API rozhraní a unit testy.
 
-#### Verze 1.0.0
+#### Verze 1.0.0 (Zahájení projektu a analýza)
 
-- Inicializace repozitáře, Git hooky, pravidla asistenta v `AGENTS.md`.
+- Inicializace Git repozitáře, nastavení pravidel asistenta v [`AGENTS.md`](file:///C:/Users/skitt/Documents/PPRO/AGENTS.md).
 - Analýza požadavků klienta a definice Single Source of Truth v `README.md`.
+- Vytvoření pre-commit hooku pro kontrolu dokumentace.
 
 ---
 
-### 7.3 Roadmapa dalšího rozvoje
+### 10.2 Roadmapa dalšího rozvoje
 
-Po úspěšném dokončení všech akademických požadavků předmětu PPRO jsou navržena následující produkční rozšíření pro další fázi:
+Po úspěšném splnění všech akademických požadavků předmětu PPRO jsou navržena následující rozšíření pro budoucí produkční nasazení v Akademii Trutnov:
 
-1. **Automatické e-mailové notifikace:** Zasílání potvrzení o zápisu, upozornění při posunu z pořadníku (ADR-02) a odeslání certifikátu absolventovi přes SMTP/Nodemailer.
-2. **Generování certifikátů do PDF:** Tvorba tiskového PDF osvědčení s grafickou šablonou Akademie Trutnov, QR kódem pro ověření pravosti a digitálním podpisem.
-3. **iCalendar export pro lektory:** Možnost synchronizace rozvrhu výukových dnů přímo do kalendářů Google Calendar / Outlook (RFC 5545).
-4. **Rozšířená role-based autentizace (RBAC):** Přihlašování přes JWT tokeny s oddělenými právy pro recepci, lektory a studenty.
+1. **Automatické e-mailové notifikace:** Automatické odesílání potvrzení o zápisu, upozornění náhradníkovi při transakčním posunu z pořadníku (ADR-02) a zaslání certifikátu absolventovi přes SMTP/Nodemailer.
+2. **Generování certifikátů do tiskového PDF:** Automatická tvorba reprezentativního PDF osvědčení s grafickým vizuálem Akademie Trutnov, QR kódem pro ověření pravosti a digitální pečetí.
+3. **iCalendar export pro lektory:** Možnost synchronizace rozvrhu výukových dnů přímo do kalendářů Google Calendar, Apple Calendar nebo Microsoft Outlook (standard RFC 5545).
+4. **Rozšířená role-based autentizace (RBAC):** Přihlašování přes JWT tokeny s jemně odstupňovanými právy pro recepci, lektory a studenty.
