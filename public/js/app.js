@@ -1,6 +1,6 @@
 /**
  * Client Application - Akademie Trutnov Information System
- * Clean, responsive SPA interface adhering to 3-tier architecture.
+ * Clean, responsive SPA interface adhering to 3-tier architecture with Tailwind CSS styling.
  */
 document.addEventListener("DOMContentLoaded", () => {
   // Global application state
@@ -17,14 +17,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function applyTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("akademie_theme", theme);
     if (theme === "dark") {
-      iconMoon.style.display = "none";
-      iconSun.style.display = "block";
+      document.documentElement.classList.add("dark");
+      iconMoon.classList.add("hidden");
+      iconSun.classList.remove("hidden");
     } else {
-      iconMoon.style.display = "block";
-      iconSun.style.display = "none";
+      document.documentElement.classList.remove("dark");
+      iconMoon.classList.remove("hidden");
+      iconSun.classList.add("hidden");
     }
+    localStorage.setItem("akademie_theme", theme);
   }
 
   const savedTheme = localStorage.getItem("akademie_theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
@@ -37,16 +39,17 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==================== TAB NAVIGATION ====================
-  const navTabs = document.querySelectorAll(".nav-tab");
+  const navTabs = document.querySelectorAll(".nav-tab-btn");
   const tabPanes = document.querySelectorAll(".tab-pane");
 
   navTabs.forEach(tab => {
     tab.addEventListener("click", () => {
       const target = tab.getAttribute("data-tab");
       navTabs.forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(`[data-tab="${target}"]`).forEach(t => t.classList.add("active"));
       tabPanes.forEach(p => p.classList.remove("active"));
-      tab.classList.add("active");
-      document.getElementById(`tab-${target}`).classList.add("active");
+      const pane = document.getElementById(`tab-${target}`);
+      if (pane) pane.classList.add("active");
       activeTab = target;
 
       if (target === "courses") loadCourses();
@@ -62,12 +65,13 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("[data-close]").forEach(btn => {
     btn.addEventListener("click", () => {
       const modalId = btn.getAttribute("data-close");
-      document.getElementById(modalId).style.display = "none";
+      const m = document.getElementById(modalId);
+      if (m) m.style.display = "none";
     });
   });
 
   window.addEventListener("click", (e) => {
-    if (e.target.classList.contains("modal-backdrop")) {
+    if (e.target.classList.contains("modal-overlay")) {
       e.target.style.display = "none";
     }
   });
@@ -76,10 +80,18 @@ document.addEventListener("DOMContentLoaded", () => {
   function showToast(message, type = "success") {
     const container = document.getElementById("toast-container");
     const toast = document.createElement("div");
-    toast.className = `toast toast-${type}`;
+    const isSuccess = type === "success";
+    toast.className = `px-4 py-3 rounded-xl shadow-xl text-xs font-medium border flex flex-col gap-0.5 animate-fadeIn transition-all duration-300 ${
+      isSuccess 
+        ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-emerald-500/50 shadow-emerald-500/10' 
+        : 'bg-rose-50 dark:bg-rose-950 text-rose-800 dark:text-rose-200 border-rose-500/50 shadow-rose-500/10'
+    }`;
     toast.innerHTML = `
-      <div style="font-weight: 600; margin-bottom: 2px;">${type === "success" ? "Úspěch" : "Chyba"}</div>
-      <div>${message}</div>
+      <div class="font-bold flex items-center gap-1.5 ${isSuccess ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+        <span class="w-1.5 h-1.5 rounded-full ${isSuccess ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
+        ${isSuccess ? 'Úspěch' : 'Upozornění'}
+      </div>
+      <div class="text-slate-600 dark:text-slate-300">${message}</div>
     `;
     container.appendChild(toast);
     setTimeout(() => {
@@ -102,8 +114,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   filterChips.forEach(chip => {
     chip.addEventListener("click", () => {
-      filterChips.forEach(c => c.classList.remove("active"));
-      chip.classList.add("active");
+      filterChips.forEach(c => {
+        c.className = "filter-chip px-3 py-1 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700";
+      });
+      chip.className = "filter-chip px-3 py-1 text-xs font-medium rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-semibold";
       courseFilterType = chip.getAttribute("data-filter");
       renderCourses();
     });
@@ -127,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
         coursesData = json.data;
         renderCourses();
       }
-    } catch (e) {
+    } catch {
       showToast("Chyba při načítání kurzů.", "error");
     }
   }
@@ -146,37 +160,38 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (filtered.length === 0) {
-      coursesList.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">Žádné kurzy neodpovídají zadanému filtru.</div>`;
+      coursesList.innerHTML = `<div class="col-span-full py-12 text-center text-sm text-slate-400 bg-white dark:bg-slate-800/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">Žádné kurzy neodpovídají zadanému filtru.</div>`;
       return;
     }
 
     filtered.forEach(course => {
       const card = document.createElement("div");
-      card.className = "card";
+      card.className = "card-box flex flex-col justify-between";
       card.innerHTML = `
-        <div class="card-header">
-          <span class="badge ${course.isAccredited ? 'badge-accredited' : 'badge-standard'}">
-            ${course.isAccredited ? 'Akreditováno MŠMT' : 'Firemní školení'}
-          </span>
-          <span class="card-price">${Number(course.price).toLocaleString("cs-CZ")} Kč</span>
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-3">
+            ${course.isAccredited 
+              ? '<span class="badge-chip badge-chip-green">Akreditováno MŠMT</span>' 
+              : '<span class="badge-chip badge-chip-blue">Firemní školení</span>'}
+            <span class="text-base font-bold text-slate-900 dark:text-white">${Number(course.price).toLocaleString("cs-CZ")} Kč</span>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1.5 leading-snug">${course.title}</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mb-4 line-clamp-3 leading-relaxed">${course.annotation}</p>
         </div>
-        <h3 class="card-title">${course.title}</h3>
-        <p class="card-desc">${course.annotation}</p>
-        <div class="card-footer">
-          <span class="card-hours">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        <div class="pt-4 border-t border-slate-100 dark:border-slate-700/80 flex items-center justify-between mt-auto">
+          <span class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
+            <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             ${course.hours} hodin výuky
           </span>
-          <div class="card-actions">
-            <button class="btn btn-sm btn-secondary btn-edit-course" data-id="${course.id}">Upravit</button>
-            <button class="btn btn-sm btn-danger btn-delete-course" data-id="${course.id}">Smazat</button>
+          <div class="flex items-center gap-2">
+            <button class="btn-secondary-tw btn-sm-tw btn-edit-course" data-id="${course.id}">Upravit</button>
+            <button class="btn-danger-tw btn-sm-tw btn-delete-course" data-id="${course.id}">Smazat</button>
           </div>
         </div>
       `;
       coursesList.appendChild(card);
     });
 
-    // Edit course handlers
     document.querySelectorAll(".btn-edit-course").forEach(btn => {
       btn.addEventListener("click", () => {
         const id = btn.getAttribute("data-id");
@@ -194,7 +209,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // Delete course handlers
     document.querySelectorAll(".btn-delete-course").forEach(btn => {
       btn.addEventListener("click", async () => {
         const id = btn.getAttribute("data-id");
@@ -287,7 +301,9 @@ document.addEventListener("DOMContentLoaded", () => {
     enrollmentTermNotice.innerHTML = `
       Termín: <strong>${term.courseTitle}</strong> (${term.startDate} až ${term.endDate})<br>
       Aktuální obsazenost: <strong>${term.confirmedCount} / ${term.capacity}</strong> míst.<br>
-      ${isFull ? '<span style="color:var(--warning); font-weight:600;">Kapacita je plná! Student bude automaticky zařazen do pořadníku (Waiting list).</span>' : '<span style="color:var(--success);">Volná místa k dispozici – přihláška bude ihned potvrzena.</span>'}
+      ${isFull 
+        ? '<span class="text-amber-600 dark:text-amber-400 font-semibold">Kapacita je plná! Student bude automaticky zařazen do pořadníku (Waiting list).</span>' 
+        : '<span class="text-emerald-600 dark:text-emerald-400">Volná místa k dispozici – přihláška bude ihned potvrzena.</span>'}
     `;
     modalEnrollment.style.display = "flex";
   });
@@ -308,17 +324,17 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderTerms() {
     termsTableBody.innerHTML = "";
     if (termsData.length === 0) {
-      termsTableBody.innerHTML = `<tr><td colspan="7" class="empty-state">Dosud nebyly vypsány žádné termíny.</td></tr>`;
+      termsTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">Dosud nebyly vypsány žádné termíny.</td></tr>`;
       return;
     }
 
     termsData.forEach(t => {
       const isFull = t.confirmedCount >= t.capacity;
       const statusBadge = t.status === "COMPLETED"
-        ? '<span class="badge" style="background:#e0f2fe; color:#0369a1;">Ukončen</span>'
+        ? '<span class="badge-chip badge-chip-blue">Ukončen</span>'
         : isFull 
-          ? '<span class="badge badge-warning">Naplněno (Pořadník)</span>' 
-          : '<span class="badge badge-success">Volná místa</span>';
+          ? '<span class="badge-chip badge-chip-yellow">Naplněno (Pořadník)</span>' 
+          : '<span class="badge-chip badge-chip-green">Volná místa</span>';
 
       const lecturersText = t.lecturers && t.lecturers.length > 0 
         ? t.lecturers.map(l => l.name).join(", ") 
@@ -327,17 +343,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const tr = document.createElement("tr");
       if (t.id === selectedTermId) tr.classList.add("row-selected");
       tr.innerHTML = `
-        <td><strong>${t.courseTitle}</strong></td>
+        <td class="font-bold text-slate-900 dark:text-white">${t.courseTitle}</td>
         <td>${t.startDate} až ${t.endDate}</td>
         <td>${t.classroomName}</td>
         <td>
-          <div style="font-weight:600;">${t.confirmedCount} / ${t.capacity} potvrzeno</div>
-          ${t.waitlistCount > 0 ? `<div style="font-size:12px; color:var(--warning);">${t.waitlistCount} v pořadníku</div>` : ''}
+          <div class="font-semibold">${t.confirmedCount} / ${t.capacity} potvrzeno</div>
+          ${t.waitlistCount > 0 ? `<div class="text-xs text-amber-600 dark:text-amber-400 font-medium">${t.waitlistCount} v pořadníku</div>` : ''}
         </td>
-        <td>${lecturersText}</td>
+        <td class="text-xs text-slate-600 dark:text-slate-400">${lecturersText}</td>
         <td>${statusBadge}</td>
         <td class="text-right">
-          <button class="btn btn-sm btn-secondary btn-view-term" data-id="${t.id}">Přihlášky & Pořadník</button>
+          <button class="btn-secondary-tw btn-sm-tw btn-view-term" data-id="${t.id}">Přihlášky & Pořadník</button>
         </td>
       `;
       termsTableBody.appendChild(tr);
@@ -375,20 +391,20 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderEnrollments(list) {
     enrollmentsTableBody.innerHTML = "";
     if (list.length === 0) {
-      enrollmentsTableBody.innerHTML = `<tr><td colspan="6" class="empty-state">Na tento termín se zatím nikdo nepřihlásil.</td></tr>`;
+      enrollmentsTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">Na tento termín se zatím nikdo nepřihlásil.</td></tr>`;
       return;
     }
 
     list.forEach(e => {
       let statusHtml = "";
       if (e.status === "CONFIRMED") {
-        statusHtml = `<span class="badge badge-success">Potvrzena</span>`;
+        statusHtml = `<span class="badge-chip badge-chip-green">Potvrzena</span>`;
       } else if (e.status === "WAITLIST") {
-        statusHtml = `<span class="badge badge-warning">Náhradník #${e.waitlistPosition}</span>`;
+        statusHtml = `<span class="badge-chip badge-chip-yellow">Náhradník #${e.waitlistPosition}</span>`;
       } else if (e.status === "CANCELLED") {
-        statusHtml = `<span class="badge badge-danger">Zrušena</span>`;
+        statusHtml = `<span class="badge-chip badge-chip-red">Zrušena</span>`;
       } else if (e.status === "COMPLETED") {
-        statusHtml = `<span class="badge" style="background:#e0f2fe; color:#0369a1;">Absolvováno</span>`;
+        statusHtml = `<span class="badge-chip badge-chip-blue">Absolvováno</span>`;
       }
 
       const dateStr = new Date(e.submittedAt).toLocaleString("cs-CZ", { dateStyle: "short", timeStyle: "short" });
@@ -396,19 +412,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td><strong>${e.studentName}</strong></td>
+        <td class="font-bold text-slate-900 dark:text-white">${e.studentName}</td>
         <td>${e.studentEmail}</td>
-        <td>${e.studentPhone || '-'} ${e.studentOrganization ? `(${e.studentOrganization})` : ''}</td>
-        <td>${dateStr}</td>
+        <td class="text-xs">${e.studentPhone || '-'} ${e.studentOrganization ? `<span class="text-slate-400">(${e.studentOrganization})</span>` : ''}</td>
+        <td class="text-xs text-slate-500">${dateStr}</td>
         <td>${statusHtml}</td>
         <td class="text-right">
-          ${canCancel ? `<button class="btn btn-sm btn-danger btn-cancel-enroll" data-id="${e.id}">Zrušit účast</button>` : '-'}
+          ${canCancel ? `<button class="btn-danger-tw btn-sm-tw btn-cancel-enroll" data-id="${e.id}">Zrušit účast</button>` : '<span class="text-slate-400">-</span>'}
         </td>
       `;
       enrollmentsTableBody.appendChild(tr);
     });
 
-    // Cancel enrollment with waitlist cascading (ADR-02)
     document.querySelectorAll(".btn-cancel-enroll").forEach(btn => {
       btn.addEventListener("click", async () => {
         const id = btn.getAttribute("data-id");
@@ -628,8 +643,8 @@ document.addEventListener("DOMContentLoaded", () => {
     attendanceDaysCount.textContent = `${days.length} dnů`;
 
     if (days.length === 0) {
-      teachingDaysTableBody.innerHTML = `<tr><td colspan="5" class="empty-state">Tento termín zatím nemá vypsané žádné výukové dny.</td></tr>`;
-      attendanceRosterBody.innerHTML = `<tr><td colspan="4" class="empty-state">Přidejte nejprve výukové dny tlačítkem výše.</td></tr>`;
+      teachingDaysTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400">Tento termín zatím nemá vypsané žádné výukové dny.</td></tr>`;
+      attendanceRosterBody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-slate-400">Přidejte nejprve výukové dny tlačítkem výše.</td></tr>`;
       btnSaveAttendance.style.display = "none";
       return;
     }
@@ -638,13 +653,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const tr = document.createElement("tr");
       if (d.id === selectedTeachingDayId) tr.classList.add("row-selected");
       tr.innerHTML = `
-        <td><strong>${d.dayDate}</strong></td>
+        <td class="font-bold text-slate-900 dark:text-white">${d.dayDate}</td>
         <td>${d.topic}</td>
         <td>${d.hours} hod.</td>
-        <td>${d.lecturerName || 'Neuveden'}</td>
+        <td class="text-xs text-slate-500">${d.lecturerName || 'Neuveden'}</td>
         <td class="text-right">
-          <button class="btn btn-sm btn-secondary btn-select-day" data-id="${d.id}" data-date="${d.dayDate}" data-topic="${d.topic}">
-            Zapsat docházku (${d.presentCount}/${d.attendanceCount})
+          <button class="btn-secondary-tw btn-sm-tw btn-select-day" data-id="${d.id}" data-date="${d.dayDate}" data-topic="${d.topic}">
+            Zapsat (${d.presentCount}/${d.attendanceCount})
           </button>
         </td>
       `;
@@ -660,7 +675,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // Auto-select first day if none selected
     if (!selectedTeachingDayId && days.length > 0) {
       loadAttendanceRoster(days[0].id, days[0].dayDate, days[0].topic);
     }
@@ -684,7 +698,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderRoster(students) {
     attendanceRosterBody.innerHTML = "";
     if (students.length === 0) {
-      attendanceRosterBody.innerHTML = `<tr><td colspan="4" class="empty-state">Na tomto termínu nejsou žádní potvrzení studenti.</td></tr>`;
+      attendanceRosterBody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-slate-400">Na tomto termínu nejsou žádní potvrzení studenti.</td></tr>`;
       btnSaveAttendance.style.display = "none";
       return;
     }
@@ -692,16 +706,16 @@ document.addEventListener("DOMContentLoaded", () => {
     students.forEach(s => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td><strong>${s.studentName}</strong></td>
-        <td>${s.studentEmail}</td>
+        <td class="font-bold text-slate-900 dark:text-white">${s.studentName}</td>
+        <td class="text-xs text-slate-500">${s.studentEmail}</td>
         <td>
-          <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
-            <input type="checkbox" class="att-checkbox" data-student="${s.studentId}" ${s.isPresent ? 'checked' : ''}>
-            <span>${s.isPresent ? 'Přítomen' : 'Nepřítomen'}</span>
+          <label class="inline-flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" class="att-checkbox w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-700" data-student="${s.studentId}" ${s.isPresent ? 'checked' : ''}>
+            <span class="text-xs font-semibold ${s.isPresent ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}">${s.isPresent ? 'Přítomen' : 'Nepřítomen'}</span>
           </label>
         </td>
         <td>
-          <input type="text" class="att-note" data-student="${s.studentId}" value="${s.note || ''}" placeholder="Poznámka / omluva..." style="padding:4px 8px; font-size:12px; border-radius:4px; border:1px solid var(--border); width:100%;">
+          <input type="text" class="att-note input-tw py-1 text-xs" data-student="${s.studentId}" value="${s.note || ''}" placeholder="Poznámka / omluva...">
         </td>
       `;
       attendanceRosterBody.appendChild(tr);
@@ -734,27 +748,27 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderAttendanceSummary(summary) {
     attendanceSummaryTableBody.innerHTML = "";
     if (summary.length === 0) {
-      attendanceSummaryTableBody.innerHTML = `<tr><td colspan="6" class="empty-state">Žádní potvrzení studenti k zobrazení.</td></tr>`;
+      attendanceSummaryTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">Žádní potvrzení studenti k zobrazení.</td></tr>`;
       return;
     }
 
     summary.forEach(s => {
       const qualifiesBadge = s.qualifiesForCertificate
-        ? `<span class="badge badge-success">Splněno (${s.attendancePercentage} %)</span>`
-        : `<span class="badge badge-danger">Nesplněno (${s.attendancePercentage} %)</span>`;
+        ? `<span class="badge-chip badge-chip-green">Splněno (${s.attendancePercentage} %)</span>`
+        : `<span class="badge-chip badge-chip-red">Nesplněno (${s.attendancePercentage} %)</span>`;
 
       const certBadge = s.certificateIssued
-        ? `<span class="badge" style="background:#e0f2fe; color:#0369a1;">Vystaveno (${s.certificateNumber})</span>`
+        ? `<span class="badge-chip badge-chip-blue font-mono">Vystaveno (${s.certificateNumber})</span>`
         : s.qualifiesForCertificate
-          ? `<span class="badge badge-warning">Čeká na vystavení</span>`
-          : `<span class="badge" style="background:var(--bg-subtle);">Vyžaduje výjimku</span>`;
+          ? `<span class="badge-chip badge-chip-yellow">Čeká na vystavení</span>`
+          : `<span class="badge-chip bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">Vyžaduje výjimku</span>`;
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td><strong>${s.studentName}</strong></td>
-        <td>${s.studentEmail}</td>
-        <td>${s.attendedDays} z ${s.totalDays} dnů</td>
-        <td><strong>${s.attendancePercentage} %</strong></td>
+        <td class="font-bold text-slate-900 dark:text-white">${s.studentName}</td>
+        <td class="text-xs text-slate-500">${s.studentEmail}</td>
+        <td class="text-xs">${s.attendedDays} z ${s.totalDays} dnů</td>
+        <td class="font-bold">${s.attendancePercentage} %</td>
         <td>${qualifiesBadge}</td>
         <td>${certBadge}</td>
       `;
@@ -794,22 +808,22 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderCertificates(list) {
     certificatesTableBody.innerHTML = "";
     if (list.length === 0) {
-      certificatesTableBody.innerHTML = `<tr><td colspan="6" class="empty-state">Zatím nebyla vystavena žádná osvědčení.</td></tr>`;
+      certificatesTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">Zatím nebyla vystavena žádná osvědčení.</td></tr>`;
       return;
     }
 
     list.forEach(c => {
       const waiverHtml = c.hasWaiver
-        ? `<span class="badge badge-warning" title="${c.waiverReason || ''}">Lektorská výjimka (ADR-01)</span>`
-        : `<span class="badge badge-success">Standardní (≥ 70 %)</span>`;
+        ? `<span class="badge-chip badge-chip-yellow" title="${c.waiverReason || ''}">Lektorská výjimka (ADR-01)</span>`
+        : `<span class="badge-chip badge-chip-green">Standardní (≥ 70 %)</span>`;
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td><strong style="color:var(--primary); font-family:monospace; font-size:14px;">${c.certificateNumber}</strong></td>
-        <td><strong>${c.studentName}</strong><br><span style="font-size:12px; color:var(--text-muted);">${c.studentEmail}</span></td>
+        <td><strong class="text-blue-600 dark:text-blue-400 font-mono text-sm tracking-wide">${c.certificateNumber}</strong></td>
+        <td><strong class="text-slate-900 dark:text-white">${c.studentName}</strong><br><span class="text-xs text-slate-400">${c.studentEmail}</span></td>
         <td>${c.courseTitle}</td>
-        <td>${c.issueDate}</td>
-        <td><strong>${c.attendanceRate} %</strong></td>
+        <td class="text-xs text-slate-500">${c.issueDate}</td>
+        <td><strong class="text-slate-900 dark:text-white">${c.attendanceRate} %</strong></td>
         <td>${waiverHtml}</td>
       `;
       certificatesTableBody.appendChild(tr);
@@ -844,7 +858,6 @@ document.addEventListener("DOMContentLoaded", () => {
     formWaiverError.style.display = "none";
 
     try {
-      // Find students who don't have certificates yet across terms
       const res = await fetch("/api/terms");
       const json = await res.json();
       if (!json.success) return;
@@ -927,10 +940,10 @@ document.addEventListener("DOMContentLoaded", () => {
     list.forEach(l => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td><strong>${l.name}</strong></td>
-        <td>${l.email}<br><span style="font-size:12px; color:var(--text-muted);">${l.phone || '-'}</span></td>
-        <td>${l.specialization || 'Neuvedena'}</td>
-        <td><strong>${l.taughtHours} hod.</strong> (${l.termCount} termínů)</td>
+        <td class="font-bold text-slate-900 dark:text-white">${l.name}</td>
+        <td>${l.email}<br><span class="text-xs text-slate-400">${l.phone || '-'}</span></td>
+        <td class="text-xs">${l.specialization || 'Neuvedena'}</td>
+        <td><strong class="text-blue-600 dark:text-blue-400">${l.taughtHours} hod.</strong> <span class="text-xs text-slate-400">(${l.termCount} termínů)</span></td>
       `;
       lecturersTableBody.appendChild(tr);
     });
@@ -941,9 +954,9 @@ document.addEventListener("DOMContentLoaded", () => {
     list.forEach(c => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td><strong>${c.name}</strong></td>
-        <td>${c.address}</td>
-        <td><span class="badge badge-standard">${c.capacity} studentů</span></td>
+        <td class="font-bold text-slate-900 dark:text-white">${c.name}</td>
+        <td class="text-xs text-slate-600 dark:text-slate-400">${c.address}</td>
+        <td><span class="badge-chip badge-chip-blue font-bold">${c.capacity} studentů</span></td>
       `;
       classroomsTableBody.appendChild(tr);
     });
@@ -972,14 +985,14 @@ document.addEventListener("DOMContentLoaded", () => {
     analyticsTermsList.innerHTML = "";
     data.termStats.forEach(t => {
       const bar = document.createElement("div");
-      bar.className = "analytics-item";
+      bar.className = "p-3 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-700/60";
       bar.innerHTML = `
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:13px;">
-          <span><strong>${t.courseTitle}</strong> (${t.period})</span>
-          <span>${t.confirmed} / ${t.capacity} (${t.fillRate} %) ${t.waitlist > 0 ? `• <span style="color:var(--warning);">${t.waitlist} v pořadníku</span>` : ''}</span>
+        <div class="flex justify-between items-center text-xs mb-1.5 font-medium">
+          <span class="font-bold text-slate-900 dark:text-white">${t.courseTitle} <span class="font-normal text-slate-400">(${t.period})</span></span>
+          <span>${t.confirmed} / ${t.capacity} (${t.fillRate} %) ${t.waitlist > 0 ? `• <span class="text-amber-500 font-bold">${t.waitlist} v pořadníku</span>` : ''}</span>
         </div>
-        <div class="progress-bar-wrap">
-          <div class="progress-bar-fill" style="width: ${Math.min(100, t.fillRate)}%;"></div>
+        <div class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+          <div class="h-full bg-blue-600 rounded-full transition-all duration-300" style="width: ${Math.min(100, t.fillRate)}%;"></div>
         </div>
       `;
       analyticsTermsList.appendChild(bar);
@@ -989,12 +1002,10 @@ document.addEventListener("DOMContentLoaded", () => {
     analyticsLecturersList.innerHTML = "";
     data.lecturerStats.forEach(l => {
       const item = document.createElement("div");
-      item.className = "analytics-item";
+      item.className = "p-3 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-700/60 flex justify-between items-center text-xs";
       item.innerHTML = `
-        <div style="display:flex; justify-content:space-between; font-size:13px;">
-          <span><strong>${l.name}</strong></span>
-          <span><strong>${l.taughtHours} odučených hodin</strong> (${l.termCount} vyučovaných termínů)</span>
-        </div>
+        <span class="font-bold text-slate-900 dark:text-white">${l.name}</span>
+        <span class="font-semibold text-blue-600 dark:text-blue-400">${l.taughtHours} odučených hodin <span class="font-normal text-slate-400">(${l.termCount} termínů)</span></span>
       `;
       analyticsLecturersList.appendChild(item);
     });
@@ -1002,21 +1013,19 @@ document.addEventListener("DOMContentLoaded", () => {
     // 3. Multi-course students
     analyticsStudentsList.innerHTML = "";
     if (data.multiCourseStudents.length === 0) {
-      analyticsStudentsList.innerHTML = `<div class="empty-state">V tomto roce zatím žádný student neabsolvoval více než 1 kurz.</div>`;
+      analyticsStudentsList.innerHTML = `<div class="py-6 text-center text-xs text-slate-400">V tomto roce zatím žádný student neabsolvoval více než 1 kurz.</div>`;
     } else {
       data.multiCourseStudents.forEach(s => {
         const item = document.createElement("div");
-        item.className = "analytics-item";
+        item.className = "p-3 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs";
         item.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <strong>${s.student}</strong> (${s.email}) ${s.organization ? `• ${s.organization}` : ''}
-              <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
-                Zapsané kurzy: ${s.courses.join(", ")}
-              </div>
+          <div>
+            <strong class="text-slate-900 dark:text-white">${s.student}</strong> (${s.email}) ${s.organization ? `• ${s.organization}` : ''}
+            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              Zapsané kurzy: ${s.courses.join(", ")}
             </div>
-            <span class="badge badge-success">${s.courseCount} kurzy</span>
           </div>
+          <span class="badge-chip badge-chip-green self-start sm:self-auto">${s.courseCount} kurzy</span>
         `;
         analyticsStudentsList.appendChild(item);
       });

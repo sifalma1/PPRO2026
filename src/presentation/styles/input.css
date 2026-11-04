@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* Tab navigation */
+  .nav-tab-btn {
+    @apply px-4 py-2 text-sm font-medium rounded-lg transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800;
+  }
+  .nav-tab-btn.active {
+    @apply bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 shadow-sm;
+  }
+
+  /* Tab Panes */
+  .tab-pane {
+    @apply hidden;
+  }
+  .tab-pane.active {
+    @apply block animate-fadeIn;
+  }
+
+  /* Badges */
+  .badge-chip {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  .badge-chip-green {
+    @apply bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800;
+  }
+  .badge-chip-blue {
+    @apply bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800;
+  }
+  .badge-chip-yellow {
+    @apply bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800;
+  }
+  .badge-chip-red {
+    @apply bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800;
+  }
+
+  /* Buttons */
+  .btn-base {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+  .btn-primary-tw {
+    @apply btn-base bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500 dark:focus:ring-offset-slate-900;
+  }
+  .btn-secondary-tw {
+    @apply btn-base bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 focus:ring-slate-400;
+  }
+  .btn-danger-tw {
+    @apply btn-base bg-rose-600 hover:bg-rose-700 text-white focus:ring-rose-500 dark:focus:ring-offset-slate-900;
+  }
+  .btn-sm-tw {
+    @apply px-3 py-1.5 text-xs rounded-md;
+  }
+
+  /* Cards */
+  .card-box {
+    @apply bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-xl p-5 shadow-sm hover:shadow transition-shadow;
+  }
+
+  /* Tables */
+  .table-box-wrap {
+    @apply bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-xl overflow-hidden shadow-sm;
+  }
+  .table-tw {
+    @apply min-w-full divide-y divide-slate-200 dark:divide-slate-700 text-left text-sm;
+  }
+  .table-tw th {
+    @apply px-4 py-3 bg-slate-50 dark:bg-slate-900/40 text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider;
+  }
+  .table-tw td {
+    @apply px-4 py-3.5 whitespace-nowrap text-slate-800 dark:text-slate-200 border-t border-slate-100 dark:border-slate-700/50;
+  }
+  .table-tw tbody tr:hover {
+    @apply bg-slate-50/70 dark:bg-slate-700/30;
+  }
+  .table-tw tbody tr.row-selected {
+    @apply bg-blue-50/80 dark:bg-blue-950/40 border-l-4 border-l-blue-600;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity;
+  }
+  .modal-dialog {
+    @apply bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-scaleIn;
+  }
+
+  /* Form controls */
+  .input-tw {
+    @apply w-full px-3.5 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.15s ease-out forwards;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.15s ease-out forwards;
+}
+
+/* Toast container */
+.toast-stack {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

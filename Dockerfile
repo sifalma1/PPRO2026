@@ -3,9 +3,10 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json tsconfig.json ./
+COPY package*.json tsconfig.json tailwind.config.js ./
 RUN npm ci
 
+COPY public ./public
 COPY src ./src
 RUN npm run build
 
@@ -20,7 +21,7 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
-COPY public ./public
+COPY --from=builder /app/public ./public
 
 EXPOSE 3000
 

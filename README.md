@@ -211,7 +211,7 @@ erDiagram
 
 ### 5.1 Použitý technologický stack
 - **Běhové prostředí:** Node.js (TypeScript, ES Modules, `strict` mode)
-- **Prezentační vrstva:** Express REST API + responzivní Web UI (Dark/Light režim s perzistencí, záložky pro Kurzy, Termíny, Docházku, Osvědčení, Lektory a Výkazy)
+- **Prezentační vrstva:** Express REST API + responzivní Web UI ve frameworku **Tailwind CSS** (Dark/Light režim s perzistencí v localStorage, záložky pro Kurzy, Termíny, Docházku, Osvědčení, Lektory a Výkazy, animovaná modální okna a dashboardy)
 - **Aplikační vrstva:** Doménové služby (`CourseService`, `TermService`, `AttendanceService`, `CertificateService`), DTOs a validace invariantů
 - **Perzistentní vrstva:** PostgreSQL 16 (přes `pg` connection pool), verzované SQL migrace (`migrations/`)
 - **Kontejnerizace:** Docker & Docker Compose
@@ -328,6 +328,6 @@ npm test
   - [x] Kalkulace docházky a kontrola 70% pravidla pro vystavení osvědčení (ADR-01)
   - [x] Entita `Certificate` s garantovaně unikátním evidenčním číslem `AT-YYYY-XXXX`
   - [x] Možnost lektorské výjimky s písemným odůvodněním pro studenty s docházkou pod 70 %
-  - [x] Webové uživatelské rozhraní: záložky Kurzy, Termíny & Pořadník, Evidence docházky, Osvědčení & Absolventi, Lektoři & Učebny, Přehledy & Výkazy
+  - [x] Webové uživatelské rozhraní v Tailwind CSS: záložky Kurzy, Termíny & Pořadník, Evidence docházky, Osvědčení & Absolventi, Lektoři & Učebny, Přehledy & Výkazy (včetně podpory Dark/Light režimu)
   - [x] Komplexní sada 20 unit testů pokrývající všechna obchodní pravidla
 - [x] **Zhodnocení a doporučení k administraci Strapi (ADR-06)**
