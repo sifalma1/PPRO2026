@@ -33,8 +33,9 @@
    - 5.3 [Lokální vývojové spuštění (bez Dockeru)](#53-lokální-vývojové-spuštění-bez-dockeru)
    - 5.4 [Kompletní katalog REST API rozhraní a JSON příklady](#54-kompletní-katalog-rest-api-rozhraní-a-json-příklady)
 6. [Testovací strategie](#6-testovací-strategie)
-   - 6.1 [Přehled a struktura unit testů (20 testů)](#61-přehled-a-struktura-unit-testů-20-testů)
-   - 6.2 [Spuštění testů](#62-spuštění-testů)
+   - 6.1 [Přehled doménových unit testů (20 testů)](#61-přehled-doménových-unit-testů-20-testů)
+   - 6.2 [Přehled integračních End-to-End testů (9 testů)](#62-přehled-integračních-end-to-end-testů-testapi-creation-flowstestts--9-testů)
+   - 6.3 [Spuštění testů](#63-spuštění-testů)
 7. [Stav implementace, Roadmapa a Changelog](#7-stav-implementace-roadmapa-a-changelog)
    - 7.1 [Aktuální stav implementace požadavků](#71-aktuální-stav-implementace-požadavků)
    - 7.2 [Historie verzí (Changelog)](#72-historie-verzí-changelog)
@@ -711,9 +712,9 @@ Systém nabízí čisté REST rozhraní s podporou anglických endpointů a zpě
 
 ## 6. Testovací strategie
 
-Projekt disponuje ucelenou sadou unit testů spouštěných nativním rychlým Node test runnerem (`node --test`). Veškeré doménové entity a invarianty jsou testovány v izolaci bez závislosti na databázovém serveru, což umožňuje bleskový běh (~400 ms).
+Projekt disponuje ucelenou sadou testů spouštěných nativním Node test runnerem (`node --test`). Testovací strategie kombinuje **20 izolovaných doménových unit testů** ověřujících byznys logiku a invarianty a **9 integračních End-to-End testů** ověřujících reálný průchod API a perzistenci dat.
 
-### 6.1 Přehled a struktura unit testů (20 testů)
+### 6.1 Přehled doménových unit testů (20 testů)
 
 #### 1. Sada: `CourseService and Course Entity` ([`test/CourseService.test.ts`](test/CourseService.test.ts) – 7 testů)
 - `Successfully creates course with valid parameters`: Ověření správné tvorby kurzu se všemi povinnými parametry.
@@ -741,7 +742,18 @@ Projekt disponuje ucelenou sadou unit testů spouštěných nativním rychlým N
 - `Rejects certificate waiver if written justification is missing or too short`: Odmítnutí lektorské výjimky při chybějícím nebo příliš stručném odůvodnění (< 5 znaků).
 - `Validates certificate numbering format: AT-YYYY-XXXX`: Striktní validace masky evidenčního čísla osvědčení.
 
-### 6.2 Spuštění testů
+### 6.2 Přehled integračních End-to-End testů ([`test/api-creation-flows.test.ts`](test/api-creation-flows.test.ts) – 9 testů)
+- `Flow 1: Creating a Course via POST /api/courses`: Vytvoření akreditovaného kurzu přes HTTP API.
+- `Flow 1: Creating a Course with price 0 (free workshop)`: Vytvoření bezplatného workshopu s nulovou cenou (ověření validace `>= 0`).
+- `Flow 2: Creating a Term via POST /api/terms`: Vypsání termínu s přiřazením učebny a lektorů.
+- `Flow 3: Creating a Confirmed Enrollment via POST /api/terms/:id/enrollments`: Úspěšný zápis studenta s potvrzením místa.
+- `Flow 3: Creating a Waitlisted Enrollment when capacity is reached (ADR-02)`: Automatické zařazení do pořadníku náhradníků při naplněné kapacitě.
+- `Flow 4: Creating a Teaching Day via POST /api/attendance/terms/:termId/days`: Vytvoření výukového dne s lektorem.
+- `Flow 5: Recording Attendance via POST /api/attendance/days/:dayId/mark`: Zápis účasti studenta.
+- `Flow 6a: Completing Term via POST /api/terms/:termId/complete`: Uzavření termínu a hromadné generování certifikátů.
+- `Flow 6b: Issuing Certificate with Lecturer Waiver via POST /api/certificates/issue`: Vystavení certifikátu na výjimku lektora.
+
+### 6.3 Spuštění testů
 Spuštění kompletní testovací sady:
 ```bash
 npm test
@@ -752,10 +764,11 @@ Výstup testovacího runneru:
 ✔ Attendance and Certificate Entities (Unit Tests - ADR-01 & ADR-05) (8 tests passed)
 ✔ CourseService and Course Entity (Unit Tests) (7 tests passed)
 ✔ CourseTerm and Enrollment Entities & Waiting List (Unit Tests) (5 tests passed)
+✔ End-to-End API Creation Flows (Akademie Trutnov) (9 tests passed)
 
-ℹ tests 20
-ℹ suites 3
-ℹ pass 20
+ℹ tests 29
+ℹ suites 4
+ℹ pass 29
 ℹ fail 0
 ```
 
