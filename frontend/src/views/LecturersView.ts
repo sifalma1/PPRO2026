@@ -73,17 +73,17 @@ export class LecturersView {
         </td>
         <td class="text-xs">
           <div class="font-mono text-slate-800 dark:text-slate-200 font-medium">${l.email}</div>
-          <div class="font-mono text-slate-400 text-[11px]">${l.phone || "-"}</div>
+          <div class="font-mono text-slate-400 text-xs tabular-nums">${l.phone || "-"}</div>
         </td>
         <td class="text-xs">
-          <span class="inline-block px-2 py-0.5 rounded text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium border border-slate-200 dark:border-slate-700">
+          <span class="inline-block px-2.5 py-0.5 rounded text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium border border-slate-200 dark:border-slate-700">
             ${l.specialization || "Lektor"}
           </span>
         </td>
         <td>
           <div class="flex items-center gap-1.5">
-            <strong class="font-mono text-emerald-700 dark:text-emerald-400 font-bold text-xs">${l.taughtHours} hod.</strong>
-            <span class="font-mono text-[11px] text-slate-400">(${l.termCount} termínů)</span>
+            <strong class="font-mono text-emerald-700 dark:text-emerald-400 font-bold text-xs tabular-nums">${l.taughtHours} hod.</strong>
+            <span class="font-mono text-xs text-slate-400 tabular-nums">(${l.termCount} termínů)</span>
           </div>
         </td>
       `;

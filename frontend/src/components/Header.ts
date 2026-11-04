@@ -1,8 +1,14 @@
 /**
- * Header & Navbar Component
+ * Header & Navbar Component - Akademie Trutnov
  * Streamlined 4-item navigation with dropdown menu for administration & reports,
- * Dark/Light mode theme switch with persistence, and keyboard shortcuts.
+ * Dark/Light mode theme switch with persistence, keyboard shortcuts, and
+ * administrative / student session state handling.
  */
+
+import { authApi } from "../api/authApi";
+import { Modal } from "./Modal";
+import { Toast } from "./Toast";
+import { AuthUser } from "../types";
 
 export interface HeaderOptions {
   activeTab: string;
@@ -105,7 +111,10 @@ export class Header {
       }
     });
 
-    // 5. Keyboard shortcuts: 1-6 for tabs, '/' for search, Esc to close dropdowns
+    // 5. Auth state & Login modal binding
+    this.bindAuthEvents();
+
+    // 6. Keyboard shortcuts: 1-6 for tabs, '/' for search, Esc to close dropdowns
     document.addEventListener("keydown", (e: KeyboardEvent) => {
       const activeEl = document.activeElement;
       const isInput =
@@ -160,6 +169,107 @@ export class Header {
 
     this.initTheme();
     this.setActiveTab(this.activeTab);
+  }
+
+  private bindAuthEvents(): void {
+    // Open login modal
+    const btnOpenLogin = document.getElementById("btn-open-login");
+    btnOpenLogin?.addEventListener("click", () => {
+      Modal.open("modal-login");
+    });
+
+    // Quick-fill demo credentials in login modal
+    const btnDemoAdmin = document.getElementById("btn-demo-login-admin");
+    const btnDemoStudent = document.getElementById("btn-demo-login-student");
+    const loginUser = document.getElementById("login-username") as HTMLInputElement;
+    const loginPass = document.getElementById("login-password") as HTMLInputElement;
+
+    btnDemoAdmin?.addEventListener("click", () => {
+      if (loginUser) loginUser.value = "admin";
+      if (loginPass) loginPass.value = "admin123";
+    });
+
+    btnDemoStudent?.addEventListener("click", () => {
+      if (loginUser) loginUser.value = "student";
+      if (loginPass) loginPass.value = "student123";
+    });
+
+    // Login form submit
+    const formLogin = document.getElementById("form-login") as HTMLFormElement;
+    const formLoginError = document.getElementById("form-login-error");
+
+    formLogin?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (formLoginError) formLoginError.style.display = "none";
+
+      const username = loginUser?.value.trim() || "";
+      const password = loginPass?.value || "";
+
+      try {
+        const result = await authApi.login(username, password);
+        Toast.success(`Vítejte, ${result.user.name}!`);
+        Modal.close("modal-login");
+        formLogin.reset();
+        this.renderAuthState(result.user);
+      } catch (err: unknown) {
+        if (formLoginError) {
+          formLoginError.textContent =
+            err instanceof Error ? err.message : "Chyba při přihlašování.";
+          formLoginError.style.display = "block";
+        }
+      }
+    });
+
+    // Logout button
+    const btnLogout = document.getElementById("btn-logout");
+    btnLogout?.addEventListener("click", async () => {
+      await authApi.logout();
+      Toast.info("Byli jste úspěšně odhlášeni.");
+      this.renderAuthState(null);
+    });
+
+    // Listen for external auth changes
+    document.addEventListener("akademie:auth-changed", ((
+      e: CustomEvent<{ user: AuthUser | null }>
+    ) => {
+      this.renderAuthState(e.detail?.user || null);
+    }) as EventListener);
+
+    // Initial session verification
+    authApi.fetchCurrentStatus().then((user) => {
+      this.renderAuthState(user);
+    });
+  }
+
+  private renderAuthState(user: AuthUser | null): void {
+    const unauthContainer = document.getElementById("auth-unauthenticated");
+    const authContainer = document.getElementById("auth-authenticated");
+    const authUserName = document.getElementById("auth-user-name");
+    const authUserBadge = document.getElementById("auth-user-badge");
+
+    if (user) {
+      if (unauthContainer) unauthContainer.classList.add("hidden");
+      if (authContainer) {
+        authContainer.classList.remove("hidden");
+        authContainer.classList.add("flex");
+      }
+      if (authUserName) authUserName.textContent = user.name;
+      if (authUserBadge) {
+        if (user.role === "admin") {
+          authUserBadge.textContent = "Admin";
+          authUserBadge.className = "badge-chip badge-chip-green font-mono uppercase text-xs";
+        } else {
+          authUserBadge.textContent = "Student";
+          authUserBadge.className = "badge-chip badge-chip-blue font-mono uppercase text-xs";
+        }
+      }
+    } else {
+      if (authContainer) {
+        authContainer.classList.add("hidden");
+        authContainer.classList.remove("flex");
+      }
+      if (unauthContainer) unauthContainer.classList.remove("hidden");
+    }
   }
 
   private toggleDesktopDropdown(): void {

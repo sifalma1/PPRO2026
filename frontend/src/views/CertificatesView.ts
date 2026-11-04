@@ -8,6 +8,7 @@ import { certificatesApi } from "../api/certificatesApi";
 import { termsApi } from "../api/termsApi";
 import { Modal } from "../components/Modal";
 import { Toast } from "../components/Toast";
+import { authApi } from "../api/authApi";
 
 export class CertificatesView {
   private certificates: Certificate[] = [];
@@ -71,9 +72,22 @@ export class CertificatesView {
         this.openCertificatePreview(e.detail.certificate);
       }
     }) as EventListener);
+
+    // Listen for auth changes
+    document.addEventListener("akademie:auth-changed", () => {
+      this.renderAuthControls();
+    });
+  }
+
+  public renderAuthControls(): void {
+    const isAdmin = authApi.isAdmin();
+    if (this.btnCompleteTerm) this.btnCompleteTerm.style.display = isAdmin ? "inline-flex" : "none";
+    if (this.btnOpenIssueWaiver)
+      this.btnOpenIssueWaiver.style.display = isAdmin ? "inline-flex" : "none";
   }
 
   public async load(): Promise<void> {
+    this.renderAuthControls();
     try {
       const [certificates, terms] = await Promise.all([
         certificatesApi.getAll(),
@@ -143,12 +157,12 @@ export class CertificatesView {
         </td>
         <td>
           <div class="font-bold text-slate-900 dark:text-white">${c.studentName}</div>
-          <div class="font-mono text-[11px] text-slate-500">${c.studentEmail}</div>
+          <div class="font-mono text-xs text-slate-500">${c.studentEmail}</div>
         </td>
         <td class="text-xs font-medium text-slate-800 dark:text-slate-200">${c.courseTitle}</td>
-        <td class="font-mono text-xs text-slate-500">${c.issueDate}</td>
+        <td class="font-mono text-xs text-slate-500 tabular-nums">${c.issueDate}</td>
         <td>
-          <span class="font-mono font-bold text-xs ${c.attendanceRate >= 70 ? "text-emerald-700 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}">
+          <span class="font-mono font-bold text-xs tabular-nums ${c.attendanceRate >= 70 ? "text-emerald-700 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}">
             ${c.attendanceRate} %
           </span>
         </td>
@@ -203,6 +217,12 @@ export class CertificatesView {
   }
 
   private async handleCompleteTerm(): Promise<void> {
+    if (!authApi.isAdmin()) {
+      Toast.info("Pro uzavření termínu se přihlaste jako administrátor.");
+      Modal.open("modal-login");
+      return;
+    }
+
     const termId = this.completeTermSelect?.value;
     if (!termId) {
       Toast.warning("Nejprve vyberte termín ze seznamu vedle tlačítka.");
@@ -226,6 +246,12 @@ export class CertificatesView {
   }
 
   public async openWaiverModal(): Promise<void> {
+    if (!authApi.isAdmin()) {
+      Toast.info("Pro udělení výjimky se přihlaste jako administrátor.");
+      Modal.open("modal-login");
+      return;
+    }
+
     if (this.formWaiver) this.formWaiver.reset();
     if (this.formWaiverError) this.formWaiverError.style.display = "none";
 

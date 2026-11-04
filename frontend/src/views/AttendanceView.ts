@@ -10,6 +10,7 @@ import { certificatesApi } from "../api/certificatesApi";
 import { dictionariesApi } from "../api/dictionariesApi";
 import { Modal } from "../components/Modal";
 import { Toast } from "../components/Toast";
+import { authApi } from "../api/authApi";
 
 export class AttendanceView {
   private terms: CourseTerm[] = [];
@@ -102,9 +103,24 @@ export class AttendanceView {
           : "Všichni studenti označeni jako přítomní."
       );
     });
+
+    // Listen for auth state changes
+    document.addEventListener("akademie:auth-changed", () => {
+      this.renderAuthControls();
+    });
+  }
+
+  public renderAuthControls(): void {
+    const isAdmin = authApi.isAdmin();
+    const btnCreateDay = document.getElementById("btn-open-create-day");
+    if (btnCreateDay) btnCreateDay.style.display = isAdmin ? "inline-flex" : "none";
+    if (this.btnMarkAll) this.btnMarkAll.style.display = isAdmin ? "inline-flex" : "none";
+    if (this.btnSaveAttendance)
+      this.btnSaveAttendance.style.display = isAdmin ? "inline-flex" : "none";
   }
 
   public async load(preselectedTermId?: string): Promise<void> {
+    this.renderAuthControls();
     try {
       this.terms = await termsApi.getAll();
       this.renderTermSelect();
@@ -309,6 +325,12 @@ export class AttendanceView {
   }
 
   private async handleSaveAttendance(): Promise<void> {
+    if (!authApi.isAdmin()) {
+      Toast.info("Pro uložení docházky se přihlaste jako administrátor.");
+      Modal.open("modal-login");
+      return;
+    }
+
     if (!this.selectedDayId || !this.selectedTermId) return;
 
     const checkboxes = document.querySelectorAll<HTMLInputElement>(".att-checkbox");
@@ -437,6 +459,12 @@ export class AttendanceView {
   }
 
   private async openCreateDayModal(): Promise<void> {
+    if (!authApi.isAdmin()) {
+      Toast.info("Pro přidání výukového dne se přihlaste jako administrátor.");
+      Modal.open("modal-login");
+      return;
+    }
+
     if (!this.selectedTermId) {
       Toast.warning("Nejprve vyberte termín kurzu.");
       return;

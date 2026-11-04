@@ -1,5 +1,6 @@
 /**
- * Generic Fetch Client with robust error handling and typed responses
+ * Generic Fetch Client with robust error handling, typed responses,
+ * and automatic Bearer token authorization header attachment.
  */
 import { ApiResponse } from "../types";
 
@@ -15,10 +16,22 @@ export class ApiError extends Error {
   }
 }
 
+function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem("akademie_admin_token");
+  if (token) {
+    return {
+      Authorization: `Bearer ${token}`,
+      "x-admin-token": token,
+    };
+  }
+  return {};
+}
+
 export async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
     Accept: "application/json",
+    ...getAuthHeaders(),
     ...options.headers,
   };
 
@@ -53,6 +66,7 @@ export async function requestRaw<T>(
   const headers: HeadersInit = {
     "Content-Type": "application/json",
     Accept: "application/json",
+    ...getAuthHeaders(),
     ...options.headers,
   };
 

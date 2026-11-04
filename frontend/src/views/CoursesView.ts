@@ -1,9 +1,11 @@
 /**
  * Courses View - Akademie Trutnov
- * High information density catalog, real-time search, MŠMT accreditation badges, modal management
+ * High information density catalog, real-time search, MŠMT accreditation badges, modal management,
+ * and role-based permissions (Admin vs. Public vs. Student).
  */
 import { Course } from "../types";
 import { coursesApi, CreateCoursePayload } from "../api/coursesApi";
+import { authApi } from "../api/authApi";
 import { Modal } from "../components/Modal";
 import { Toast } from "../components/Toast";
 
@@ -19,6 +21,7 @@ export class CoursesView {
   private filterChips: NodeListOf<HTMLButtonElement> | null = null;
   private countPill: HTMLElement | null = null;
   private kpiCoursesCount: HTMLElement | null = null;
+  private btnOpenCreate: HTMLElement | null = null;
 
   private form: HTMLFormElement | null = null;
   private formError: HTMLElement | null = null;
@@ -36,6 +39,7 @@ export class CoursesView {
     this.filterChips = document.querySelectorAll<HTMLButtonElement>(".filter-chip");
     this.countPill = document.getElementById("courses-count-pill");
     this.kpiCoursesCount = document.getElementById("kpi-courses-count");
+    this.btnOpenCreate = document.getElementById("btn-open-create-course");
 
     this.form = document.getElementById("form-course") as HTMLFormElement;
     this.formError = document.getElementById("form-course-error");
@@ -75,8 +79,12 @@ export class CoursesView {
     });
 
     // Open create modal button
-    const btnOpenCreate = document.getElementById("btn-open-create-course");
-    btnOpenCreate?.addEventListener("click", () => {
+    this.btnOpenCreate?.addEventListener("click", () => {
+      if (!authApi.isAdmin()) {
+        Toast.info("Pro vytvoření nového kurzu se přihlaste jako administrátor.");
+        Modal.open("modal-login");
+        return;
+      }
       this.openCreateModal();
     });
 
@@ -84,6 +92,11 @@ export class CoursesView {
     this.form?.addEventListener("submit", async (e) => {
       e.preventDefault();
       await this.handleSubmit();
+    });
+
+    // Listen for global auth state changes
+    document.addEventListener("akademie:auth-changed", () => {
+      this.render();
     });
   }
 
@@ -105,6 +118,18 @@ export class CoursesView {
   }
 
   private render(): void {
+    const isAdmin = authApi.isAdmin();
+
+    // Toggle visibility of the "Přidat nový kurz" button based on Admin status
+    if (this.btnOpenCreate) {
+      if (isAdmin) {
+        this.btnOpenCreate.style.display = "inline-flex";
+        this.btnOpenCreate.title = "Vytvořit nový vzdělávací program";
+      } else {
+        this.btnOpenCreate.style.display = "none";
+      }
+    }
+
     if (!this.container) return;
     this.container.innerHTML = "";
 
@@ -130,7 +155,7 @@ export class CoursesView {
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           </div>
           <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">Žádné kurzy neodpovídají zadanému filtru.</p>
-          <p class="text-[11px] text-slate-400 mt-0.5">Zkuste změnit hledaný výraz nebo zvolit kategorii "Všechny programy".</p>
+          <p class="text-xs text-slate-400 mt-1">Zkuste změnit hledaný výraz nebo zvolit kategorii "Všechny programy".</p>
         </div>
       `;
       return;
@@ -148,7 +173,7 @@ export class CoursesView {
         <div>
           <div class="flex items-center justify-between gap-2 mb-2.5">
             <div class="flex items-center gap-1.5">
-              <span class="font-mono text-[10px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700/80">
+              <span class="font-mono text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700/80">
                 ${courseCode}
               </span>
               ${
@@ -157,7 +182,7 @@ export class CoursesView {
                   : '<span class="badge-chip badge-chip-slate">Firemní program</span>'
               }
             </div>
-            <span class="text-xs font-bold font-mono text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800/80 px-2 py-0.5 rounded border border-slate-200/80 dark:border-slate-700/80">
+            <span class="text-xs font-bold font-mono text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800/80 px-2.5 py-0.5 rounded border border-slate-200/80 dark:border-slate-700/80 tabular-nums">
               ${formattedPrice} Kč
             </span>
           </div>
@@ -172,7 +197,7 @@ export class CoursesView {
         </div>
 
         <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between mt-auto">
-          <span class="text-[11px] font-mono font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1">
+          <span class="text-xs font-mono font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1 tabular-nums">
             <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
@@ -183,24 +208,30 @@ export class CoursesView {
             <button
               class="btn-primary-tw btn-sm-tw btn-schedule-course"
               data-id="${course.id}"
-              title="Vypsat nový termín pro tento kurz"
+              title="Zobrazit vypsané termíny a přihlášky"
             >
-              Vypsat termín
+              ${isAdmin ? "Vypsat termín" : "Zobrazit termíny"}
             </button>
-            <button
-              class="btn-secondary-tw btn-sm-tw btn-edit-course"
-              data-id="${course.id}"
-              title="Upravit parametry kurzu"
-            >
-              Upravit
-            </button>
-            <button
-              class="btn-ghost-tw btn-sm-tw btn-delete-course text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40"
-              data-id="${course.id}"
-              title="Smazat kurz z katalogu"
-            >
-              Smazat
-            </button>
+            ${
+              isAdmin
+                ? `
+              <button
+                class="btn-secondary-tw btn-sm-tw btn-edit-course"
+                data-id="${course.id}"
+                title="Upravit parametry kurzu"
+              >
+                Upravit
+              </button>
+              <button
+                class="btn-ghost-tw btn-sm-tw btn-delete-course text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                data-id="${course.id}"
+                title="Smazat kurz z katalogu"
+              >
+                Smazat
+              </button>
+            `
+                : ""
+            }
           </div>
         </div>
       `;
@@ -208,10 +239,10 @@ export class CoursesView {
       // Schedule event
       const scheduleBtn = card.querySelector(".btn-schedule-course");
       scheduleBtn?.addEventListener("click", () => {
-        if (this.onScheduleTermCallback) {
+        if (isAdmin && this.onScheduleTermCallback) {
           this.onScheduleTermCallback(course.id);
         } else {
-          // Trigger custom event
+          // Switch to terms tab for this course
           document.dispatchEvent(
             new CustomEvent("akademie:schedule-course", { detail: { courseId: course.id } })
           );
@@ -231,6 +262,12 @@ export class CoursesView {
   }
 
   private openCreateModal(): void {
+    if (!authApi.isAdmin()) {
+      Toast.info("Pro vytváření kurzů se přihlaste jako administrátor.");
+      Modal.open("modal-login");
+      return;
+    }
+
     this.isEditing = false;
     this.editingCourseId = null;
 
@@ -242,47 +279,55 @@ export class CoursesView {
   }
 
   private openEditModal(course: Course): void {
+    if (!authApi.isAdmin()) {
+      Toast.info("Pro úpravu kurzu se přihlaste jako administrátor.");
+      Modal.open("modal-login");
+      return;
+    }
+
     this.isEditing = true;
     this.editingCourseId = course.id;
 
     if (this.modalTitle) this.modalTitle.textContent = "Upravit vzdělávací program";
     if (this.formError) this.formError.style.display = "none";
 
+    // Populate inputs
+    const idInput = document.getElementById("course-id") as HTMLInputElement;
     const titleInput = document.getElementById("course-title") as HTMLInputElement;
-    const annotInput = document.getElementById("course-annotation") as HTMLTextAreaElement;
+    const annotationInput = document.getElementById("course-annotation") as HTMLTextAreaElement;
     const hoursInput = document.getElementById("course-hours") as HTMLInputElement;
     const priceInput = document.getElementById("course-price") as HTMLInputElement;
-    const accredInput = document.getElementById("course-accredited") as HTMLInputElement;
-    const idInput = document.getElementById("course-id") as HTMLInputElement;
+    const accreditedInput = document.getElementById("course-is-accredited") as HTMLInputElement;
 
+    if (idInput) idInput.value = course.id;
     if (titleInput) titleInput.value = course.title;
-    if (annotInput) annotInput.value = course.annotation;
+    if (annotationInput) annotationInput.value = course.annotation;
     if (hoursInput) hoursInput.value = course.hours.toString();
     if (priceInput) priceInput.value = course.price.toString();
-    if (accredInput) accredInput.checked = course.isAccredited;
-    if (idInput) idInput.value = course.id;
+    if (accreditedInput) accreditedInput.checked = Boolean(course.isAccredited);
 
     Modal.open("modal-course");
   }
 
   private async handleSubmit(): Promise<void> {
-    if (!this.form) return;
-    if (this.formError) this.formError.style.display = "none";
+    if (!authApi.isAdmin()) {
+      Toast.error("Chyba: Pro uložení změn v katalogu se musíte přihlásit jako administrátor.");
+      Modal.open("modal-login");
+      return;
+    }
 
-    const title = (document.getElementById("course-title") as HTMLInputElement).value.trim();
-    const annotation = (
-      document.getElementById("course-annotation") as HTMLTextAreaElement
-    ).value.trim();
-    const hours = parseInt((document.getElementById("course-hours") as HTMLInputElement).value, 10);
-    const price = parseFloat((document.getElementById("course-price") as HTMLInputElement).value);
-    const isAccredited = (document.getElementById("course-accredited") as HTMLInputElement).checked;
+    const titleInput = document.getElementById("course-title") as HTMLInputElement;
+    const annotationInput = document.getElementById("course-annotation") as HTMLTextAreaElement;
+    const hoursInput = document.getElementById("course-hours") as HTMLInputElement;
+    const priceInput = document.getElementById("course-price") as HTMLInputElement;
+    const accreditedInput = document.getElementById("course-is-accredited") as HTMLInputElement;
 
     const payload: CreateCoursePayload = {
-      title,
-      annotation,
-      hours,
-      price,
-      isAccredited,
+      title: titleInput.value.trim(),
+      annotation: annotationInput.value.trim(),
+      hours: parseInt(hoursInput.value, 10),
+      price: parseFloat(priceInput.value),
+      isAccredited: accreditedInput.checked,
     };
 
     try {
@@ -297,23 +342,31 @@ export class CoursesView {
       Modal.close("modal-course");
       await this.load();
     } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Chyba při ukládání kurzu.";
       if (this.formError) {
-        const msg = err instanceof Error ? err.message : "Chyba při ukládání kurzu.";
         this.formError.textContent = msg;
         this.formError.style.display = "block";
+      } else {
+        Toast.error(msg);
       }
     }
   }
 
   private async handleDelete(course: Course): Promise<void> {
-    const confirmed = window.confirm(
-      `Opravdu chcete smazat kurz "${course.title}"? Smažou se i všechny navázané termíny a přihlášky.`
+    if (!authApi.isAdmin()) {
+      Toast.info("Pro smazání kurzu se přihlaste jako administrátor.");
+      Modal.open("modal-login");
+      return;
+    }
+
+    const confirmed = confirm(
+      `Opravdu si přejete smazat kurz "${course.title}"? Dojde ke smazání i všech souvisejících termínů!`
     );
     if (!confirmed) return;
 
     try {
-      const msg = await coursesApi.delete(course.id);
-      Toast.success(msg);
+      await coursesApi.delete(course.id);
+      Toast.success(`Kurz "${course.title}" byl úspěšně odstraněn.`);
       await this.load();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Nepodařilo se smazat kurz.";

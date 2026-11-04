@@ -22,6 +22,7 @@
    - [ADR-04: Testovací a perzistentní strategie (In-Memory repozitáře vs. Produkční PostgreSQL 16 v Dockeru) a pravidlo dodatečného zápisu](#adr-04-testovací-a-perzistentní-strategie-in-memory-repozitáře-vs-produkční-postgresql-16-v-dockeru-a-pravidlo-dodatečného-zápisu)
    - [ADR-05: Více lektorů na termínu a rozpad na výukové dny (M:N)](#adr-05-více-lektorů-na-termínu-a-rozpad-na-výukové-dny-mn)
    - [ADR-06: Vyhodnocení vhodnosti Strapi CMS jako administrace (Zamítnuto)](#adr-06-vyhodnocení-vhodnosti-strapi-cms-jako-administrace-zamítnuto)
+   - [ADR-07: Role-Based Access Control (RBAC), Administrátorská a Studentská autentizace](#adr-07-role-based-access-control-rbac-administrátorská-a-studentská-autentizace)
 3. [Třívrstvá architektura a technický návrh](#3-třívrstvá-architektura-a-technický-návrh)
    - 3.1 [Třívrstvá architektura a vrstvy aplikace](#31-třívrstvá-architektura-a-vrstvy-aplikace)
    - 3.2 [Sekvenční diagram: Vypsání termínu a přihlášení s čekací listinou (ADR-02)](#32-sekvenční-diagram-vypsání-termínu-a-přihlášení-s-čekací-listinou-adr-02)
@@ -34,16 +35,17 @@
    - 5.1 [Architektonický koncept a vrstvy frontendu](#51-architektonický-koncept-a-vrstvy-frontendu)
    - 5.2 [Struktura adresáře frontend/src/ a popis modulů](#52-struktura-adresáře-frontendsrc-a-popis-modulů)
    - 5.3 [Komponenty uživatelského rozhraní (Header, Modal, Toast)](#53-komponenty-uživatelského-rozhraní-header-modal-toast)
-   - 5.4 [Design Tokens, Tailwind konfigurace a Dark/Light Mode](#54-design-tokens-tailwind-konfigurace-a-darklight-mode)
+   - 5.4 [Krkonošský design systém, barevné tokeny a moderní webové standardy](#54-krkonošský-design-systém-barevné-tokeny-a-moderní-webové-standardy)
    - 5.5 [Produkční build a integrace s Express backendem](#55-produkční-build-a-integrace-s-express-backendem)
 6. [Kompletní katalog REST API rozhraní](#6-kompletní-katalog-rest-api-rozhraní)
    - 6.1 [Konvence a společné formáty odpovědí](#61-konvence-a-společné-formáty-odpovědí)
-   - 6.2 [Kurzy (/api/courses)](#62-kurzy-apicourses)
-   - 6.3 [Termíny a přihlášky s čekací listinou (/api/terms, /api/enrollments)](#63-termíny-a-přihlášky-s-čekací-listinou-apiterms-apienrollments)
-   - 6.4 [Evidence docházky a výukové dny (/api/attendance)](#64-evidence-docházky-a-výukové-dny-apiattendance)
-   - 6.5 [Osvědčení a certifikáty (/api/certificates)](#65-osvědčení-a-certifikáty-apicertificates)
-   - 6.6 [Číselníky a manažerská analytika (/api/lecturers, /api/classrooms, /api/students, /api/analytics, /health)](#66-číselníky-a-manažerská-analytika-apilecturers-apiclassrooms-apistudents-apianalytics-health)
-   - 6.7 [Zpětně kompatibilní české aliasy](#67-zpětně-kompatibilní-české-aliasy)
+   - 6.2 [Autentizace a autorizace (/api/auth, /api/student)](#62-autentizace-a-autorizace-apiauth-apistudent)
+   - 6.3 [Kurzy (/api/courses)](#63-kurzy-apicourses)
+   - 6.4 [Termíny a přihlášky s čekací listinou (/api/terms, /api/enrollments)](#64-termíny-a-přihlášky-s-čekací-listinou-apiterms-apienrollments)
+   - 6.5 [Evidence docházky a výukové dny (/api/attendance)](#65-evidence-docházky-a-výukové-dny-apiattendance)
+   - 6.6 [Osvědčení a certifikáty (/api/certificates)](#66-osvědčení-a-certifikáty-apicertificates)
+   - 6.7 [Číselníky a manažerská analytika (/api/lecturers, /api/classrooms, /api/students, /api/analytics, /health)](#67-číselníky-a-manažerská-analytika-apilecturers-apiclassrooms-apistudents-apianalytics-health)
+   - 6.8 [Zpětně kompatibilní české aliasy](#68-zpětně-kompatibilní-české-aliasy)
 7. [Infrastruktura a spuštění projektu](#7-infrastruktura-a-spuštění-projektu)
    - 7.1 [Použitý technologický stack](#71-použitý-technologický-stack)
    - 7.2 [Lokální spuštění v Dockeru (doporučeno pro obhajobu)](#72-lokální-spuštění-v-dockeru-doporučeno-pro-obhajobu)
@@ -53,7 +55,7 @@
    - 8.1 [Přehled testovací strategie (dvoustupňový testovací harness)](#81-přehled-testovací-strategie-dvoustupňový-testovací-harness)
    - 8.2 [Nativní Node test runner (29 testů – 20 unit + 9 E2E)](#82-nativní-node-test-runner-29-testů--20-unit--9-e2e)
    - 8.3 [Komplexní testovací sada v Jestu s TypeScript & ESM (71 testů)](#83-komplexní-testovací-sada-v-jestu-s-typescript--esm-71-testů)
-   - 8.4 [Souhrnná tabulka testovacího pokrytí (100 testů, 100% pass)](#84-souhrnná-tabulka-testovacího-pokrytí-100-testů-100-pass)
+   - 8.4 [Souhrnná tabulka testovacího pokrytí (119 testů, 100% pass)](#84-souhrnná-tabulka-testovacího-pokrytí-119-testů-100-pass)
    - 8.5 [Kvalita kódu, linting a formátování (ESLint + Prettier)](#85-kvalita-kódu-linting-a-formátování-eslint--prettier)
 9. [Přehled plnění požadavků zadání klienta (100% HOTOVO)](#9-přehled-plnění-požadavků-zadání-klienta-100-hotovo)
    - 9.1 [Tabulka plnění 8 bodů zadání](#91-tabulka-plnění-8-bodů-zadání)
@@ -105,17 +107,27 @@ Systém striktně vymáhá následující byznys pravidla na úrovni aplikační
 - **Globální unikátnost a neměnnost osvědčení:** Číslo certifikátu ve formátu `AT-YYYY-XXXX` je generováno z atomické sekvence v databázi. Jednou vydané osvědčení je trvale archivováno a nesmí být přepsáno ani smazáno (auditní stopa pro akreditační komisi).
 - **Zákaz fyzického mazání historie (Audit Log):** Zrušená přihláška se z databáze neodstraňuje příkazem `DELETE`, nýbrž je označena stavem `CANCELLED` včetně časového razítka a případné poznámky o důvodu zrušení.
 
-### 1.4 Role uživatelů v systému (Aktéři)
+### 1.4 Role uživatelů v systému (Aktéři a RBAC)
 
-1. **Recepce & Administrátor:**
-   - Zakládá a edituje kurzy, vypisuje termíny a přiřazuje jim učebny.
-   - Provádí registraci studentů na termíny, spravuje čekací listinu a odbavuje případná storna.
-   - Provádí formální uzavření termínu a iniciuje vystavení osvědčení.
-2. **Lektor:**
+1. **Recepce & Administrátor (`admin` / `admin123`):**
+   - Plná správa kurzů (vytváření, editace, mazání), vypisování termínů a přiřazování učeben a lektorů.
+   - Správa přihlášek, ruční odbavování storen a posunů v pořadníku.
+   - Zápis a editace prezence na výukových dnech, formální uzavření termínu a hromadné vystavení osvědčení.
+2. **Student (`student` / `student123` nebo registrovaný e-mail např. `jan.novak@firma.cz`):**
+   - Přístup do osobního klientského portálu (`GET /api/student/dashboard`).
+   - Přehled všech vlastních podaných přihlášek včetně aktuálního stavu (Potvrzena / Pozice v pořadníku náhradníků).
+   - Průběžný stav docházky na zapsaných kurzech a přímý náhled / tisk vydaných absolventských osvědčení.
+   - Z bezpečnostních důvodů NESMÍ upravovat katalog kurzů, termíny ani zapisovat docházku (HTTP 403 Forbidden).
+3. **Veřejný návštěvník (Public / Nepřihlášený uživatel):**
+   - Anonymní prohlížení kompletního katalogu vzdělávacích programů a vypsaných termínů.
+   - Možnost odeslat novou přihlášku na termín kurzu (s automatickým zařazením na volné místo nebo na čekací listinu).
+   - Ověřování platnosti certifikátů dle evidenčního čísla (`GET /api/certificates/:id`).
+   - Přísný zákaz jakéhokoliv zásahu do katalogu kurzů (pokus o CUD operaci vrátí HTTP 401 Unauthorized).
+4. **Lektor:**
    - Prohlíží si rozvrh svých výukových dnů.
    - Zapisuje prezenci účastníků (přítomen / nepřítomen / omluven) po skončení každého výukového dne.
    - Má pravomoc udělit výjimku z docházky studentovi, který nesplnil limit 70 %, na základě odborného posouzení a doloženého náhradního úkolu (s povinným písemným odůvodněním).
-3. **Vedení vzdělávacího centra (Klient – Ing. Lucie Bartošová):**
+5. **Vedení vzdělávacího centra (Klient – Ing. Lucie Bartošová):**
    - Využívá manažerský dashboard pro kontrolu rentability, vytíženosti učeben a schvalování hodin lektorů před vyplacením honorářů.
 
 ---
@@ -124,14 +136,15 @@ Systém striktně vymáhá následující byznys pravidla na úrovni aplikační
 
 Následující přehled dokumentuje klíčová architektonická rozhodnutí řešící protichůdné požadavky a nejasnosti v zadání klienta:
 
-| #          | Otevřený bod klienta / Rozhodnutí                                    | Klíčové dilema                                                                       | Přijaté architektonické rozhodnutí                                                                                                                                                                                                                                                                                      |
-| ---------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **ADR-01** | **Kritéria dokončení kurzu a certifikace**                           | 70% docházka vs. subjektivní posouzení lektorem                                      | **Hybridní model s pravidlem 70 % + lektorská výjimka:** Systém automaticky kvalifikuje studenta při dosažení alespoň 70% účasti. Lektor má možnost udělit výjimku (s povinným písemným odůvodněním min. 5 znaků) nebo naopak neudělit zápočet z odborných důvodů. Číslo osvědčení má garantovaný tvar `AT-YYYY-XXXX`.  |
-| **ADR-02** | **Posun z čekací listiny (pořadníku) při uvolnění místa**            | Zcela automatický zápis vs. manuální potvrzování recepcí                             | **Okamžitý atomický posun v rámci DB transakce:** Při stornu potvrzené přihlášky transakce s řádkovým zamykáním (`FOR UPDATE`) okamžitě povýší prvního čekatele (`waitlist_position = 1`) na potvrzenou účast a posune pořadí všech zbývajících čekatelů o 1 dopředu.                                                   |
-| **ADR-03** | **Zákaz souběhu aktivních přihlášek na stejný kurz**                 | Možnost podat přihlášku na dva termíny naráz vs. blokace míst                        | **Striktní zákaz souběhu potvrzených přihlášek:** Student smí mít na tentýž kurz pouze jednu platnou potvrzenou přihlášku (`CONFIRMED`). Zápis do pořadníku (`WAITLIST`) na alternativní termín je povolen jako záloha.                                                                                                 |
-| **ADR-04** | **Testovací a perzistentní strategie a pravidlo dodatečného zápisu** | Závislost testů na externí DB vs. In-memory repozitáře; registrace po zahájení kurzu | **Dvoustupňová architektura úložiště:** Produkce využívá robustní PostgreSQL 16 s řízenými migracemi v Dockeru. Testy využívají in-memory repozitáře věrně simulující transakční logiku pro bleskový a izolovaný běh. Dodatečný zápis po zahájení kurzu je povolen pouze administrátorovi do max. 20 % hodinové dotace. |
-| **ADR-05** | **Více lektorů na termínu a rozpad na výukové dny**                  | Agregace hodin na lektora vs. střídání lektorů na kurzu                              | **Rozpad termínu na výukové dny (`TeachingDay`) s vazbou M:N:** Termín kurzu se skládá z jednotlivých výukových dnů, z nichž každý má přiřazeného konkrétního vyučujícího lektora. Analytika agreguje skutečně odučené hodiny přes tyto dílčí bloky.                                                                    |
-| **ADR-06** | **Vyhodnocení vhodnosti Strapi CMS jako administrace**               | Použít generované headless CMS Strapi vs. vlastní SPA administraci                   | **Zamítnuto – Vlastní modulární SPA administrace v Tailwind CSS:** Strapi bylo po důkladné analýze zamítnuto z důvodu porušení principů 3-vrstvé architektury PPRO, nekontrolovatelných systémových migrací a vysoké režie.                                                                                             |
+| #          | Otevřený bod klienta / Rozhodnutí                                               | Klíčové dilema                                                                       | Přijaté architektonické rozhodnutí                                                                                                                                                                                                                                                                                      |
+| ---------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ADR-01** | **Kritéria dokončení kurzu a certifikace**                                      | 70% docházka vs. subjektivní posouzení lektorem                                      | **Hybridní model s pravidlem 70 % + lektorská výjimka:** Systém automaticky kvalifikuje studenta při dosažení alespoň 70% účasti. Lektor má možnost udělit výjimku (s povinným písemným odůvodněním min. 5 znaků) nebo naopak neudělit zápočet z odborných důvodů. Číslo osvědčení má garantovaný tvar `AT-YYYY-XXXX`.  |
+| **ADR-02** | **Posun z čekací listiny (pořadníku) při uvolnění místa**                       | Zcela automatický zápis vs. manuální potvrzování recepcí                             | **Okamžitý atomický posun v rámci DB transakce:** Při stornu potvrzené přihlášky transakce s řádkovým zamykáním (`FOR UPDATE`) okamžitě povýší prvního čekatele (`waitlist_position = 1`) na potvrzenou účast a posune pořadí všech zbývajících čekatelů o 1 dopředu.                                                   |
+| **ADR-03** | **Zákaz souběhu aktivních přihlášek na stejný kurz**                            | Možnost podat přihlášku na dva termíny naráz vs. blokace míst                        | **Striktní zákaz souběhu potvrzených přihlášek:** Student smí mít na tentýž kurz pouze jednu platnou potvrzenou přihlášku (`CONFIRMED`). Zápis do pořadníku (`WAITLIST`) na alternativní termín je povolen jako záloha.                                                                                                 |
+| **ADR-04** | **Testovací a perzistentní strategie a pravidlo dodatečného zápisu**            | Závislost testů na externí DB vs. In-memory repozitáře; registrace po zahájení kurzu | **Dvoustupňová architektura úložiště:** Produkce využívá robustní PostgreSQL 16 s řízenými migracemi v Dockeru. Testy využívají in-memory repozitáře věrně simulující transakční logiku pro bleskový a izolovaný běh. Dodatečný zápis po zahájení kurzu je povolen pouze administrátorovi do max. 20 % hodinové dotace. |
+| **ADR-05** | **Více lektorů na termínu a rozpad na výukové dny**                             | Agregace hodin na lektora vs. střídání lektorů na kurzu                              | **Rozpad termínu na výukové dny (`TeachingDay`) s vazbou M:N:** Termín kurzu se skládá z jednotlivých výukových dnů, z nichž každý má přiřazeného konkrétního vyučujícího lektora. Analytika agreguje skutečně odučené hodiny přes tyto dílčí bloky.                                                                    |
+| **ADR-06** | **Vyhodnocení vhodnosti Strapi CMS jako administrace**                          | Použít generované headless CMS Strapi vs. vlastní SPA administraci                   | **Zamítnuto – Vlastní modulární SPA administrace v Tailwind CSS:** Strapi bylo po důkladné analýze zamítnuto z důvodu porušení principů 3-vrstvé architektury PPRO, nekontrolovatelných systémových migrací a vysoké režie.                                                                                             |
+| **ADR-07** | **Role-Based Access Control (RBAC), Administrátorská a Studentská autentizace** | Neomezený přístup k úpravám vs. Bezpečná autentizace a klientský portál studenta     | **Dvouúrovňový aplikační RBAC model bez zásahů do DB:** Veřejnost může číst katalog a podávat přihlášky. Administrátor má plná CRUD práva ke kurzům, termínům a docházce. Student se přihlašuje e-mailem, vidí své přihlášky, docházku a certifikáty, ale nesmí modifikovat kurzy ani termíny.                          |
 
 ---
 
@@ -201,6 +214,37 @@ Dotaz zadavatele: _„Zkus zjistit, zdali je vhodné použít Strapi jako admini
 4. **Závěr:**
    - **Použití Strapi pro hlavní administraci NENÍ vhodné.**
    - Jako optimální řešení je implementováno přehledné, responzivní Web UI ve frameworku **Tailwind CSS** přímo v prezentační vrstvě aplikace, napojené na čisté REST API.
+
+---
+
+### ADR-07: Role-Based Access Control (RBAC), Administrátorská a Studentská autentizace
+
+- **Kontext:** Původní verze aplikace ponechávala REST API rozhraní pro vytváření, editaci a mazání kurzů volně přístupné komukoliv bez autentizace. V reálném provozu vzdělávacího centra je však nepřípustné, aby anonymní návštěvník mohl měnit parametry kurzů, rušit vypsané termíny nebo falšovat docházku. Zároveň klient vznesl požadavek, aby se registrovaný student mohl přihlásit do systému a sledovat stav svých přihlášek (včetně pořadí v čekací listině), evidenci docházky a vydaná osvědčení.
+- **Klíčové invarianty a omezení:**
+  - **Striktní zákaz změn schématu relační databáze:** V souladu s akademickými mantinely projektu PPRO nesmí dojít k žádným dodatečným migracím tabulek, rušení relací ani úpravám schématu PostgreSQL.
+  - **Stoprocentní zpětná kompatibilita testů:** Celá stávající testovací sada (100 testů) musí zůstat plně funkční bez nutnosti refaktorovat stávající integrační volání.
+- **Přijaté architektonické rozhodnutí:**
+  1. **Aplikační vrstva autentizace (`AuthService`):**
+     - Autentizace je řešena v aplikační vrstvě pomocí kryptograficky bezpečných relačních tokenů (32b hex) uložených v paměťovém session store s garantovanou expirací (24 hodin).
+     - **Role Administrátor (`admin`):**
+       - Výchozí přihlašovací údaje: `admin` / `admin123` (konfigurovatelné přes proměnné prostředí `ADMIN_USERNAME` a `ADMIN_PASSWORD`).
+       - Plná oprávnění ke správě kurzů (CUD), termínů, docházky a osvědčení.
+     - **Role Student (`student`):**
+       - Přihlašovací údaje: registrovaný e-mail studenta ze syntetických dat (např. `jan.novak@firma.cz`, `a.kratochvilova@gmail.com`, `tomas.marny@seznam.cz`) nebo obecný účet `student` s heslem `student123` (konfigurovatelné přes `STUDENT_PASSWORD`).
+       - Student je v aplikační vrstvě automaticky spárován s existujícím záznamem v tabulce `students` a má přístup do svého klientského portálu (`GET /api/student/dashboard`).
+       - Z bezpečnostních důvodů je studentovi striktně zakázána jakákoliv modifikace katalogu kurzů či termínů (HTTP 403 Forbidden).
+     - **Role Veřejnost (Public):**
+       - Anonymní uživatel může prohlížet katalog kurzů a termínů (`GET /api/courses`, `GET /api/terms`), ověřovat certifikáty a podávat nové přihlášky (`POST /api/terms/:id/enrollments`).
+       - Pokus o neautorizovanou změnu katalogu kurzů vrátí HTTP 401 Unauthorized s jasným českým chybovým hlášením.
+  2. **Bezpečnostní middleware (`requireAdminAuth`, `requireAuth`):**
+     - Kontroluje přítomnost a platnost tokenu v hlavičce `Authorization: Bearer <token>` nebo `x-admin-token`.
+     - V produkčním režimu nekompromisně vrací HTTP 401 při absenci tokenu.
+     - Pro automatizované testy akceptuje standardizované testovací tokeny (`test-admin-token`, `test-student-token`) a pro zachování zpětné kompatibility legacy testů umožňuje transparentní průchod v testovacím režimu bez explicitní hlavičky.
+  3. **Frontendová integrace (SPA Dashboard):**
+     - Dialogové okno `#modal-login` s volbou rychlého předvyplnění pro Administrátora i Studenta.
+     - Automatické ukládání tokenu do `localStorage` (`akademie_admin_token`) a automatické přikládání Bearer hlavičky v `apiClient.ts`.
+     - Dynamické zobrazení/skrytí akčních tlačítek ("Nový kurz", "Upravit", "Smazat", "Vypsat termín", "Uzavřít termín") dle role přihlášeného uživatele.
+     - Klientský portál studenta s přehledem zapsaných termínů, pozice v pořadníku a náhledy osvědčení.
 
 ---
 
@@ -590,17 +634,31 @@ frontend/src/
 
 ### 5.3 Komponenty uživatelského rozhraní (Header, Modal, Toast)
 
-- **`Header.ts`:** Poskytuje čistou, ergonomickou a kompaktní navigaci omezenou na maximálně 4 položky (Katalog kurzů, Termíny & Pořadník, Evidence docházky a rozbalovací dropdown menu _Správa & Výkazy_ pro Knihu osvědčení, Lektory/Učebny a Manažerské výkazy). Zajišťuje automatickou synchronizaci aktivního stavu, indikaci vybrané podagendy v záhlaví dropdownu, obsluhu kliknutí mimo menu a klávesových zkratek 1–6 / Esc a perzistentní přepínač tmavého a světlého režimu.
-- **`Modal.ts`:** Plně přístupný modální dialog. Podporuje zavření stiskem klávesy `Escape`, kliknutím mimo dialogové okno (backdrop click), uzamčení posunu stránky na pozadí (`overflow: hidden`) a plynulou animaci `scaleIn`.
+- **`Header.ts`:** Poskytuje čistou, ergonomickou a kompaktní navigaci omezenou na maximálně 4 položky (Katalog kurzů, Termíny & Pořadník, Evidence docházky a rozbalovací dropdown menu _Správa & Výkazy_ pro Knihu osvědčení, Lektory/Učebny a Manažerské výkazy). Zajišťuje automatickou synchronizaci aktivního stavu, indikaci vybrané podagendy v záhlaví dropdownu, obsluhu kliknutí mimo menu a klávesových zkratek 1–6 / Esc, rychlé vyhledávání (klávesa `/`), perzistentní přepínač tmavého a světlého režimu a zobrazení stavu přihlášeného uživatele (Admin / Student / Veřejnost).
+- **`Modal.ts`:** Plně přístupný modální dialog splňující standardy WAI-ARIA. Podporuje zavření stiskem klávesy `Escape`, kliknutím mimo dialogové okno (backdrop click), uzamčení posunu stránky na pozadí (`overflow: hidden`) a plynulou animaci `scaleIn` s backdrop blur efektem.
 - **`Toast.ts`:** Toastový notifikační systém zobrazující zprávy v pravém horním rohu obrazovky. Podporuje 4 typy hlášení (úspěch, chyba, varování, informace) s automatickým časovačem skrytí (default 4000 ms) a možností manuálního zavření křížkem.
 
-### 5.4 Design Tokens, Tailwind konfigurace a Dark/Light Mode
+### 5.4 Krkonošský design systém, barevné tokeny a moderní webové standardy
 
-- **Tailwind CSS konfigurace (`tailwind.config.js`):** Nastaven `darkMode: "class"`, což umožňuje plynulé přepínání stylů třídou `dark` na kořenovém elementu `<html>`.
-- **Paleta barev:**
-  - _Light mode:_ Neutrální šedá pozadí `bg-slate-50`, karty `bg-white`, texty `text-slate-800`, primární akcenty v indigové a modré barvě `indigo-600` / `blue-600`.
-  - _Dark mode:_ Tmavá grafitová pozadí `dark:bg-slate-900`, karty `dark:bg-slate-800`, ohraničení `dark:border-slate-700`, texty `dark:text-slate-100`.
-- **Perzistence volby:** Uživatelská volba se okamžitě ukládá do `localStorage.getItem("theme")`. Pokud uživatel téma dosud nenastavil, systém automaticky detekuje systémovou preferenci OS přes `window.matchMedia("(prefers-color-scheme: dark)")`.
+Vizuální styl frontendu byl kompletně přepracován s využitím moderních standardů webového designu (Generative UI):
+
+1. **Odstranění generických prvků a institucionální identita:**
+   - Eliminace křiklavých fialových/modrých gradientů, plovoucích rozostřených koulí, prázdných nevyužitých okrajů a levného glassmorphismu.
+   - Autentická břidlicovo-smaragdová institucionální identita Akademie Trutnov inspirovaná podkrkonošským regionem (smaragdové akcenty `#059669` / `#10b981`, břidlicové povrchy pro Dark mode a čisté slate odstíny pro Light mode).
+2. **Barevné tokeny a povrchy (Dark & Light Mode):**
+   - _Dark mode (vysoký kontrast a ergonomie):_ Hluboké břidlicové pozadí `#0a0f1d`, karty a panely `#0f172a`, ohraničení a dělicí linie `#1e293b`, smaragdové akcentní prvky `#059669` / `#10b981`.
+   - _Light mode (čistý akademický tiskový vzhled):_ Neutrální pozadí `#f8fafc`, bílé karty `#ffffff`, jemná ohraničení `#e2e8f0` a kontrastní texty `#0f172a` / `#334155`.
+   - _Perzistence volby:_ Uložení tématu do `localStorage.getItem("theme")` s automatickou detekcí systémových preferencí (`prefers-color-scheme: dark`).
+3. **Typografická pravidla a čitelnost:**
+   - **Striktní spodní hranice velikosti písma (Typography floor):** Minimální čitelná velikost písma je `text-xs` (12px / 0.75rem). Veškerý dřívější nečitelný mikrotext (`text-[9px]`, `text-[10px]`, `text-[11px]`) byl kompletně odstraněn a nahrazen čitelným písmem s optimálním řádkováním a kontrastem.
+   - **Tabulární číslice (`tabular-nums`):** Všechny číselné hodnoty, ceny kurzů, kapacity, datumy, hodiny dotace, procenta docházky i evidenční čísla osvědčení využívají `font-variant-numeric: tabular-nums` pro dokonalé vertikální zarovnání ve sloupcích tabulek i kartách.
+4. **Vysoká informační hustota a struktura:**
+   - Horní KPI přehledový pruh se 4 klíčovými metrikami (nabídka kurzů, vypsané termíny, průměrná docházka, vydaná osvědčení).
+   - Datové tabulky s fixními záhlavími, jemným hover efektem řádků a konzistentními statusovými odznaky.
+   - Přístupné formuláře se zřetelnými popisky (12px bold), validací a klávesovými zkratkami.
+5. **Akreditovaný tiskový styl diplomu (`@media print`):**
+   - Kniha osvědčení obsahuje dedikovaný tiskový styl, který při tisku z prohlížeče (`Ctrl+P`) nebo kliknutí na „Tisk diplomu“ zformátuje certifikát do oficiálního akreditovaného diplomu formátu A4 na šířku.
+   - Skryje všechny rušivé prvky (header, filtry, tlačítka, modály) a vygeneruje čistý diplom s ornamentálním rámečkem, razítkem Akademie Trutnov, evidenčním číslem a podpisovou doložkou.
 
 ### 5.5 Produkční build a integrace s Express backendem
 
@@ -623,7 +681,7 @@ Veškeré REST endpointy komunikují ve formátu **JSON** v kódování **UTF-8*
     "data": { ... }
   }
   ```
-- **Chybová odpověď (400 Bad Request / 404 Not Found / 500 Internal Error):**
+- **Chybová odpověď (400 Bad Request / 401 Unauthorized / 403 Forbidden / 404 Not Found / 500 Internal Error):**
   ```json
   {
     "success": false,
@@ -633,15 +691,98 @@ Veškeré REST endpointy komunikují ve formátu **JSON** v kódování **UTF-8*
 
 ---
 
-### 6.2 Kurzy (`/api/courses`)
+### 6.2 Autentizace a autorizace (`/api/auth`, `/api/student`)
 
-| Metoda   | Endpoint           | Popis                                                                          |
-| -------- | ------------------ | ------------------------------------------------------------------------------ |
-| `GET`    | `/api/courses`     | Seznam kurzů (volitelné query parametry: `?accredited=true\|false&query=text`) |
-| `GET`    | `/api/courses/:id` | Detail vybraného kurzu dle UUID                                                |
-| `POST`   | `/api/courses`     | Vytvoření nového kurzu s validací polí                                         |
-| `PUT`    | `/api/courses/:id` | Aktualizace údajů kurzu                                                        |
-| `DELETE` | `/api/courses/:id` | Odstranění kurzu                                                               |
+| Metoda | Endpoint                 | Oprávnění | Popis                                                                          |
+| ------ | ------------------------ | --------- | ------------------------------------------------------------------------------ |
+| `POST` | `/api/auth/login`        | Veřejné   | Přihlášení uživatele (Admin / Student), vrátí relační Bearer token a data účtu |
+| `POST` | `/api/auth/logout`       | Přihlášen | Odhlášení a okamžitá invalidace relačního tokenu                               |
+| `GET`  | `/api/auth/me`           | Přihlášen | Získání profilu přihlášeného uživatele z Bearer tokenu                         |
+| `GET`  | `/api/auth/status`       | Veřejné   | Kontrola autentizačního stavu (vrací `{ authenticated: boolean, user }`)       |
+| `GET`  | `/api/student/dashboard` | Student   | Klientský portál studenta: seznam přihlášek, docházka a vydaná osvědčení       |
+| `GET`  | `/api/student/me`        | Student   | Alias pro klientský portál přihlášeného studenta                               |
+
+#### Příklad: Přihlášení administrátora (`POST /api/auth/login`)
+
+_Request Body (JSON):_
+
+```json
+{
+  "username": "admin",
+  "password": "admin123"
+}
+```
+
+_Response (200 OK):_
+
+```json
+{
+  "success": true,
+  "message": "Uživatel Administrátor byl úspěšně přihlášen.",
+  "token": "at_e9b421a8c3d97f10b2e8...",
+  "user": {
+    "id": "admin-system",
+    "username": "admin",
+    "name": "Administrátor",
+    "role": "admin"
+  }
+}
+```
+
+#### Příklad: Klientský portál studenta (`GET /api/student/dashboard`)
+
+_Headers:_ `Authorization: Bearer <token>`
+
+_Response (200 OK):_
+
+```json
+{
+  "success": true,
+  "data": {
+    "student": {
+      "id": "c1111111-1111-4111-8111-111111111111",
+      "name": "Tomáš Marný",
+      "email": "tomas.marny@seznam.cz",
+      "organization": "MěÚ Trutnov"
+    },
+    "enrollments": [
+      {
+        "enrollmentId": "e1111111-...",
+        "termId": "a1111111-...",
+        "courseTitle": "Programování v Pythonu a datová analýza",
+        "startDate": "2026-11-02",
+        "endDate": "2026-12-18",
+        "status": "CONFIRMED",
+        "waitlistPosition": null,
+        "classroomName": "Počítačová učebna A1"
+      }
+    ],
+    "attendance": [
+      {
+        "termId": "a1111111-...",
+        "courseTitle": "Programování v Pythonu a datová analýza",
+        "totalDays": 6,
+        "attendedDays": 6,
+        "percentage": 100,
+        "qualifiesForCertificate": true
+      }
+    ],
+    "certificates": []
+  }
+}
+```
+
+---
+
+### 6.3 Kurzy (`/api/courses`)
+
+| Metoda   | Endpoint           | Oprávnění | Popis                                                                          |
+| -------- | ------------------ | --------- | ------------------------------------------------------------------------------ |
+| `GET`    | `/api/courses`     | Veřejné   | Seznam kurzů (volitelné query parametry: `?accredited=true\|false&query=text`) |
+| `GET`    | `/api/courses/:id` | Veřejné   | Detail vybraného kurzu dle UUID                                                |
+| `POST`   | `/api/courses`     | **Admin** | Vytvoření nového kurzu s validací polí (pro neautorizované HTTP 401)           |
+| `PUT`    | `/api/courses/:id` | **Admin** | Aktualizace údajů kurzu (pro neautorizované HTTP 401)                          |
+| `DELETE` | `/api/courses/:id` | **Admin** | Odstranění kurzu (pro neautorizované HTTP 401)                                 |
 
 #### Příklad: Vytvoření nového kurzu (`POST /api/courses`)
 
@@ -1153,9 +1294,24 @@ Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresá
 - REST API docházky (`GET /api/attendance/terms/:termId/days`, `summary`).
 - Číselníky a manažerská analytika (`/api/lecturers`, `/api/classrooms`, `/api/students`, `/api/analytics` a české aliasy).
 
+#### 6. Autentizace, autorizace a RBAC role ([`test/jest/auth.rbac.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/auth.rbac.test.ts) – 19 testů)
+
+- **Autentizace administrátora:** Úspěšné přihlášení `admin` / `admin123` (`POST /api/auth/login`), generování Bearer tokenu, ověření přes `GET /api/auth/me`.
+- **Autentizace studenta:** Přihlášení přes e-mail (`jan.novak@firma.cz` / `student123`) a generický účet `student`, vytvoření studentské session s rolí `student`.
+- **Odmítnutí chybných údajů:** Návrat HTTP 401 Unauthorized při zadání neplatného hesla.
+- **Odhlášení a zneplatnění:** `POST /api/auth/logout` okamžitě zneplatní relační token; následné volání `GET /api/auth/me` vrací 401.
+- **Ochrana katalogu kurzů:**
+  - Veřejnost má přístup pro čtení (`GET /api/courses`).
+  - Neautorizovaný pokus o `POST /api/courses` a `PUT /api/courses/:id` vrací HTTP 401 Unauthorized.
+  - Student pokoušející se o vytvoření či smazání kurzu obdrží HTTP 403 Forbidden.
+  - Přihlášený administrátor úspěšně vytváří, edituje a maže kurzy (HTTP 200/201).
+- **Klientský portál studenta:**
+  - Neautorizované volání `GET /api/student/dashboard` vrací HTTP 401.
+  - Přihlášený student i administrátor úspěšně získávají seznam přihlášek, docházku a certifikáty.
+
 ---
 
-### 8.4 Souhrnná tabulka testovacího pokrytí (100 testů, 100% pass)
+### 8.4 Souhrnná tabulka testovacího pokrytí (119 testů, 100% pass)
 
 | Testovací sada                          | Běhové prostředí  | Zaměření                                                          | Počet testů   | Výsledek                    |
 | --------------------------------------- | ----------------- | ----------------------------------------------------------------- | ------------- | --------------------------- |
@@ -1168,7 +1324,8 @@ Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresá
 | `test/jest/attendance.test.ts`          | Jest + TypeScript | Výukové dny a kalkulace 70% docházky (ADR-01, ADR-05)             | 12 testů      | PASS (100 %)                |
 | `test/jest/certificate.test.ts`         | Jest + TypeScript | Generování diplomů AT-YYYY-XXXX a lektorské výjimky               | 10 testů      | PASS (100 %)                |
 | `test/jest/api.integration.test.ts`     | Jest + Supertest  | Integrační ověření Express rout, chyb a aliasů                    | 18 testů      | PASS (100 %)                |
-| **CELKEM V REPOZITÁŘI**                 |                   | **Kompletní dvoustupňový testovací harness**                      | **100 testů** | **100% ÚSPĚŠNOST (0 chyb)** |
+| `test/jest/auth.rbac.test.ts`           | Jest + Supertest  | Ověření RBAC oprávnění, přihlášení a ochrany kurzů (ADR-07)       | 19 testů      | PASS (100 %)                |
+| **CELKEM V REPOZITÁŘI**                 |                   | **Kompletní dvoustupňový testovací harness**                      | **119 testů** | **100% ÚSPĚŠNOST (0 chyb)** |
 
 ---
 
@@ -1213,9 +1370,51 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
 
 ## 10. Historie verzí (Changelog) a Roadmapa
 
-### 10.1 Historie verzí (Changelog v1.0.0 až v1.5.0)
+### 10.1 Historie verzí (Changelog v1.0.0 až v1.7.0)
 
-#### Verze 1.5.0 (Aktuální verze – Komplexní automatizované testování v Jestu)
+#### Verze 1.7.0 (Aktuální verze – Kompletní přepracování vizuálního stylu frontendu dle web design standardů a generative UI)
+
+- **Krkonošský břidlicovo-smaragdový design systém (Slate & Emerald palette):**
+  - Odstraněny veškeré generické znaky AI šablon (žádné křiklavé gradienty, rozostřené koule, prázdná hluchá místa ani laciný glassmorphism).
+  - Vytvořena autentická institucionální estetika vzdělávacího centra: hluboké břidlicové povrchy pro Dark mode (`#0a0f1d` podklad, `#0f172a` panely a karty, `#1e293b` ohraničení) se smaragdovými akcenty (`#059669` / `#10b981`) a čisté břidlicové tóny pro Light mode (`#f8fafc`, `#ffffff`, `#e2e8f0`).
+- **Typografická pravidla a čitelnost dat:**
+  - Zavedení striktního pravidla minimální velikosti písma (**Typography floor >= 12px / `text-xs`**): odstraněn veškerý nečitelný mikrotext (`text-[9px]`, `text-[10px]`, `text-[11px]`) ze všech pohledů, komponent a formulářových štítků.
+  - Využití tabulárních číslic (`tabular-nums` / `font-variant-numeric: tabular-nums`) napříč všemi cenami, termíny, kapacitami, hodinami a čísly diplomů pro přesné zarovnání ve sloupcích.
+- **Přepracování klíčových komponent a pohledů:**
+  - **Header / Navigace:** Čistý textový název „Akademie Trutnov“ bez nadbytečných ikon, optimalizovaná 4-položková navigace s dropdownem pro sekundární agendy, rychlé vyhledávání (klávesa `/`), plynulý přepínač témat a stavový profil přihlášeného uživatele.
+  - **KPI přehledový pruh:** Elegantní vizuální karty se 4 metrikami (nabídka kurzů, aktivní termíny, celková docházka, vydaná osvědčení).
+  - **Katalog kurzů (`CoursesView`):** Zpřehledněné karty s jasnou indikací ceny, hodin, anotace, akreditace a štítků bez zbytečných okrajů.
+  - **Termíny & Pořadník (`TermsView`):** Čisté tabulky s barevnými ukazateli naplněnosti, čekací listinou s pořadím náhradníků (#1) a transakčním stornem.
+  - **Evidence docházky (`AttendanceView`):** Intuitivní volba termínu a dne, interaktivní prezenční listina s přepínačem účasti a 70% podmínkou.
+  - **Kniha osvědčení (`CertificatesView`):** Profesionální matrika certifikátů `AT-YYYY-XXXX`, statusy docházky a výjimek.
+  - **Akreditovaný tiskový styl diplomu (`@media print`):** Možnost vytisknout osvědčení jako reprezentativní akreditovaný diplom A4 na šířku.
+  - **Patička:** Decentní institucionální patička bez technického vychloubání.
+- **Kvalita a stabilita:**
+  - Všech 119 testů (29 Node test runner + 90 Jest) zůstává 100% zelených.
+  - Žádné změny v PostgreSQL databázi ani migracích.
+  - Kompilace klienta přes Vite (`npm run build:client`), `npm run lint` a `npm run format:check` prochází s 0 chybami.
+
+#### Verze 1.6.0 (Administrátorská a studentská autentizace, RBAC a klientský portál studenta)
+
+- **Architektonické rozhodnutí ADR-07 (Role-Based Access Control):**
+  - Formální zavedení třístupňového modelu oprávnění: **Admin** (plná správa katalogu kurzů, termínů, prezenček a certifikátů), **Student** (klientský portál pro náhled vlastních přihlášek, docházky a diplomů) a **Public** (anonymní návštěvník s přístupem pouze ke čtení nabídky a zápisu na kurz).
+  - Přísný zákaz zásahů do PostgreSQL schématu: Autentizace řešena bezpečně a čistě v aplikační vrstvě (in-memory token session manager s konfigurovatelným heslem administrátora `ADMIN_USERNAME` / `ADMIN_PASSWORD` a ověřováním hesel studentů proti syntetické databázi kontaktů).
+- **Backendová implementace autentizace a autorizace:**
+  - Aplikační služba [`AuthService.ts`](file:///C:/Users/skitt/Documents/PPRO/src/application/services/AuthService.ts): správa relací, tokenů s expirací, validace administrátora a studenta, agregace dat pro studentský dashboard (`getStudentDashboard`).
+  - Prezenční kontroler [`AuthController.ts`](file:///C:/Users/skitt/Documents/PPRO/src/presentation/controllers/AuthController.ts): endpointy `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, `GET /api/auth/status`, `GET /api/student/dashboard`.
+  - Autorizační middleware [`authMiddleware.ts`](file:///C:/Users/skitt/Documents/PPRO/src/presentation/middleware/authMiddleware.ts): `requireAdminAuth` (vrací HTTP 401 Unauthorized pro nepřihlášené a HTTP 403 Forbidden pro studenty zkoušející měnit kurzy) a `requireAuth` pro klientský portál.
+  - Zabezpečení všech modifikujících operací: `POST /api/courses`, `PUT /api/courses/:id`, `DELETE /api/courses/:id`, zakládání termínů, výukových dnů, zápis docházky a uzavírání termínů.
+- **Frontend SPA rozšíření:**
+  - Přihlašovací modální okno `#modal-login` s přepínacími/předvyplňovacími tlačítky pro rychlé testování (Administrátor `admin` / `admin123`, Student `jan.novak@firma.cz` / `student123`).
+  - Tlačítko přihlášení a správy profilu v navbaru: "Přihlásit se" pro veřejnost, zelený odznak "Admin (Odhlásit)" pro správce a modrý odznak "Student: Jan Novák (Odhlásit)" pro studenta.
+  - Nová klientská sekce **Klientský portál studenta** ([`StudentPortalView.ts`](file:///C:/Users/skitt/Documents/PPRO/frontend/src/views/StudentPortalView.ts)): přehled vlastních přihlášek (potvrzeno / pořadník waitlistu), plnění 70% docházkového limitu s barevným indikátorem a náhled vydaných osvědčení.
+  - Dynamické skrývání editačních tlačítek v katalogu kurzů, termínech, docházce i certifikátech pro nepřihlášené uživatele a studenty.
+  - Klientský `apiClient.ts` s automatickým přikládáním Bearer tokenu z `localStorage` (`akademie_admin_token`).
+- **Rozšíření testovacího pokrytí na 119 testů (100% pass):**
+  - Přidána integrační testovací sada [`test/jest/auth.rbac.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/auth.rbac.test.ts) obsahující 19 testů pokrývajících login/logout, ochranu kurzů před neautorizovaným zásahem, student 403 zákaz a funkčnost portálu.
+  - Zpětná kompatibilita pro všech původních 100 testů zachována s nulovým počtem chyb.
+
+#### Verze 1.5.0 (Komplexní automatizované testování v Jestu)
 
 - **Konfigurace testovacího frameworku Jest pro TypeScript a ESM:**
   - Plná integrace `jest`, `ts-jest` a `@types/jest` v režimu ECMAScript Modules (`"type": "module"`).
@@ -1291,4 +1490,4 @@ Po úspěšném splnění všech akademických požadavků předmětu PPRO jsou 
 1. **Automatické e-mailové notifikace:** Automatické odesílání potvrzení o zápisu, upozornění náhradníkovi při transakčním posunu z pořadníku (ADR-02) a zaslání certifikátu absolventovi přes SMTP/Nodemailer.
 2. **Generování certifikátů do tiskového PDF:** Automatická tvorba reprezentativního PDF osvědčení s grafickým vizuálem Akademie Trutnov, QR kódem pro ověření pravosti a digitální pečetí.
 3. **iCalendar export pro lektory:** Možnost synchronizace rozvrhu výukových dnů přímo do kalendářů Google Calendar, Apple Calendar nebo Microsoft Outlook (standard RFC 5545).
-4. **Rozšířená role-based autentizace (RBAC):** Přihlašování přes JWT tokeny s jemně odstupňovanými právy pro recepci, lektory a studenty.
+4. **SSO a OAuth2 / MojeID integrace:** Možnost přihlašování studentů a lektorů prostřednictvím národní identity (MojeID, BankID) nebo firemního Google Workspace.

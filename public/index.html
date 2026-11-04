@@ -14,8 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/assets/index-CrwfEJ6Z.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-lycPu6zE.css">
+    <script type="module" crossorigin src="/assets/index-u5T9IYrD.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-C8j7t3qg.css">
   </head>
   <body
     class="bg-slate-50 dark:bg-[#0a0f1d] text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-150 antialiased selection:bg-emerald-600 selection:text-white"
@@ -136,7 +136,7 @@
               role="menu"
             >
               <div
-                class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500"
+                class="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500"
               >
                 Administrace & Evidence
               </div>
@@ -166,7 +166,7 @@
                     <div class="font-semibold text-slate-800 dark:text-slate-200">
                       Kniha osvědčení
                     </div>
-                    <div class="text-[10px] text-slate-400">Generování & ověření kódů</div>
+                    <div class="text-xs text-slate-400">Generování & ověření kódů</div>
                   </div>
                 </div>
                 <kbd class="kbd-shortcut">4</kbd>
@@ -200,7 +200,7 @@
                     <div class="font-semibold text-slate-800 dark:text-slate-200">
                       Lektoři & Učebny
                     </div>
-                    <div class="text-[10px] text-slate-400">Správa lektorů a místností</div>
+                    <div class="text-xs text-slate-400">Správa lektorů a místností</div>
                   </div>
                 </div>
                 <kbd class="kbd-shortcut">5</kbd>
@@ -208,7 +208,7 @@
 
               <div class="my-1 border-t border-slate-100 dark:border-slate-800/80"></div>
               <div
-                class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500"
+                class="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500"
               >
                 Přehledy & Dotace
               </div>
@@ -240,21 +240,44 @@
                     <div class="font-semibold text-slate-800 dark:text-slate-200">
                       Manažerské výkazy
                     </div>
-                    <div class="text-[10px] text-slate-400">Tržby, naplněnost & MŠMT</div>
+                    <div class="text-xs text-slate-400">Tržby, naplněnost & MŠMT</div>
                   </div>
                 </div>
                 <kbd class="kbd-shortcut">6</kbd>
+              </button>
+
+              <button
+                type="button"
+                class="dropdown-nav-item"
+                data-tab="student"
+                role="menuitem"
+                title="Klávesová zkratka: 7"
+              >
+                <div class="flex items-center gap-2.5">
+                  <div
+                    class="w-6 h-6 rounded-md bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800/60 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0"
+                  >
+                    🎓
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-800 dark:text-slate-200">
+                      Klientský portál
+                    </div>
+                    <div class="text-xs text-slate-400">Moje přihlášky & osvědčení</div>
+                  </div>
+                </div>
+                <kbd class="kbd-shortcut">7</kbd>
               </button>
             </div>
           </div>
         </nav>
 
-        <!-- Nástroje vpravo: Hledání, Zkratky, Režim, Status -->
+        <!-- Nástroje vpravo: Hledání, Režim, Přihlášení -->
         <div class="flex items-center gap-2">
           <!-- Rychlé tlačítko hledání se zkratkou '/' -->
           <button
             id="btn-quick-search"
-            class="hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
+            class="hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
             title="Aktivovat vyhledávání (Zkratka /)"
           >
             <svg
@@ -267,14 +290,14 @@
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <span class="text-[11px] font-medium">Hledat kurz...</span>
+            <span class="text-xs font-medium">Hledat kurz...</span>
             <kbd class="kbd-shortcut">/</kbd>
           </button>
 
           <!-- Tmavý / Světlý režim -->
           <button
             id="theme-toggle"
-            class="p-2 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            class="p-2 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             title="Přepnout tmavý / světlý režim"
             aria-label="Přepnout motiv"
           >
@@ -305,6 +328,49 @@
               <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
             </svg>
           </button>
+
+          <!-- Autentizační sekce vpravo -->
+          <div id="auth-nav-container" class="flex items-center">
+            <!-- Stav: Nepřihlášen -->
+            <div id="auth-unauthenticated" class="flex items-center">
+              <button
+                id="btn-open-login"
+                class="btn-primary-tw btn-sm-tw"
+                title="Přihlásit se do systému (Admin / Student)"
+              >
+                <svg
+                  class="w-3.5 h-3.5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                  <polyline points="10 17 15 12 10 7"></polyline>
+                  <line x1="15" y1="12" x2="3" y2="12"></line>
+                </svg>
+                <span>Přihlásit se</span>
+              </button>
+            </div>
+
+            <!-- Stav: Přihlášen -->
+            <div id="auth-authenticated" class="hidden items-center gap-2">
+              <span id="auth-user-badge" class="badge-chip badge-chip-green">Admin</span>
+              <span
+                id="auth-user-name"
+                class="text-xs font-semibold text-slate-800 dark:text-slate-200 hidden sm:inline"
+              >
+                Administrátor
+              </span>
+              <button
+                id="btn-logout"
+                class="btn-secondary-tw btn-sm-tw text-slate-600 hover:text-rose-600 dark:hover:text-rose-400"
+                title="Odhlásit se ze systému"
+              >
+                <span>Odhlásit</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -352,6 +418,10 @@
               <span>📊 Manažerské výkazy</span>
               <kbd class="kbd-shortcut">6</kbd>
             </button>
+            <button type="button" class="dropdown-nav-item" data-tab="student" role="menuitem">
+              <span>🎓 Klientský portál</span>
+              <kbd class="kbd-shortcut">7</kbd>
+            </button>
           </div>
         </div>
       </div>
@@ -364,17 +434,17 @@
         <div class="metric-kpi-card">
           <div>
             <div
-              class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+              class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
             >
               Katalog programů
             </div>
             <div
-              class="text-xl font-bold font-mono text-slate-900 dark:text-white mt-0.5"
+              class="text-xl font-bold font-mono tabular-nums text-slate-900 dark:text-white mt-0.5"
               id="kpi-courses-count"
             >
               --
             </div>
-            <div class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+            <div class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
               Akreditováno MŠMT
             </div>
           </div>
@@ -397,18 +467,18 @@
         <div class="metric-kpi-card">
           <div>
             <div
-              class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+              class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
             >
               Vypsané termíny
             </div>
             <div
-              class="text-xl font-bold font-mono text-slate-900 dark:text-white mt-0.5"
+              class="text-xl font-bold font-mono tabular-nums text-slate-900 dark:text-white mt-0.5"
               id="kpi-terms-count"
             >
               --
             </div>
             <div
-              class="text-[11px] text-amber-600 dark:text-amber-400 font-medium"
+              class="text-xs text-amber-600 dark:text-amber-400 font-medium tabular-nums"
               id="kpi-waitlist-status"
             >
               ADR-02 aktivní
@@ -434,14 +504,16 @@
         <div class="metric-kpi-card">
           <div>
             <div
-              class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+              class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
             >
               Pravidlo docházky
             </div>
-            <div class="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-0.5">
+            <div
+              class="text-xl font-bold font-mono tabular-nums text-emerald-600 dark:text-emerald-400 mt-0.5"
+            >
               ≥ 70 %
             </div>
-            <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">
               ADR-01 & Výjimka lektora
             </div>
           </div>
@@ -464,17 +536,17 @@
         <div class="metric-kpi-card">
           <div>
             <div
-              class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+              class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
             >
               Kniha osvědčení
             </div>
             <div
-              class="text-xl font-bold font-mono text-slate-900 dark:text-white mt-0.5"
+              class="text-xl font-bold font-mono tabular-nums text-slate-900 dark:text-white mt-0.5"
               id="kpi-certs-count"
             >
               --
             </div>
-            <div class="text-[11px] text-sky-600 dark:text-sky-400 font-medium font-mono">
+            <div class="text-xs text-sky-600 dark:text-sky-400 font-medium font-mono">
               Formát AT-YYYY-XXXX
             </div>
           </div>
@@ -667,7 +739,7 @@
           </div>
 
           <div
-            class="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 mb-3 text-[11px] text-slate-600 dark:text-slate-400 flex items-center justify-between"
+            class="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 mb-3 text-xs text-slate-600 dark:text-slate-400 flex items-center justify-between"
           >
             <span class="flex items-center gap-1.5 font-medium">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
@@ -783,7 +855,7 @@
                 </h3>
                 <p
                   id="attendance-day-subtitle"
-                  class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5"
+                  class="text-xs text-slate-500 dark:text-slate-400 mt-0.5"
                 >
                   Vyberte výukový den ze seznamu vlevo.
                 </p>
@@ -830,7 +902,7 @@
               <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                 Souhrnná matice splnění 70% pravidla docházky (ADR-01)
               </h3>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Studenti s docházkou pod 70 % nemohou obdržet osvědčení bez udělení lektorské
                 výjimky.
               </p>
@@ -922,7 +994,7 @@
               <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                 Garantující a externí lektoři
               </h3>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Přehled lektorů, jejich odborné specializace a odučené hodiny.
               </p>
             </div>
@@ -947,7 +1019,7 @@
               <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                 Učebny a školicí prostory (Trutnov)
               </h3>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Kapacita učeben stanovuje nepřekročitelný strop pro termíny kurzů.
               </p>
             </div>
@@ -1007,7 +1079,7 @@
               <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                 Vytížení termínů a čekací listiny
               </h3>
-              <span class="text-[11px] font-mono text-slate-400">Obsazenost / Pořadník</span>
+              <span class="text-xs font-mono text-slate-400">Obsazenost / Pořadník</span>
             </div>
             <div id="analytics-terms-list" class="space-y-2.5"></div>
           </div>
@@ -1020,7 +1092,7 @@
               <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                 Odučené hodiny lektorů
               </h3>
-              <span class="text-[11px] font-mono text-slate-400">Pracovní fond</span>
+              <span class="text-xs font-mono text-slate-400">Pracovní fond</span>
             </div>
             <div id="analytics-lecturers-list" class="space-y-2"></div>
           </div>
@@ -1035,7 +1107,7 @@
               <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                 Studenti přihlášení na více než jeden kurz v tomto roce (Bod 8 zadání)
               </h3>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Věrní studenti s kombinovaným vzdělávacím plánem v rámci Akademie Trutnov.
               </p>
             </div>
@@ -1044,6 +1116,9 @@
           <div id="analytics-students-list" class="space-y-2"></div>
         </div>
       </section>
+
+      <!-- 7. Klientský portál studenta (ADR-07) -->
+      <section id="tab-student" class="tab-pane hidden animate-fadeIn"></section>
     </main>
 
     <!-- ==================== INSTITUCIONÁLNÍ PATIČKA (FOOTER) ==================== -->
@@ -1056,20 +1131,129 @@
         <div class="flex items-center gap-2">
           <span class="font-bold text-slate-700 dark:text-slate-300">Akademie Trutnov</span>
           <span>•</span>
-          <span>Krkonošské vzdělávací centrum (PPRO 2026/2027)</span>
+          <span>Krkonošské vzdělávací centrum</span>
         </div>
-        <div class="flex items-center gap-3 font-mono text-[11px]">
-          <span class="flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            WCAG AA Compliant
-          </span>
-          <span>•</span>
-          <span>Vite + TypeScript + Tailwind</span>
+        <div class="text-xs text-slate-400 dark:text-slate-500 font-mono">
+          <span>© 2026 Akademie Trutnov</span>
         </div>
       </div>
     </footer>
 
     <!-- ==================== MODÁLNÍ DIALOGY ==================== -->
+
+    <!-- Modal: Přihlášení (Admin & Student) - ADR-07 -->
+    <div id="modal-login" class="modal-overlay hidden" style="display: none">
+      <div class="modal-dialog max-w-md">
+        <div
+          class="px-5 py-3.5 border-b border-slate-200/90 dark:border-slate-800 flex items-center justify-between"
+        >
+          <div class="flex items-center gap-2">
+            <div
+              class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400"
+            >
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            <h3 id="modal-login-title" class="text-sm font-bold text-slate-900 dark:text-white">
+              Přihlášení do Akademie Trutnov
+            </h3>
+          </div>
+          <button
+            class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg font-bold p-1 leading-none"
+            data-close="modal-login"
+            aria-label="Zavřít"
+          >
+            ×
+          </button>
+        </div>
+
+        <form id="form-login" class="p-5 space-y-4">
+          <!-- Error banner -->
+          <div
+            id="form-login-error"
+            class="hidden p-3 rounded-lg bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-700 dark:text-rose-300"
+          ></div>
+
+          <!-- Quick prefill buttons -->
+          <div
+            class="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80"
+          >
+            <div
+              class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5"
+            >
+              Rychlé předvyplnění role
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                id="btn-prefill-admin"
+                class="px-2.5 py-1.5 rounded-md text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-emerald-500 text-slate-800 dark:text-slate-200 flex items-center justify-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+              >
+                <span>🛡️</span>
+                <span>Administrátor</span>
+              </button>
+              <button
+                type="button"
+                id="btn-prefill-student"
+                class="px-2.5 py-1.5 rounded-md text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-sky-500 text-slate-800 dark:text-slate-200 flex items-center justify-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+              >
+                <span>🎓</span>
+                <span>Student</span>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label
+              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              for="login-username"
+            >
+              Uživatelské jméno nebo e-mail <span class="text-rose-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="login-username"
+              class="input-tw"
+              placeholder="admin nebo jan.novak@firma.cz"
+              required
+              autocomplete="username"
+            />
+          </div>
+
+          <div>
+            <label
+              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              for="login-password"
+            >
+              Heslo <span class="text-rose-500">*</span>
+            </label>
+            <input
+              type="password"
+              id="login-password"
+              class="input-tw"
+              placeholder="••••••••"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+
+          <div
+            class="pt-2 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-800"
+          >
+            <span class="text-[11px] text-slate-400"> Nápověda: admin / admin123 </span>
+            <button type="submit" id="btn-submit-login" class="btn-primary-tw">Přihlásit se</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <!-- Modal: Nový / Úprava kurzu -->
     <div id="modal-course" class="modal-overlay hidden" style="display: none">
@@ -1092,7 +1276,7 @@
           <input type="hidden" id="course-id" />
           <div>
             <label
-              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
               for="course-title"
             >
               Název kurzu <span class="text-rose-500">*</span>
@@ -1109,7 +1293,7 @@
           </div>
           <div>
             <label
-              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
               for="course-annotation"
             >
               Anotace a sylabus kurzu <span class="text-rose-500">*</span>
@@ -1126,7 +1310,7 @@
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label
-                class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+                class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
                 for="course-hours"
               >
                 Hodinová dotace <span class="text-rose-500">*</span>
@@ -1143,7 +1327,7 @@
             </div>
             <div>
               <label
-                class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+                class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
                 for="course-price"
               >
                 Cena v Kč <span class="text-rose-500">*</span>
@@ -1205,7 +1389,7 @@
         <form id="form-term" class="p-5 space-y-3.5 overflow-y-auto">
           <div>
             <label
-              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
               for="term-course-select"
             >
               Vzdělávací program <span class="text-rose-500">*</span>
@@ -1214,7 +1398,7 @@
           </div>
           <div>
             <label
-              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
               for="term-classroom-select"
             >
               Výuková učebna (Trutnov)
@@ -1224,7 +1408,7 @@
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label
-                class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+                class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
                 for="term-start-date"
               >
                 Datum zahájení <span class="text-rose-500">*</span>
@@ -1233,7 +1417,7 @@
             </div>
             <div>
               <label
-                class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+                class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
                 for="term-end-date"
               >
                 Datum ukončení <span class="text-rose-500">*</span>
@@ -1243,7 +1427,7 @@
           </div>
           <div>
             <label
-              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
               for="term-capacity"
             >
               Maximální kapacita míst <span class="text-rose-500">*</span>
@@ -1257,14 +1441,14 @@
               value="12"
               required
             />
-            <span class="text-[11px] text-slate-400 block mt-1">
+            <span class="text-xs text-slate-400 block mt-1">
               Po dosažení kapacity jsou další zájemci automaticky směrováni do pořadníku náhradníků
               (ADR-02).
             </span>
           </div>
           <div>
             <label
-              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
               for="term-lecturer-select"
             >
               Garantující lektor
@@ -1309,7 +1493,7 @@
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label
-                class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+                class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
                 for="student-first-name"
               >
                 Jméno <span class="text-rose-500">*</span>
@@ -1324,7 +1508,7 @@
             </div>
             <div>
               <label
-                class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+                class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
                 for="student-last-name"
               >
                 Příjmení <span class="text-rose-500">*</span>
@@ -1340,7 +1524,7 @@
           </div>
           <div>
             <label
-              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
               for="student-email"
             >
               E-mailová adresa <span class="text-rose-500">*</span>
@@ -1356,7 +1540,7 @@
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label
-                class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+                class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
                 for="student-phone"
               >
                 Telefon
@@ -1370,7 +1554,7 @@
             </div>
             <div>
               <label
-                class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+                class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
                 for="student-organization"
               >
                 Organizace / Zaměstnavatel
@@ -1385,7 +1569,7 @@
           </div>
           <div>
             <label
-              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
               for="student-note"
             >
               Poznámka k přihlášce
@@ -1433,7 +1617,7 @@
           <input type="hidden" id="day-term-id" />
           <div>
             <label
-              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
               for="day-date"
             >
               Datum výuky <span class="text-rose-500">*</span>
@@ -1442,7 +1626,7 @@
           </div>
           <div>
             <label
-              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
               for="day-hours"
             >
               Počet vyučovacích hodin <span class="text-rose-500">*</span>
@@ -1459,7 +1643,7 @@
           </div>
           <div>
             <label
-              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
               for="day-topic"
             >
               Téma a obsah výukového bloku <span class="text-rose-500">*</span>
@@ -1475,7 +1659,7 @@
           </div>
           <div>
             <label
-              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
               for="day-lecturer-select"
             >
               Vyučující lektor pro tento blok (ADR-05)
@@ -1519,7 +1703,7 @@
         <form id="form-waiver" class="p-5 space-y-3.5 overflow-y-auto">
           <div>
             <label
-              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
               for="waiver-enrollment-select"
             >
               Student a termín kurzu <span class="text-rose-500">*</span>
@@ -1535,7 +1719,7 @@
           </div>
           <div>
             <label
-              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
               for="waiver-reason"
             >
               Písemné odůvodnění udělení výjimky <span class="text-rose-500">*</span>
@@ -1616,20 +1800,16 @@
             <!-- Ozdobný institucionální rámeček a hlavička -->
             <div class="flex items-center justify-between pb-6 border-b-2 border-slate-200 mb-6">
               <div class="text-left">
-                <div
-                  class="text-[10px] tracking-widest uppercase font-mono font-bold text-slate-500"
-                >
+                <div class="text-xs tracking-widest uppercase font-mono font-bold text-slate-500">
                   Česká republika • Královéhradecký kraj
                 </div>
                 <div class="text-base font-extrabold tracking-tight text-slate-950">
                   AKADEMIE TRUTNOV
                 </div>
-                <div class="text-[11px] text-slate-600">Krkonošské vzdělávací centrum, z. s.</div>
+                <div class="text-xs text-slate-600">Krkonošské vzdělávací centrum, z. s.</div>
               </div>
               <div class="text-right font-mono">
-                <div class="text-[10px] text-slate-500 uppercase tracking-wider">
-                  Evidenční číslo
-                </div>
+                <div class="text-xs text-slate-500 uppercase tracking-wider">Evidenční číslo</div>
                 <div
                   id="cert-view-number"
                   class="text-sm font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-300"
@@ -1685,7 +1865,7 @@
                   <span class="text-slate-500">Vystaveno dne:</span>
                   <strong id="cert-view-issue-date" class="text-slate-900 ml-1">--.--.----</strong>
                 </div>
-                <div class="col-span-2 text-[11px]" id="cert-view-waiver-box">
+                <div class="col-span-2 text-xs" id="cert-view-waiver-box">
                   <span class="text-slate-500">Režim schválení:</span>
                   <span id="cert-view-waiver-status" class="font-semibold text-slate-800 ml-1"
                     >Standardní absolvování</span
@@ -1702,25 +1882,25 @@
                     V Trutnově dne <span id="cert-view-footer-date" class="font-mono">--</span>
                   </div>
                   <div
-                    class="mt-8 pt-2 border-t border-slate-400 w-40 text-center text-[11px] text-slate-500"
+                    class="mt-8 pt-2 border-t border-slate-400 w-40 text-center text-xs text-slate-500"
                   >
                     Odborný garant kurzu
                   </div>
                 </div>
 
                 <div
-                  class="w-16 h-16 rounded-full border-2 border-dashed border-emerald-600/40 flex items-center justify-center text-[9px] font-bold text-emerald-800 font-mono text-center uppercase p-1"
+                  class="w-16 h-16 rounded-full border-2 border-dashed border-emerald-600/40 flex items-center justify-center text-xs font-bold text-emerald-800 font-mono text-center uppercase p-1"
                 >
                   Akademie Trutnov Seal
                 </div>
 
                 <div class="text-right">
-                  <div class="text-slate-500 text-[11px]">Akademie Trutnov</div>
+                  <div class="text-slate-500 text-xs">Akademie Trutnov</div>
                   <div
-                    class="mt-8 pt-2 border-t border-slate-400 w-44 text-center text-[11px] font-semibold text-slate-800"
+                    class="mt-8 pt-2 border-t border-slate-400 w-44 text-center text-xs font-semibold text-slate-800"
                   >
                     Ing. Petr Horák, Ph.D.<br />
-                    <span class="text-[10px] font-normal text-slate-500"
+                    <span class="text-xs font-normal text-slate-500"
                       >ředitel vzdělávacího centra</span
                     >
                   </div>
@@ -1823,6 +2003,95 @@
             Rozumím [Esc]
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- Modal: Přihlášení do systému -->
+    <div id="modal-login" class="modal-overlay hidden" style="display: none">
+      <div class="modal-dialog">
+        <div
+          class="px-5 py-3.5 border-b border-slate-200/90 dark:border-slate-800 flex items-center justify-between"
+        >
+          <div class="flex items-center gap-2">
+            <span class="badge-chip badge-chip-green">Autentizace</span>
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white">Přihlášení do systému</h3>
+          </div>
+          <button
+            class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg font-bold p-1 leading-none"
+            data-close="modal-login"
+            aria-label="Zavřít"
+          >
+            ×
+          </button>
+        </div>
+        <form id="form-login" class="p-5 space-y-4 overflow-y-auto">
+          <div
+            class="p-3 bg-slate-50 dark:bg-slate-950/60 rounded-lg border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400"
+          >
+            <div class="font-bold text-slate-800 dark:text-slate-200 mb-1.5">
+              Rychlý výběr role (Demo přístup):
+            </div>
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                id="btn-demo-login-admin"
+                class="btn-secondary-tw btn-sm-tw flex-1"
+              >
+                <span>Admin (správa & zápis)</span>
+              </button>
+              <button
+                type="button"
+                id="btn-demo-login-student"
+                class="btn-secondary-tw btn-sm-tw flex-1"
+              >
+                <span>Student (náhled)</span>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label
+              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              for="login-username"
+            >
+              Uživatelské jméno / E-mail <span class="text-rose-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="login-username"
+              class="input-tw"
+              placeholder="admin nebo student"
+              required
+              autocomplete="username"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+              for="login-password"
+            >
+              Heslo <span class="text-rose-500">*</span>
+            </label>
+            <input
+              type="password"
+              id="login-password"
+              class="input-tw"
+              placeholder="admin123 / student123"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+          <div
+            id="form-login-error"
+            class="p-2.5 text-xs text-rose-600 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-lg"
+            style="display: none"
+          ></div>
+          <div
+            class="flex justify-end gap-2 pt-3 border-t border-slate-200/90 dark:border-slate-800"
+          >
+            <button type="button" class="btn-secondary-tw" data-close="modal-login">Zrušit</button>
+            <button type="submit" class="btn-primary-tw">Přihlásit se</button>
+          </div>
+        </form>
       </div>
     </div>
 

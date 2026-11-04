@@ -9,6 +9,7 @@ import { coursesApi } from "../api/coursesApi";
 import { dictionariesApi } from "../api/dictionariesApi";
 import { Modal } from "../components/Modal";
 import { Toast } from "../components/Toast";
+import { authApi } from "../api/authApi";
 
 export class TermsView {
   private terms: CourseTerm[] = [];
@@ -78,6 +79,11 @@ export class TermsView {
       e.preventDefault();
       await this.handleEnrollmentSubmit();
     });
+
+    // Listen for auth state changes
+    document.addEventListener("akademie:auth-changed", () => {
+      this.renderTerms();
+    });
   }
 
   public async load(): Promise<void> {
@@ -116,6 +122,11 @@ export class TermsView {
   }
 
   private renderTerms(): void {
+    const btnOpenCreateTerm = document.getElementById("btn-open-create-term");
+    if (btnOpenCreateTerm) {
+      btnOpenCreateTerm.style.display = authApi.isAdmin() ? "inline-flex" : "none";
+    }
+
     if (!this.termsTableBody) return;
     this.termsTableBody.innerHTML = "";
 
@@ -158,9 +169,9 @@ export class TermsView {
       tr.innerHTML = `
         <td>
           <div class="font-bold text-slate-900 dark:text-white">${term.courseTitle}</div>
-          <div class="font-mono text-[10px] text-slate-400 mt-0.5">ID: ${term.id.slice(0, 8)}...</div>
+          <div class="font-mono text-xs text-slate-400 mt-0.5">ID: ${term.id.slice(0, 8)}...</div>
         </td>
-        <td class="font-mono text-xs">
+        <td class="font-mono text-xs tabular-nums">
           <span>${term.startDate}</span>
           <span class="text-slate-400 mx-1">→</span>
           <span>${term.endDate}</span>
@@ -170,7 +181,7 @@ export class TermsView {
         </td>
         <td>
           <div class="flex items-center gap-2">
-            <span class="font-mono text-xs font-bold ${isFull ? "text-amber-600 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400"}">
+            <span class="font-mono text-xs font-bold tabular-nums ${isFull ? "text-amber-600 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400"}">
               ${term.confirmedCount} / ${term.capacity}
             </span>
             <div class="w-20 h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden shrink-0">
@@ -183,11 +194,11 @@ export class TermsView {
           ${
             term.waitlistCount > 0
               ? `<div class="mt-1">
-                  <span class="badge-chip badge-chip-yellow text-[10px]">
+                  <span class="badge-chip badge-chip-yellow text-xs">
                     ADR-02: ${term.waitlistCount} ${term.waitlistCount === 1 ? "náhradník" : "náhradníci"}
                   </span>
                  </div>`
-              : `<div class="text-[10px] text-slate-400 mt-0.5 font-mono">Volno: ${Math.max(0, term.capacity - term.confirmedCount)} míst</div>`
+              : `<div class="text-xs text-slate-400 mt-0.5 font-mono tabular-nums">Volno: ${Math.max(0, term.capacity - term.confirmedCount)} míst</div>`
           }
         </td>
         <td class="text-xs text-slate-600 dark:text-slate-400">${lecturersList}</td>
@@ -298,14 +309,14 @@ export class TermsView {
       tr.innerHTML = `
         <td>
           <div class="font-bold text-slate-900 dark:text-white">${enr.studentName}</div>
-          ${enr.note ? `<div class="text-[11px] text-slate-400 mt-0.5 truncate max-w-xs">Pozn.: ${enr.note}</div>` : ""}
+          ${enr.note ? `<div class="text-xs text-slate-400 mt-0.5 truncate max-w-xs">Pozn.: ${enr.note}</div>` : ""}
         </td>
         <td class="font-mono text-xs text-slate-600 dark:text-slate-400">${enr.studentEmail}</td>
         <td class="text-xs">
-          <div class="font-mono text-slate-700 dark:text-slate-300">${enr.studentPhone || "-"}</div>
-          ${enr.studentOrganization ? `<div class="text-[11px] text-slate-400">${enr.studentOrganization}</div>` : ""}
+          <div class="font-mono text-slate-700 dark:text-slate-300 tabular-nums">${enr.studentPhone || "-"}</div>
+          ${enr.studentOrganization ? `<div class="text-xs text-slate-400">${enr.studentOrganization}</div>` : ""}
         </td>
-        <td class="font-mono text-xs text-slate-500">${dateStr}</td>
+        <td class="font-mono text-xs text-slate-500 tabular-nums">${dateStr}</td>
         <td>${statusHtml}</td>
         <td class="text-right">
           ${
@@ -345,6 +356,12 @@ export class TermsView {
   }
 
   public async openCreateTermModal(preselectedCourseId?: string): Promise<void> {
+    if (!authApi.isAdmin()) {
+      Toast.info("Pro vypsání nového termínu se přihlaste jako administrátor.");
+      Modal.open("modal-login");
+      return;
+    }
+
     if (this.formTerm) this.formTerm.reset();
     if (this.formTermError) this.formTermError.style.display = "none";
 

@@ -10,6 +10,53 @@ export interface ApiResponse<T = unknown> {
   error?: string;
 }
 
+export type UserRole = "admin" | "student" | "public";
+
+export interface AuthUser {
+  id: string;
+  username: string;
+  name: string;
+  email?: string;
+  role: "admin" | "student";
+  studentId?: string;
+}
+
+export interface StudentDashboardData {
+  student: {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    organization?: string;
+  };
+  enrollments: Array<{
+    enrollmentId: string;
+    termId: string;
+    courseTitle: string;
+    startDate: string;
+    endDate: string;
+    status: string;
+    waitlistPosition: number | null;
+    classroomName?: string;
+  }>;
+  attendance: Array<{
+    termId: string;
+    courseTitle: string;
+    totalDays: number;
+    attendedDays: number;
+    percentage: number;
+    qualifiesForCertificate: boolean;
+  }>;
+  certificates: Array<{
+    id: string;
+    certificateNumber: string;
+    courseTitle: string;
+    issueDate: string;
+    attendanceRate: number;
+    hasWaiver: boolean;
+  }>;
+}
+
 export interface Course {
   id: string;
   title: string;
