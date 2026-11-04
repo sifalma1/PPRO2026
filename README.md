@@ -35,9 +35,11 @@
    - 5.3 [Lokální vývojové spuštění (bez Dockeru)](#53-lokální-vývojové-spuštění-bez-dockeru)
    - 5.4 [Kompletní katalog REST API rozhraní a JSON příklady](#54-kompletní-katalog-rest-api-rozhraní-a-json-příklady)
 6. [Testovací strategie](#6-testovací-strategie)
-   - 6.1 [Přehled doménových unit testů (20 testů)](#61-přehled-doménových-unit-testů-20-testů)
-   - 6.2 [Přehled integračních End-to-End testů (9 testů)](#62-přehled-integračních-end-to-end-testů-testapi-creation-flowstestts--9-testů)
-   - 6.3 [Spuštění testů](#63-spuštění-testů)
+   - 6.1 [Přehled doménových unit testů (Node test runner – 20 testů)](#61-přehled-doménových-unit-testů-20-testů)
+   - 6.2 [Přehled integračních End-to-End testů (Node test runner – 9 testů)](#62-přehled-integračních-end-to-end-testů-testapi-creation-flowstestts--9-testů)
+   - 6.3 [Komplexní testovací sada v Jestu s TypeScript & ESM (71 testů)](#63-komplexní-testovací-sada-v-jestu-testjest--71-testů)
+   - 6.4 [Spuštění testů a souhrnný přehled](#64-spuštění-testů-a-souhrnný-přehled)
+   - 6.5 [Kvalita kódu, linting a formátování (ESLint + Prettier)](#65-kvalita-kódu-linting-a-formátování-eslint--prettier)
 7. [Stav implementace, Roadmapa a Changelog](#7-stav-implementace-roadmapa-a-changelog)
    - 7.1 [Aktuální stav implementace požadavků](#71-aktuální-stav-implementace-požadavků)
    - 7.2 [Historie verzí (Changelog)](#72-historie-verzí-changelog)
@@ -821,6 +823,23 @@ Výstup testovacího runneru:
 ℹ fail 0
 ```
 
+### 6.4 Kvalita kódu, linting a formátování (ESLint + Prettier)
+
+Pro udržení vysoké kvality a konzistence kódu napříč celým projektem (backend v `src/`, frontend v `frontend/` i testy v `test/`) jsou integrovány standardní nástroje moderního TypeScript ekosystému:
+
+- **ESLint (Flat Config):** Konfigurační soubor [`eslint.config.js`](eslint.config.js) využívá moderní formát Flat Config s parserem `typescript-eslint`, doporučenými pravidly (`typescript-eslint/recommended`), definicí globálních proměnných pro Node.js i prohlížeč a integrací s Prettierem (`eslint-config-prettier`).
+- **Prettier:** Konfigurace v [`.prettierrc.json`](.prettierrc.json) definuje jednotná pravidla (středníky `semi: true`, dvojité uvozovky `singleQuote: false`, 2 mezery odsazení `tabWidth: 2`, `trailingComma: "es5"`, šířka řádku `printWidth: 100`, automatické konce řádků `endOfLine: "auto"`).
+- **Ignorované cesty:** Build artefakty a cache složky (`dist/`, `node_modules/`, `public/`, `coverage/`, `.idea/`, `package-lock.json`) jsou vyloučeny v [`eslint.config.js`](eslint.config.js) i v [`.prettierignore`](.prettierignore).
+
+#### Npm skripty pro kontrolu kvality:
+
+| Příkaz                 | Popis                                                                     |
+| ---------------------- | ------------------------------------------------------------------------- |
+| `npm run lint`         | Spustí statickou analýzu celého projektu přes ESLint                      |
+| `npm run lint:fix`     | Provede automatické opravy detekovaných chyb a varování                   |
+| `npm run format:check` | Zkontroluje shodu formátování všech souborů s pravidly Prettier           |
+| `npm run format`       | Automaticky přeformátuje všechny soubory projektu podle pravidel Prettier |
+
 ---
 
 ## 7. Stav implementace, Roadmapa a Changelog
@@ -831,6 +850,7 @@ Výstup testovacího runneru:
 - [x] Vytvoření pravidel vývoje a chování asistenta ([`AGENTS.md`](AGENTS.md))
 - [x] Zpracování zadání C a definice architektonických rozhodnutí (ADR-01 až ADR-06) v [`README.md`](README.md)
 - [x] Nastavení Git hooku pro kontrolu dokumentace před commitem ([`.githooks/pre-commit`](.githooks/pre-commit))
+- [x] Konfigurace kvality kódu a formátování ([`eslint.config.js`](eslint.config.js), [`.prettierrc.json`](.prettierrc.json), skripty `lint`, `lint:fix`, `format`, `format:check`)
 - [x] **Fáze 1 & 2 – Správa entit, anglické pojmenování a třívrstvá architektura:**
   - [x] Třívrstvá architektura (_Presentation_, _Application_, _Infrastructure/Persistence_)
   - [x] Přejmenování všech entit, modelů, tabulek a rozhraní do angličtiny napříč celým projektem
@@ -873,6 +893,11 @@ Výstup testovacího runneru:
 - **Optimalizovaný build proces a Docker:**
   - Skripty `npm run build:client` (Vite bundle) a `npm run build:server` (tsc).
   - Multi-stage Dockerfile aktualizován pro paralelní/spolehlivý build obou částí aplikace do kontejneru.
+- **Kvalita kódu, linting a formátování (ESLint + Prettier):**
+  - Integrace ESLint 9/10 s Flat Config konfigurací ([`eslint.config.js`](eslint.config.js)) s podporou TypeScriptu a kompatibilitou s Prettierem (`eslint-config-prettier`).
+  - Nastavení Prettieru ([`.prettierrc.json`](.prettierrc.json), [`.prettierignore`](.prettierignore)) sjednocující formátovací styl kódu.
+  - Zavedení npm skriptů `npm run lint`, `npm run lint:fix`, `npm run format`, `npm run format:check`.
+  - 100% úspěšný průchod všech 29 unit a integračních testů, 0 chyb v lintu i formátování.
 
 #### Verze 1.3.0
 

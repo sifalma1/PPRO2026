@@ -3,7 +3,11 @@ import { TeachingDay } from "../../src/domain/entities/TeachingDay.js";
 import { Attendance } from "../../src/domain/entities/Attendance.js";
 import { AttendanceService } from "../../src/application/services/AttendanceService.js";
 import { PostgresAttendanceRepository } from "../../src/infrastructure/database/PostgresAttendanceRepository.js";
-import { AttendanceSummaryDto, CreateTeachingDayDto, MarkAttendanceDto } from "../../src/application/dto/AttendanceDto.js";
+import {
+  AttendanceSummaryDto,
+  CreateTeachingDayDto,
+  MarkAttendanceDto,
+} from "../../src/application/dto/AttendanceDto.js";
 
 /**
  * In-memory repository for isolated Attendance and Teaching Day testing
@@ -322,9 +326,30 @@ describe("TeachingDay, Attendance Domain Entities and AttendanceService (Jest Un
 
       // Add 3 enrolled students
       repo.enrolledStudents.push(
-        { id: "s1", firstName: "Student", lastName: "100%", email: "s1@test.cz", enrollmentId: "e1", termId },
-        { id: "s2", firstName: "Student", lastName: "70%", email: "s2@test.cz", enrollmentId: "e2", termId },
-        { id: "s3", firstName: "Student", lastName: "60%", email: "s3@test.cz", enrollmentId: "e3", termId }
+        {
+          id: "s1",
+          firstName: "Student",
+          lastName: "100%",
+          email: "s1@test.cz",
+          enrollmentId: "e1",
+          termId,
+        },
+        {
+          id: "s2",
+          firstName: "Student",
+          lastName: "70%",
+          email: "s2@test.cz",
+          enrollmentId: "e2",
+          termId,
+        },
+        {
+          id: "s3",
+          firstName: "Student",
+          lastName: "60%",
+          email: "s3@test.cz",
+          enrollmentId: "e3",
+          termId,
+        }
       );
 
       // Student 1 attends 10/10 days (100%)
@@ -334,18 +359,35 @@ describe("TeachingDay, Attendance Domain Entities and AttendanceService (Jest Un
 
       // Student 2 attends exactly 7/10 days (70%)
       for (let i = 0; i < 7; i++) {
-        await service.markAttendance({ teachingDayId: dayIds[i], studentId: "s2", isPresent: true });
+        await service.markAttendance({
+          teachingDayId: dayIds[i],
+          studentId: "s2",
+          isPresent: true,
+        });
       }
       for (let i = 7; i < 10; i++) {
-        await service.markAttendance({ teachingDayId: dayIds[i], studentId: "s2", isPresent: false, note: "Excused illness" });
+        await service.markAttendance({
+          teachingDayId: dayIds[i],
+          studentId: "s2",
+          isPresent: false,
+          note: "Excused illness",
+        });
       }
 
       // Student 3 attends 6/10 days (60%)
       for (let i = 0; i < 6; i++) {
-        await service.markAttendance({ teachingDayId: dayIds[i], studentId: "s3", isPresent: true });
+        await service.markAttendance({
+          teachingDayId: dayIds[i],
+          studentId: "s3",
+          isPresent: true,
+        });
       }
       for (let i = 6; i < 10; i++) {
-        await service.markAttendance({ teachingDayId: dayIds[i], studentId: "s3", isPresent: false });
+        await service.markAttendance({
+          teachingDayId: dayIds[i],
+          studentId: "s3",
+          isPresent: false,
+        });
       }
 
       // Calculate summaries
