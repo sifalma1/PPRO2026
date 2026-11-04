@@ -5,9 +5,9 @@ import { ApiResponse } from "../types";
 
 export class ApiError extends Error {
   public statusCode?: number;
-  public details?: any;
+  public details?: unknown;
 
-  constructor(message: string, statusCode?: number, details?: any) {
+  constructor(message: string, statusCode?: number, details?: unknown) {
     super(message);
     this.name = "ApiError";
     this.statusCode = statusCode;
