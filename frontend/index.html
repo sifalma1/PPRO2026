@@ -65,11 +65,12 @@
           </div>
         </div>
 
-        <!-- Navigační záložky (Desktop) -->
+        <!-- Navigační záložky (Desktop: přehledná 4-položková lišta s dropdownem) -->
         <nav
-          class="hidden xl:flex items-center gap-1 p-1 bg-slate-100/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800/80 text-xs"
+          class="hidden md:flex items-center gap-1 p-1 bg-slate-100/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800/80 text-xs"
           role="tablist"
         >
+          <!-- 1. Kurzy -->
           <button class="nav-tab-btn active" data-tab="courses" title="Klávesová zkratka: 1">
             <svg
               class="w-3.5 h-3.5 opacity-80"
@@ -81,9 +82,11 @@
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
             </svg>
-            <span>Katalog kurzů</span>
+            <span>Kurzy</span>
             <kbd class="nav-tab-kbd kbd-shortcut">1</kbd>
           </button>
+
+          <!-- 2. Termíny & Pořadník -->
           <button class="nav-tab-btn" data-tab="terms" title="Klávesová zkratka: 2">
             <svg
               class="w-3.5 h-3.5 opacity-80"
@@ -97,9 +100,11 @@
               <line x1="8" y1="2" x2="8" y2="6"></line>
               <line x1="3" y1="10" x2="21" y2="10"></line>
             </svg>
-            <span>Termíny & Pořadník</span>
+            <span>Termíny</span>
             <kbd class="nav-tab-kbd kbd-shortcut">2</kbd>
           </button>
+
+          <!-- 3. Evidence docházky -->
           <button class="nav-tab-btn" data-tab="attendance" title="Klávesová zkratka: 3">
             <svg
               class="w-3.5 h-3.5 opacity-80"
@@ -111,54 +116,163 @@
               <path d="M9 11l3 3L22 4"></path>
               <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
             </svg>
-            <span>Evidence docházky</span>
+            <span>Docházka</span>
             <kbd class="nav-tab-kbd kbd-shortcut">3</kbd>
           </button>
-          <button class="nav-tab-btn" data-tab="certificates" title="Klávesová zkratka: 4">
-            <svg
-              class="w-3.5 h-3.5 opacity-80"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
+
+          <!-- 4. Dropdown menu: Správa & Výkazy -->
+          <div class="relative" id="nav-dropdown-container">
+            <button
+              id="btn-nav-dropdown"
+              type="button"
+              class="nav-tab-btn flex items-center gap-1.5"
+              aria-haspopup="true"
+              aria-expanded="false"
+              title="Kniha osvědčení, Lektoři & Učebny, Manažerské výkazy"
             >
-              <circle cx="12" cy="8" r="7"></circle>
-              <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-            </svg>
-            <span>Kniha osvědčení</span>
-            <kbd class="nav-tab-kbd kbd-shortcut">4</kbd>
-          </button>
-          <button class="nav-tab-btn" data-tab="lecturers" title="Klávesová zkratka: 5">
-            <svg
-              class="w-3.5 h-3.5 opacity-80"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
+              <svg
+                class="w-3.5 h-3.5 opacity-80"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="3"></circle>
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                ></path>
+              </svg>
+              <span id="nav-dropdown-label">Správa & Výkazy</span>
+              <svg
+                id="nav-dropdown-chevron"
+                class="w-3 h-3 opacity-70 transition-transform duration-200"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div
+              id="nav-dropdown-menu"
+              class="hidden absolute right-0 top-full mt-2 w-64 p-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 animate-scaleIn"
+              role="menu"
             >
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-            <span>Lektoři & Učebny</span>
-            <kbd class="nav-tab-kbd kbd-shortcut">5</kbd>
-          </button>
-          <button class="nav-tab-btn" data-tab="analytics" title="Klávesová zkratka: 6">
-            <svg
-              class="w-3.5 h-3.5 opacity-80"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <line x1="18" y1="20" x2="18" y2="10"></line>
-              <line x1="12" y1="20" x2="12" y2="4"></line>
-              <line x1="6" y1="20" x2="6" y2="14"></line>
-            </svg>
-            <span>Manažerské výkazy</span>
-            <kbd class="nav-tab-kbd kbd-shortcut">6</kbd>
-          </button>
+              <div
+                class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500"
+              >
+                Administrace & Evidence
+              </div>
+              <button
+                type="button"
+                class="dropdown-nav-item"
+                data-tab="certificates"
+                role="menuitem"
+                title="Klávesová zkratka: 4"
+              >
+                <div class="flex items-center gap-2.5">
+                  <div
+                    class="w-6 h-6 rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0"
+                  >
+                    <svg
+                      class="w-3.5 h-3.5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle cx="12" cy="8" r="7"></circle>
+                      <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-800 dark:text-slate-200">
+                      Kniha osvědčení
+                    </div>
+                    <div class="text-[10px] text-slate-400">Generování & ověření kódů</div>
+                  </div>
+                </div>
+                <kbd class="kbd-shortcut">4</kbd>
+              </button>
+
+              <button
+                type="button"
+                class="dropdown-nav-item"
+                data-tab="lecturers"
+                role="menuitem"
+                title="Klávesová zkratka: 5"
+              >
+                <div class="flex items-center gap-2.5">
+                  <div
+                    class="w-6 h-6 rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0"
+                  >
+                    <svg
+                      class="w-3.5 h-3.5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-800 dark:text-slate-200">
+                      Lektoři & Učebny
+                    </div>
+                    <div class="text-[10px] text-slate-400">Správa lektorů a místností</div>
+                  </div>
+                </div>
+                <kbd class="kbd-shortcut">5</kbd>
+              </button>
+
+              <div class="my-1 border-t border-slate-100 dark:border-slate-800/80"></div>
+              <div
+                class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500"
+              >
+                Přehledy & Dotace
+              </div>
+
+              <button
+                type="button"
+                class="dropdown-nav-item"
+                data-tab="analytics"
+                role="menuitem"
+                title="Klávesová zkratka: 6"
+              >
+                <div class="flex items-center gap-2.5">
+                  <div
+                    class="w-6 h-6 rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0"
+                  >
+                    <svg
+                      class="w-3.5 h-3.5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <line x1="18" y1="20" x2="18" y2="10"></line>
+                      <line x1="12" y1="20" x2="12" y2="4"></line>
+                      <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-800 dark:text-slate-200">
+                      Manažerské výkazy
+                    </div>
+                    <div class="text-[10px] text-slate-400">Tržby, naplněnost & MŠMT</div>
+                  </div>
+                </div>
+                <kbd class="kbd-shortcut">6</kbd>
+              </button>
+            </div>
+          </div>
         </nav>
 
         <!-- Nástroje vpravo: Hledání, Zkratky, Režim, Status -->
@@ -248,16 +362,52 @@
         </div>
       </div>
 
-      <!-- Mobilní / Tabletová navigace s horizontálním posunem -->
+      <!-- Mobilní / Tabletová navigace (max 4 položky včetně dropdownu) -->
       <div
-        class="flex xl:hidden overflow-x-auto gap-1 px-4 py-2 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/90 scrollbar-none"
+        class="flex md:hidden items-center justify-between px-3 py-2 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/90 text-xs"
       >
-        <button class="nav-tab-btn active whitespace-nowrap" data-tab="courses">Kurzy</button>
-        <button class="nav-tab-btn whitespace-nowrap" data-tab="terms">Termíny & Pořadník</button>
-        <button class="nav-tab-btn whitespace-nowrap" data-tab="attendance">Docházka (70 %)</button>
-        <button class="nav-tab-btn whitespace-nowrap" data-tab="certificates">Osvědčení</button>
-        <button class="nav-tab-btn whitespace-nowrap" data-tab="lecturers">Lektoři</button>
-        <button class="nav-tab-btn whitespace-nowrap" data-tab="analytics">Výkazy</button>
+        <button class="nav-tab-btn active px-2.5 py-1.5" data-tab="courses">Kurzy</button>
+        <button class="nav-tab-btn px-2.5 py-1.5" data-tab="terms">Termíny</button>
+        <button class="nav-tab-btn px-2.5 py-1.5" data-tab="attendance">Docházka</button>
+        <div class="relative" id="mobile-nav-dropdown-container">
+          <button
+            id="mobile-btn-nav-dropdown"
+            type="button"
+            class="nav-tab-btn px-2.5 py-1.5 flex items-center gap-1"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <span id="mobile-nav-dropdown-label">Správa</span>
+            <svg
+              id="mobile-nav-dropdown-chevron"
+              class="w-3 h-3 opacity-60 transition-transform duration-200"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div
+            id="mobile-nav-dropdown-menu"
+            class="hidden absolute right-0 top-full mt-2 w-56 p-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 animate-scaleIn"
+            role="menu"
+          >
+            <button type="button" class="dropdown-nav-item" data-tab="certificates" role="menuitem">
+              <span>📜 Kniha osvědčení</span>
+              <kbd class="kbd-shortcut">4</kbd>
+            </button>
+            <button type="button" class="dropdown-nav-item" data-tab="lecturers" role="menuitem">
+              <span>👥 Lektoři & Učebny</span>
+              <kbd class="kbd-shortcut">5</kbd>
+            </button>
+            <button type="button" class="dropdown-nav-item" data-tab="analytics" role="menuitem">
+              <span>📊 Manažerské výkazy</span>
+              <kbd class="kbd-shortcut">6</kbd>
+            </button>
+          </div>
+        </div>
       </div>
     </header>
 

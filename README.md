@@ -590,7 +590,7 @@ frontend/src/
 
 ### 5.3 Komponenty uživatelského rozhraní (Header, Modal, Toast)
 
-- **`Header.ts`:** Generuje čistý navigační panel s logem vzdělávacího centra Akademie Trutnov, indikátorem verze, navigačními taby a interaktivním tlačítkem pro přepnutí Dark/Light režimu s ikonou slunce/měsíce.
+- **`Header.ts`:** Poskytuje čistou, ergonomickou a kompaktní navigaci omezenou na maximálně 4 položky (Katalog kurzů, Termíny & Pořadník, Evidence docházky a rozbalovací dropdown menu _Správa & Výkazy_ pro Knihu osvědčení, Lektory/Učebny a Manažerské výkazy). Zajišťuje automatickou synchronizaci aktivního stavu, indikaci vybrané podagendy v záhlaví dropdownu, obsluhu kliknutí mimo menu a klávesových zkratek 1–6 / Esc a perzistentní přepínač tmavého a světlého režimu.
 - **`Modal.ts`:** Plně přístupný modální dialog. Podporuje zavření stiskem klávesy `Escape`, kliknutím mimo dialogové okno (backdrop click), uzamčení posunu stránky na pozadí (`overflow: hidden`) a plynulou animaci `scaleIn`.
 - **`Toast.ts`:** Toastový notifikační systém zobrazující zprávy v pravém horním rohu obrazovky. Podporuje 4 typy hlášení (úspěch, chyba, varování, informace) s automatickým časovačem skrytí (default 4000 ms) a možností manuálního zavření křížkem.
 
@@ -1228,6 +1228,15 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
   - [`certificate.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/certificate.test.ts) (10 testů): Automatické generování certifikátů, lektorské výjimky s písemným odůvodněním a formát masky `AT-YYYY-XXXX`.
   - [`api.integration.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/api.integration.test.ts) (18 testů): Integrační testy Express REST API přes **Supertest** (endpointy `/health`, kurzy, termíny, certifikáty, docházka, číselníky a české aliasy).
 - **Celkový výsledek testovací strategie:** 100 automatizovaných testů (29 Node test runner + 71 Jest) se 100% úspěšností (0 chyb).
+
+#### Verze 1.4.1 (Optimalizace navigace – zjednodušený 4-položkový navbar s dropdownem)
+
+- **Redukce přehlceného navigačního baru na max. 4 položky:**
+  - Původních 6 horizontálních tlačítek reorganizováno na 3 klíčové agendy (Kurzy, Termíny, Docházka) + 1 rozbalovací nabídku (**Správa & Výkazy ▾**).
+  - Podnabídka sdružuje specializované moduly: _Kniha osvědčení_ [4], _Lektoři & Učebny_ [5] a _Manažerské výkazy_ [6].
+  - Dynamická zpětná vazba: Při otevření podagendy tlačítko dropdownu automaticky přejímá aktivní akcentní styl a dynamicky zobrazuje název vybrané sekce (`Správa: Osvědčení`, `Správa: Lektoři`, `Správa: Výkazy`).
+  - Plná přístupnost (WAI-ARIA `aria-expanded`, `aria-haspopup`, zavření klávesou `Escape`, detekce kliknutí mimo kontejner).
+  - Responzivní sjednocení pro desktop i mobilní zobrazení bez nutnosti horizontálního posunu.
 
 #### Verze 1.4.0 (Modulární Frontend SPA s Vite, TypeScript a Tailwind CSS)
 
