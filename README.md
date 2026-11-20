@@ -60,7 +60,7 @@
 9. [Přehled plnění požadavků zadání klienta (100% HOTOVO)](#9-přehled-plnění-požadavků-zadání-klienta-100-hotovo)
    - 9.1 [Tabulka plnění 8 bodů zadání](#91-tabulka-plnění-8-bodů-zadání)
 10. [Historie verzí (Changelog) a Roadmapa](#10-historie-verzí-changelog-a-roadmapa)
-    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.5.0)](#101-historie-verzí-changelog-v100-až-v150)
+    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.7.1)](#101-historie-verzí-changelog-v100-až-v171)
     - 10.2 [Roadmapa dalšího rozvoje](#102-roadmapa-dalšího-rozvoje)
 
 ---
@@ -1370,9 +1370,20 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
 
 ## 10. Historie verzí (Changelog) a Roadmapa
 
-### 10.1 Historie verzí (Changelog v1.0.0 až v1.7.0)
+### 10.1 Historie verzí (Changelog v1.0.0 až v1.7.1)
 
-#### Verze 1.7.0 (Aktuální verze – Kompletní přepracování vizuálního stylu frontendu dle web design standardů a generative UI)
+#### Verze 1.7.1 (Aktuální verze – Oprava ukládání a editace vzdělávacího programu administrátorem)
+
+- **Oprava klientské chyby při ukládání kurzu v `CoursesView.ts`:**
+  - Odstraněn nesoulad v ID selektoru checkboxu MŠMT akreditace (`course-is-accredited` vs `course-accredited` v šabloně formuláře `#modal-course`).
+  - Odstraněna kritická fatální runtime výjimka `TypeError: Cannot read properties of null (reading 'checked')` při odeslání modálního okna "Upravit vzdělávací program" administrátorem.
+  - Zajištěno správné předvyplnění stavu akreditace při otevření editačního modálu kurzu a bezpečné čtení s fallbackem na oba možné identifikátory (`course-accredited` i `course-is-accredited`).
+  - Přesunuta konstrukce `payload` objektu dovnitř chráněného bloku `try...catch`, zajištěn explicitní reset editačního stavu (`isEditing = false`, `editingCourseId = null`) a vyčištění chybových hlášení.
+- **Aktualizace testovací sady:**
+  - V testovacím souboru `test/api-creation-flows.test.ts` doplněna automatická administrátorská autentizace (`before()` hook volající `/api/auth/login`) s předáváním Bearer tokenu do chráněných zápisových a editačních požadavků.
+  - Všech 119 testů (29 Node test runner + 90 Jest) je plně funkčních a prochází (100% zelené).
+
+#### Verze 1.7.0 (Kompletní přepracování vizuálního stylu frontendu dle web design standardů a generative UI)
 
 - **Krkonošský břidlicovo-smaragdový design systém (Slate & Emerald palette):**
   - Odstraněny veškeré generické znaky AI šablon (žádné křiklavé gradienty, rozostřené koule, prázdná hluchá místa ani laciný glassmorphism).

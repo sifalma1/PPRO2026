@@ -35,6 +35,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DB_NAME: ${DB_NAME:-akademie_db}
     volumes:
+      - ./dist:/app/dist:ro
       - ./public:/app/public:ro
       - ./migrations:/app/migrations:ro
     depends_on:

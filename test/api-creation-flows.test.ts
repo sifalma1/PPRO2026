@@ -1,4 +1,4 @@
-import { describe, it } from "node:test";
+import { describe, it, before } from "node:test";
 import assert from "node:assert/strict";
 
 const BASE_URL = process.env.API_URL || "http://localhost:3000";
@@ -11,6 +11,27 @@ describe("End-to-End API Creation Flows (Akademie Trutnov)", () => {
   let createdTeachingDayId: string;
   let student1Id: string;
   let student2Id: string;
+  let adminHeaders: Record<string, string> = { "Content-Type": "application/json" };
+
+  before(async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: "admin", password: "admin123" }),
+      });
+      const data = await res.json();
+      if (data.token) {
+        adminHeaders = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${data.token}`,
+          "x-admin-token": data.token,
+        };
+      }
+    } catch {
+      // Server might not require auth in non-production test mode
+    }
+  });
 
   // 1. Creating a Course
   it("Flow 1: Creating a Course via POST /api/courses", async () => {
@@ -25,7 +46,7 @@ describe("End-to-End API Creation Flows (Akademie Trutnov)", () => {
 
     const res = await fetch(`${BASE_URL}/api/courses`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: adminHeaders,
       body: JSON.stringify(payload),
     });
 
@@ -56,7 +77,7 @@ describe("End-to-End API Creation Flows (Akademie Trutnov)", () => {
 
     const res = await fetch(`${BASE_URL}/api/courses`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: adminHeaders,
       body: JSON.stringify(payload),
     });
 
@@ -70,7 +91,10 @@ describe("End-to-End API Creation Flows (Akademie Trutnov)", () => {
     assert.equal(json.data.price, 0);
 
     // Clean up free course
-    await fetch(`${BASE_URL}/api/courses/${json.data.id}`, { method: "DELETE" });
+    await fetch(`${BASE_URL}/api/courses/${json.data.id}`, {
+      method: "DELETE",
+      headers: adminHeaders,
+    });
   });
 
   // 2. Creating a Term
@@ -99,7 +123,7 @@ describe("End-to-End API Creation Flows (Akademie Trutnov)", () => {
 
     const res = await fetch(`${BASE_URL}/api/terms`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: adminHeaders,
       body: JSON.stringify(payload),
     });
 
@@ -200,7 +224,7 @@ describe("End-to-End API Creation Flows (Akademie Trutnov)", () => {
 
     const res = await fetch(`${BASE_URL}/api/attendance/terms/${createdTermId}/days`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: adminHeaders,
       body: JSON.stringify(payload),
     });
 
@@ -232,7 +256,7 @@ describe("End-to-End API Creation Flows (Akademie Trutnov)", () => {
     // Mark attendance
     const markRes = await fetch(`${BASE_URL}/api/attendance/days/${createdTeachingDayId}/mark`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: adminHeaders,
       body: JSON.stringify({
         studentId: student1Id,
         isPresent: true,
@@ -260,6 +284,7 @@ describe("End-to-End API Creation Flows (Akademie Trutnov)", () => {
 
     const res = await fetch(`${BASE_URL}/api/terms/${createdTermId}/complete`, {
       method: "POST",
+      headers: adminHeaders,
     });
 
     const json = await res.json();
@@ -307,7 +332,7 @@ describe("End-to-End API Creation Flows (Akademie Trutnov)", () => {
 
     const res = await fetch(`${BASE_URL}/api/certificates/issue`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: adminHeaders,
       body: JSON.stringify(waiverPayload),
     });
 

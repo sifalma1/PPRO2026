@@ -275,6 +275,13 @@ export class CoursesView {
     if (this.form) this.form.reset();
     if (this.formError) this.formError.style.display = "none";
 
+    const idInput = document.getElementById("course-id") as HTMLInputElement | null;
+    if (idInput) idInput.value = "";
+
+    const accreditedInput = (document.getElementById("course-accredited") ||
+      document.getElementById("course-is-accredited")) as HTMLInputElement | null;
+    if (accreditedInput) accreditedInput.checked = false;
+
     Modal.open("modal-course");
   }
 
@@ -292,12 +299,15 @@ export class CoursesView {
     if (this.formError) this.formError.style.display = "none";
 
     // Populate inputs
-    const idInput = document.getElementById("course-id") as HTMLInputElement;
-    const titleInput = document.getElementById("course-title") as HTMLInputElement;
-    const annotationInput = document.getElementById("course-annotation") as HTMLTextAreaElement;
-    const hoursInput = document.getElementById("course-hours") as HTMLInputElement;
-    const priceInput = document.getElementById("course-price") as HTMLInputElement;
-    const accreditedInput = document.getElementById("course-is-accredited") as HTMLInputElement;
+    const idInput = document.getElementById("course-id") as HTMLInputElement | null;
+    const titleInput = document.getElementById("course-title") as HTMLInputElement | null;
+    const annotationInput = document.getElementById(
+      "course-annotation"
+    ) as HTMLTextAreaElement | null;
+    const hoursInput = document.getElementById("course-hours") as HTMLInputElement | null;
+    const priceInput = document.getElementById("course-price") as HTMLInputElement | null;
+    const accreditedInput = (document.getElementById("course-accredited") ||
+      document.getElementById("course-is-accredited")) as HTMLInputElement | null;
 
     if (idInput) idInput.value = course.id;
     if (titleInput) titleInput.value = course.title;
@@ -316,21 +326,28 @@ export class CoursesView {
       return;
     }
 
-    const titleInput = document.getElementById("course-title") as HTMLInputElement;
-    const annotationInput = document.getElementById("course-annotation") as HTMLTextAreaElement;
-    const hoursInput = document.getElementById("course-hours") as HTMLInputElement;
-    const priceInput = document.getElementById("course-price") as HTMLInputElement;
-    const accreditedInput = document.getElementById("course-is-accredited") as HTMLInputElement;
-
-    const payload: CreateCoursePayload = {
-      title: titleInput.value.trim(),
-      annotation: annotationInput.value.trim(),
-      hours: parseInt(hoursInput.value, 10),
-      price: parseFloat(priceInput.value),
-      isAccredited: accreditedInput.checked,
-    };
-
     try {
+      const titleInput = document.getElementById("course-title") as HTMLInputElement | null;
+      const annotationInput = document.getElementById(
+        "course-annotation"
+      ) as HTMLTextAreaElement | null;
+      const hoursInput = document.getElementById("course-hours") as HTMLInputElement | null;
+      const priceInput = document.getElementById("course-price") as HTMLInputElement | null;
+      const accreditedInput = (document.getElementById("course-accredited") ||
+        document.getElementById("course-is-accredited")) as HTMLInputElement | null;
+
+      if (!titleInput || !annotationInput || !hoursInput || !priceInput) {
+        throw new Error("Formulářové prvky se nepodařilo načíst.");
+      }
+
+      const payload: CreateCoursePayload = {
+        title: titleInput.value.trim(),
+        annotation: annotationInput.value.trim(),
+        hours: parseInt(hoursInput.value, 10),
+        price: parseFloat(priceInput.value),
+        isAccredited: Boolean(accreditedInput?.checked),
+      };
+
       if (this.isEditing && this.editingCourseId) {
         await coursesApi.update(this.editingCourseId, payload);
         Toast.success("Vzdělávací program byl úspěšně aktualizován.");
@@ -339,6 +356,8 @@ export class CoursesView {
         Toast.success("Nový vzdělávací program byl úspěšně vytvořen.");
       }
 
+      this.isEditing = false;
+      this.editingCourseId = null;
       Modal.close("modal-course");
       await this.load();
     } catch (err: unknown) {
