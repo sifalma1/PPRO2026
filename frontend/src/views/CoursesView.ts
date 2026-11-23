@@ -67,11 +67,11 @@ export class CoursesView {
     this.filterChips?.forEach((chip) => {
       chip.addEventListener("click", () => {
         this.filterChips?.forEach((c) => {
-          c.className =
-            "filter-chip text-slate-600 dark:text-slate-400 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800";
+          c.classList.remove("filter-chip-active");
+          c.classList.add("filter-chip-inactive");
         });
-        chip.className =
-          "filter-chip bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800 font-semibold";
+        chip.classList.remove("filter-chip-inactive");
+        chip.classList.add("filter-chip-active");
         this.filterType =
           (chip.getAttribute("data-filter") as "all" | "accredited" | "standard") || "all";
         this.render();
@@ -163,42 +163,41 @@ export class CoursesView {
 
     filtered.forEach((course, index) => {
       const card = document.createElement("div");
-      card.className =
-        "card-box flex flex-col justify-between hover:border-emerald-500/50 dark:hover:border-emerald-500/40 transition-all duration-150";
+      card.className = "card-box flex flex-col justify-between transition-all duration-150";
 
       const formattedPrice = Number(course.price).toLocaleString("cs-CZ");
       const courseCode = `AT-K${String(index + 1).padStart(2, "0")}`;
 
       card.innerHTML = `
         <div>
-          <div class="flex items-center justify-between gap-2 mb-2.5">
+          <div class="flex items-center justify-between gap-1.5 mb-3 flex-wrap">
             <div class="flex items-center gap-1.5">
-              <span class="font-mono text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700/80">
+              <span class="badge-pill-code">
                 ${courseCode}
               </span>
               ${
                 course.isAccredited
-                  ? '<span class="badge-chip badge-chip-green">MŠMT Akreditace</span>'
-                  : '<span class="badge-chip badge-chip-slate">Firemní program</span>'
+                  ? '<span class="badge-pill-accredited">MŠMT Akreditace</span>'
+                  : '<span class="badge-pill-standard">Firemní program</span>'
               }
             </div>
-            <span class="text-xs font-bold font-mono text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800/80 px-2.5 py-0.5 rounded border border-slate-200/80 dark:border-slate-700/80 tabular-nums">
+            <span class="badge-pill-price">
               ${formattedPrice} Kč
             </span>
           </div>
 
-          <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-1.5 leading-snug tracking-tight">
+          <h3 class="text-[15px] font-extrabold uppercase font-display text-[#28190c] dark:text-[#f8edd9] mb-2 leading-snug tracking-tight">
             ${course.title}
           </h3>
 
-          <p class="text-xs text-slate-600 dark:text-slate-400 mb-3.5 line-clamp-3 leading-relaxed">
+          <p class="text-xs text-[#5c452b] dark:text-[#c4b39b] mb-4 line-clamp-3 leading-relaxed">
             ${course.annotation}
           </p>
         </div>
 
-        <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between mt-auto">
-          <span class="text-xs font-mono font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1 tabular-nums">
-            <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="pt-3 border-t border-amber-900/15 dark:border-amber-500/20 flex items-center justify-between mt-auto gap-2">
+          <span class="text-xs font-mono font-bold text-[#634a2c] dark:text-[#dfcaa5] flex items-center gap-1.5 tabular-nums">
+            <svg class="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
@@ -223,7 +222,7 @@ export class CoursesView {
                 Upravit
               </button>
               <button
-                class="btn-ghost-tw btn-sm-tw btn-delete-course text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                class="btn-ghost-tw btn-sm-tw btn-delete-course text-rose-700 dark:text-rose-400 hover:bg-rose-900/10"
                 data-id="${course.id}"
                 title="Smazat kurz z katalogu"
               >

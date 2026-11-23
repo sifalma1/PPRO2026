@@ -9,122 +9,584 @@
   }
 
   body {
-    @apply antialiased text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-[#0a0f1d];
+    @apply antialiased min-h-screen flex flex-col font-sans transition-colors duration-200;
     font-variant-numeric: tabular-nums;
+    background-color: #17161b;
+    color: #2b2216;
   }
 
-  /* Custom scrollbar */
+  html[data-theme="dark"] body {
+    background-color: #0b0a10;
+    color: #ece5f5;
+  }
+
+  /* Warcraft Classic Scrollbar (Brass & Obsidian) */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: transparent;
+    background: #14111b;
+    border-left: 1px solid #2e2638;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-slate-300 dark:bg-slate-700 rounded-full;
+    background: linear-gradient(180deg, #a88132 0%, #684f1b 100%);
+    border: 1px solid #d4af37;
+    border-radius: 2px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-400 dark:bg-slate-600;
+    background: linear-gradient(180deg, #c99e3f 0%, #826322 100%);
+    box-shadow: 0 0 6px rgba(212, 175, 55, 0.6);
+  }
+
+  /* Warcraft Headings Typography */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: "Cinzel", Georgia, serif;
+    letter-spacing: 0.025em;
+  }
+  h1,
+  h2 {
+    color: #4a3512;
+  }
+  html[data-theme="dark"] h1,
+  html[data-theme="dark"] h2 {
+    color: #fce8bd;
+  }
+  h3 {
+    color: #5c4318;
+  }
+  html[data-theme="dark"] h3 {
+    color: #f6dc9c;
   }
 }
 
 @layer components {
-  /* ================= NAVIGATION TABS & DROPDOWN ================= */
+  /* ================= FANTASY HEADINGS & CRESTS ================= */
+  .font-display {
+    font-family: "Cinzel", "Cinzel Decorative", Georgia, serif;
+    letter-spacing: 0.03em;
+  }
+
+  .wow-crest-text {
+    font-family: "Cinzel", Georgia, serif;
+    font-weight: 800;
+    background: linear-gradient(180deg, #fff0c2 0%, #d4af37 55%, #8f6a1e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  }
+
+  /* Castle Cobblestone Stone Wall Background */
+  .stone-wall-bg {
+    background-color: #151419;
+    background-image:
+      radial-gradient(circle at 50% 30%, rgba(28, 26, 34, 0.45) 0%, rgba(10, 9, 13, 0.9) 100%),
+      repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.45) 0px,
+        rgba(0, 0, 0, 0.45) 2px,
+        transparent 2px,
+        transparent 38px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.45) 0px,
+        rgba(0, 0, 0, 0.45) 2px,
+        transparent 2px,
+        transparent 76px
+      ),
+      linear-gradient(135deg, #23202b 25%, transparent 25%),
+      linear-gradient(225deg, #23202b 25%, transparent 25%),
+      linear-gradient(315deg, #23202b 25%, transparent 25%),
+      linear-gradient(45deg, #23202b 25%, #131217 25%);
+    background-size:
+      100% 100%,
+      76px 38px,
+      76px 38px,
+      38px 38px,
+      38px 38px,
+      38px 38px,
+      38px 38px;
+    background-attachment: fixed;
+  }
+
+  /* Rustic Timber Framing Columns */
+  .timber-canvas-frame {
+    position: relative;
+    border-left: 20px solid #281910;
+    border-right: 20px solid #281910;
+    box-shadow:
+      0 0 0 2px #caa049,
+      0 10px 45px rgba(0, 0, 0, 0.85),
+      inset 4px 0 8px rgba(0, 0, 0, 0.7),
+      inset -4px 0 8px rgba(0, 0, 0, 0.7);
+  }
+  @media (max-width: 768px) {
+    .timber-canvas-frame {
+      border-left: 8px solid #281910;
+      border-right: 8px solid #281910;
+    }
+  }
+
+  /* Aged Weathered Parchment Map Canvas */
+  .parchment-canvas {
+    background:
+      radial-gradient(
+        ellipse at 50% 15%,
+        rgba(255, 252, 245, 0.9) 0%,
+        rgba(246, 237, 216, 0.75) 60%,
+        rgba(220, 198, 156, 0.55) 100%
+      ),
+      linear-gradient(180deg, #f7efe0 0%, #eee2c7 50%, #e7d5b2 100%);
+    color: #2b1f13;
+    box-shadow: inset 0 0 35px rgba(120, 88, 38, 0.18);
+  }
+  html[data-theme="dark"] .parchment-canvas {
+    background:
+      radial-gradient(
+        ellipse at 50% 15%,
+        rgba(30, 24, 42, 0.9) 0%,
+        rgba(18, 14, 26, 0.85) 60%,
+        rgba(10, 8, 15, 0.95) 100%
+      ),
+      linear-gradient(180deg, #171322 0%, #0f0c18 100%);
+    color: #ece3f5;
+    box-shadow: inset 0 0 45px rgba(0, 0, 0, 0.65);
+  }
+
+  /* ================= NAVIGATION TABS & DROPDOWN (Quest Log & Spellbook Tabs) ================= */
   .nav-tab-btn {
-    @apply px-3 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/70 flex items-center gap-1.5 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 cursor-pointer;
+    @apply px-3 py-1.5 text-xs font-semibold rounded transition-all text-amber-900/80 dark:text-amber-200/80 hover:text-amber-950 dark:hover:text-amber-100 flex items-center gap-1.5 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 cursor-pointer;
+    font-family: "Cinzel", Georgia, serif;
+    border: 1px solid transparent;
+  }
+  .nav-tab-btn:hover {
+    background: rgba(198, 155, 61, 0.15);
+    border-color: rgba(198, 155, 61, 0.35);
   }
   .nav-tab-btn.active {
-    @apply bg-emerald-600 text-white hover:bg-emerald-500 dark:bg-emerald-600 dark:text-white dark:hover:bg-emerald-500 shadow-sm shadow-emerald-950/20 font-bold;
+    background: linear-gradient(180deg, #c5973d 0%, #8e6822 50%, #5a4013 100%);
+    border: 1px solid #fce28b;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
+    box-shadow:
+      0 0 12px rgba(212, 175, 55, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    font-weight: 700;
   }
   .nav-tab-btn.active .nav-tab-kbd {
-    @apply bg-emerald-700/90 text-emerald-100 border-emerald-500/50;
+    background: #3e2b0c;
+    color: #fce28b;
+    border-color: #fce28b;
   }
 
   .dropdown-nav-item {
-    @apply w-full px-3 py-2 text-xs font-medium rounded-lg text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/90 flex items-center justify-between gap-3 transition-colors text-left cursor-pointer;
+    @apply w-full px-3 py-2 text-xs font-medium rounded text-slate-800 dark:text-slate-200 hover:text-amber-950 dark:hover:text-amber-100 flex items-center justify-between gap-3 transition-colors text-left cursor-pointer;
+    border-left: 2px solid transparent;
+  }
+  .dropdown-nav-item:hover {
+    background: rgba(198, 155, 61, 0.12);
+    border-left-color: #c69b3d;
   }
   .dropdown-nav-item.active {
-    @apply bg-emerald-50 dark:bg-emerald-950/70 text-emerald-900 dark:text-emerald-200 font-semibold border-l-2 border-emerald-600;
+    background: rgba(198, 155, 61, 0.2);
+    color: #d4af37 !important;
+    font-weight: 700;
+    border-left-color: #f7d358;
   }
 
-  /* ================= BADGES & CHIPS (Typography floor >= 12px) ================= */
+  /* ================= WARCRAFT ITEM RARITY BADGES & CHIPS ================= */
   .badge-chip {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold tracking-wide uppercase leading-normal font-mono select-none;
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-bold tracking-wider uppercase leading-normal font-mono select-none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
+
+  /* Uncommon / Herbalism Green */
   .badge-chip-green {
-    @apply bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60;
+    background: rgba(30, 255, 0, 0.08);
+    color: #16a34a;
+    border: 1px solid rgba(22, 163, 74, 0.6);
   }
+  html[data-theme="dark"] .badge-chip-green {
+    background: rgba(30, 255, 0, 0.12);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.6);
+    text-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+  }
+
+  /* Rare / Frost Mana Azure */
   .badge-chip-blue {
-    @apply bg-sky-500/10 text-sky-700 dark:text-sky-300 border border-sky-300 dark:border-sky-700/60;
+    background: rgba(14, 165, 233, 0.08);
+    color: #0284c7;
+    border: 1px solid rgba(2, 132, 199, 0.6);
   }
-  .badge-chip-yellow {
-    @apply bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60;
+  html[data-theme="dark"] .badge-chip-blue {
+    background: rgba(0, 112, 221, 0.15);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.6);
+    text-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
   }
+
+  /* Legendary / Sunwell Amber Gold */
+  .badge-chip-yellow,
+  .badge-chip-amber {
+    background: rgba(255, 128, 0, 0.08);
+    color: #d97706;
+    border: 1px solid rgba(217, 119, 6, 0.6);
+  }
+  html[data-theme="dark"] .badge-chip-yellow,
+  html[data-theme="dark"] .badge-chip-amber {
+    background: rgba(255, 128, 0, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.6);
+    text-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+  }
+
+  /* Blood / Danger Crimson */
   .badge-chip-red {
-    @apply bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-700/60;
+    background: rgba(239, 68, 68, 0.08);
+    color: #dc2626;
+    border: 1px solid rgba(220, 38, 38, 0.6);
   }
+  html[data-theme="dark"] .badge-chip-red {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(248, 113, 113, 0.6);
+    text-shadow: 0 0 8px rgba(248, 113, 113, 0.4);
+  }
+
+  /* Epic / Kirin Tor Nether Arcane Purple (default slate mapped to Epic) */
   .badge-chip-slate {
-    @apply bg-slate-500/10 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700/60;
+    background: rgba(163, 53, 238, 0.08);
+    color: #9333ea;
+    border: 1px solid rgba(147, 51, 234, 0.5);
+  }
+  html[data-theme="dark"] .badge-chip-slate {
+    background: rgba(163, 53, 238, 0.14);
+    color: #c084fc;
+    border: 1px solid rgba(192, 132, 252, 0.6);
+    text-shadow: 0 0 8px rgba(192, 132, 252, 0.4);
   }
 
-  /* ================= BUTTONS ================= */
+  /* ================= BLIZZARD CLASSIC ACTION BUTTONS ================= */
   .btn-base {
-    @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-slate-900 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none select-none;
+    @apply inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 select-none active:translate-y-[1px] disabled:opacity-50 disabled:pointer-events-none;
+    font-family: "Cinzel", Georgia, serif;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
+
+  /* Primary Action Button: Blizzard Ruby Red with Beveled Gold Border */
   .btn-primary-tw {
-    @apply btn-base bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm shadow-emerald-950/20 active:bg-emerald-700;
+    @apply btn-base;
+    background: linear-gradient(180deg, #7c1515 0%, #520b0b 50%, #330505 100%);
+    border: 2px solid #caa049;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 2px 5px rgba(0, 0, 0, 0.65);
+    color: #ffe6a3;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
   }
+  .btn-primary-tw:hover {
+    background: linear-gradient(180deg, #991c1c 0%, #6b0f0f 50%, #440707 100%);
+    border-color: #ffe6a3;
+    box-shadow:
+      0 0 12px rgba(202, 160, 73, 0.65),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    color: #ffffff;
+  }
+  .btn-primary-tw:active {
+    background: linear-gradient(180deg, #330505 0%, #520b0b 50%, #7c1515 100%);
+  }
+
+  /* Gold Action Button: Royal Sunwell / King's Gold */
+  .btn-gold-tw {
+    @apply btn-base text-white;
+    background: linear-gradient(180deg, #c5973d 0%, #8e6822 50%, #5e4314 100%);
+    border: 2px solid #caa049;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 2px 5px rgba(0, 0, 0, 0.6);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  }
+  .btn-gold-tw:hover {
+    background: linear-gradient(180deg, #dfb04d 0%, #a77c28 50%, #765418 100%);
+    border-color: #fff1b8;
+    box-shadow:
+      0 0 12px rgba(247, 213, 88, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+
+  /* Secondary Button: Ironforge Cast Iron & Walnut Wood */
   .btn-secondary-tw {
-    @apply btn-base bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/70 hover:text-slate-900 dark:hover:text-white shadow-xs;
+    @apply btn-base text-[#faebd0] dark:text-amber-100;
+    background: linear-gradient(180deg, #2b1f17 0%, #17110c 100%);
+    border: 1px solid #7c622e;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.15),
+      0 2px 4px rgba(0, 0, 0, 0.4);
   }
+  .btn-secondary-tw:hover {
+    border-color: #caa049;
+    color: #ffe6a3;
+    box-shadow: 0 0 8px rgba(202, 160, 73, 0.4);
+  }
+
+  /* Danger Button: Blood Oath Crimson */
   .btn-danger-tw {
-    @apply btn-base bg-rose-600 hover:bg-rose-500 text-white shadow-sm active:bg-rose-700;
+    @apply btn-base text-white;
+    background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 50%, #450a0a 100%);
+    border: 1px solid #f87171;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      0 2px 5px rgba(0, 0, 0, 0.6);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
   }
+  .btn-danger-tw:hover {
+    background: linear-gradient(180deg, #b91c1c 0%, #991b1b 50%, #5f0c0c 100%);
+    border-color: #fca5a5;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.55);
+  }
+
+  /* Ghost Button */
   .btn-ghost-tw {
-    @apply btn-base bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white;
+    @apply btn-base bg-transparent text-amber-800 dark:text-amber-300;
   }
+  .btn-ghost-tw:hover {
+    background: rgba(198, 155, 61, 0.12);
+    color: #b45309;
+    box-shadow: 0 0 8px rgba(198, 155, 61, 0.25);
+  }
+  html[data-theme="dark"] .btn-ghost-tw:hover {
+    color: #fde047;
+  }
+
   .btn-sm-tw {
-    @apply px-2.5 py-1 text-xs rounded-lg;
+    @apply px-3 py-1 text-xs;
   }
 
-  /* ================= CARDS & METRIC TILES ================= */
+  /* ================= CARDS & METRIC PLAQUES ================= */
   .card-box {
-    @apply bg-white dark:bg-[#0f172a] border border-slate-200/90 dark:border-slate-800 rounded-xl p-4 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-150;
+    @apply rounded-lg p-5 transition-all duration-200 relative;
+    background: linear-gradient(180deg, #fdf8ee 0%, #f4ebce 100%);
+    border: 2px solid #caa049;
+    box-shadow:
+      inset 0 0 0 1px #fae19c,
+      0 4px 12px rgba(92, 70, 31, 0.14);
   }
-  .metric-kpi-card {
-    @apply bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800/90 rounded-xl p-3.5 shadow-xs flex items-center justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-colors;
+  html[data-theme="dark"] .card-box {
+    background: linear-gradient(180deg, #1b1625 0%, #110e19 100%);
+    border: 2px solid #caa049;
+    box-shadow:
+      inset 0 0 0 1px rgba(250, 225, 156, 0.25),
+      0 4px 18px rgba(0, 0, 0, 0.7);
+  }
+  .card-box:hover {
+    border-color: #ffd700;
+    box-shadow:
+      inset 0 0 0 1px #ffe6a3,
+      0 0 18px rgba(202, 160, 73, 0.35),
+      0 8px 24px rgba(0, 0, 0, 0.25);
+  }
+  html[data-theme="dark"] .card-box:hover {
+    border-color: #ffd700;
+    box-shadow:
+      inset 0 0 0 1px #caa049,
+      0 0 20px rgba(202, 160, 73, 0.4),
+      0 8px 26px rgba(0, 0, 0, 0.8);
   }
 
-  /* ================= TABLES ================= */
-  .table-box-wrap {
-    @apply bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-xs;
+  /* 4 Overview Metric KPI Tablets */
+  .metric-kpi-card {
+    @apply rounded-lg p-4 flex items-center justify-between transition-all duration-200;
+    background: linear-gradient(180deg, #fdf8ed 0%, #f3e8cf 100%);
+    border: 2px solid #caa049;
+    box-shadow:
+      inset 0 0 0 1px rgba(250, 225, 156, 0.7),
+      0 3px 8px rgba(0, 0, 0, 0.12);
   }
+  html[data-theme="dark"] .metric-kpi-card {
+    background: linear-gradient(180deg, #1a1526 0%, #120f1b 100%);
+    border: 2px solid #caa049;
+    box-shadow:
+      inset 0 0 0 1px rgba(198, 155, 61, 0.25),
+      0 4px 14px rgba(0, 0, 0, 0.6);
+  }
+  .metric-kpi-card:hover {
+    border-color: #ffd700;
+    box-shadow: 0 0 12px rgba(202, 160, 73, 0.4);
+  }
+
+  /* Right icon medallion in KPI tablets */
+  .kpi-icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    background: linear-gradient(180deg, #2b1f18 0%, #16100c 100%);
+    border: 1.5px solid #caa049;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f7d358;
+    flex-shrink: 0;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.15),
+      0 2px 4px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Catalog Course Search & Filter Toolbar */
+  .course-filter-toolbar {
+    background: linear-gradient(180deg, #281d16 0%, #18110c 100%);
+    border: 2px solid #caa049;
+    border-radius: 8px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.15),
+      0 4px 12px rgba(0, 0, 0, 0.35);
+  }
+
+  .filter-chip {
+    @apply px-3 py-1 text-xs font-bold rounded border transition-all cursor-pointer select-none font-display uppercase tracking-wider;
+  }
+
+  .filter-chip-active {
+    background: #0d2b15 !important;
+    border: 2px solid #22c55e !important;
+    color: #4ade80 !important;
+    box-shadow:
+      0 0 10px rgba(34, 197, 94, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  }
+
+  .filter-chip-inactive {
+    background: linear-gradient(180deg, #241911 0%, #150f0b 100%) !important;
+    border: 1px solid #6c5127 !important;
+    color: #d1b88e !important;
+  }
+  .filter-chip-inactive:hover {
+    border-color: #caa049 !important;
+    color: #ffe6a3 !important;
+    box-shadow: 0 0 8px rgba(202, 160, 73, 0.3) !important;
+  }
+
+  /* Catalog Course Card Badges */
+  .badge-pill-code {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-bold tracking-wider select-none;
+    background: #1f1a16;
+    border: 1px solid #7c622e;
+    color: #faeed4;
+  }
+  html[data-theme="dark"] .badge-pill-code {
+    background: #120e18;
+    border: 1px solid #6b5327;
+    color: #eeddbb;
+  }
+
+  .badge-pill-accredited {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase select-none font-display;
+    background: #0d2b15;
+    border: 1.5px solid #22c55e;
+    color: #4ade80;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.35);
+  }
+
+  .badge-pill-standard {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase select-none font-display;
+    background: #231c17;
+    border: 1px solid #7b6348;
+    color: #b8a690;
+  }
+
+  .badge-pill-price {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded text-xs font-mono font-bold tracking-wider select-none tabular-nums;
+    background: #251b14;
+    border: 1px solid #caa049;
+    color: #fce28b;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+  html[data-theme="dark"] .badge-pill-price {
+    background: #17111f;
+    border: 1px solid #caa049;
+    color: #ffd875;
+  }
+
+  /* ================= RUNIC LEDGER TABLES ================= */
+  .table-box-wrap {
+    @apply rounded-lg overflow-hidden border;
+    border-color: #c9b48f;
+    box-shadow:
+      inset 0 0 0 1px rgba(212, 175, 55, 0.15),
+      0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  html[data-theme="dark"] .table-box-wrap {
+    border-color: #4a3821;
+    box-shadow:
+      inset 0 0 0 1px rgba(198, 155, 61, 0.15),
+      0 4px 18px rgba(0, 0, 0, 0.7);
+  }
+
   .table-tw {
-    @apply min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-left text-xs;
+    @apply min-w-full divide-y text-left text-xs;
+    divide-color: rgba(198, 155, 61, 0.2);
   }
   .table-tw th {
-    @apply px-3.5 py-2.5 bg-slate-50/95 dark:bg-[#0f172a]/95 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider select-none border-b border-slate-200/90 dark:border-slate-800;
+    @apply px-3.5 py-2.5 text-xs font-bold uppercase tracking-wider select-none;
+    font-family: "Cinzel", Georgia, serif;
+    color: #8c6721;
+    background: linear-gradient(180deg, #efe6d0 0%, #e2d5b8 100%);
+    border-bottom: 1px solid #c9b48f;
+  }
+  html[data-theme="dark"] .table-tw th {
+    color: #e5c365;
+    background: linear-gradient(180deg, #1b1626 0%, #120f1a 100%);
+    border-bottom: 1px solid #4a3821;
   }
   .table-tw td {
-    @apply px-3.5 py-2.5 whitespace-nowrap text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800/60 transition-colors;
+    @apply px-3.5 py-2.5 whitespace-nowrap border-b transition-colors;
+    border-color: rgba(198, 155, 61, 0.12);
   }
   .table-tw tbody tr {
     @apply transition-colors;
+    background: rgba(255, 255, 255, 0.6);
+  }
+  html[data-theme="dark"] .table-tw tbody tr {
+    background: rgba(18, 15, 26, 0.65);
   }
   .table-tw tbody tr:hover {
-    @apply bg-slate-50/80 dark:bg-slate-800/40;
+    background: rgba(198, 155, 61, 0.08);
+  }
+  html[data-theme="dark"] .table-tw tbody tr:hover {
+    background: rgba(198, 155, 61, 0.14);
   }
   .table-tw tbody tr.row-selected {
-    @apply bg-emerald-50/70 dark:bg-emerald-950/30 border-l-4 border-l-emerald-600;
+    background: rgba(198, 155, 61, 0.18) !important;
+    border-left: 4px solid #d4af37 !important;
+    box-shadow: inset 0 0 12px rgba(212, 175, 55, 0.2);
   }
 
-  /* ================= MODAL ================= */
+  /* ================= WARCRAFT TOMES & QUEST WINDOWS (MODALS) ================= */
   .modal-overlay {
-    @apply fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm transition-opacity duration-150;
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-200;
+    background: rgba(6, 5, 9, 0.85);
   }
   .modal-dialog {
-    @apply bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-scaleIn max-h-[90vh] flex flex-col;
+    @apply rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-scaleIn max-h-[90vh] flex flex-col;
+    border: 2px solid #c69b3d;
+    background: linear-gradient(180deg, #fdfaf2 0%, #f4eee2 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(247, 213, 88, 0.3),
+      0 12px 40px rgba(0, 0, 0, 0.75),
+      0 0 25px rgba(198, 155, 61, 0.35);
+  }
+  html[data-theme="dark"] .modal-dialog {
+    border: 2px solid #d4af37;
+    background: linear-gradient(180deg, #1b1626 0%, #110e19 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(247, 213, 88, 0.35),
+      0 16px 50px rgba(0, 0, 0, 0.9),
+      0 0 30px rgba(198, 155, 61, 0.4);
   }
   .modal-dialog-large {
     @apply max-w-3xl;
@@ -132,17 +594,43 @@
 
   /* ================= FORM CONTROLS ================= */
   .input-tw {
-    @apply w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 focus-visible:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-sans;
+    @apply w-full px-3 py-1.5 text-xs rounded text-slate-900 dark:text-amber-100 placeholder-slate-400 dark:placeholder-amber-200/40 focus-visible:outline-none transition-all font-sans;
+    background: #ffffff;
+    border: 1px solid #cbb691;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+  html[data-theme="dark"] .input-tw {
+    background: #0f0d16;
+    border: 1px solid #4f3b25;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+  }
+  .input-tw:focus {
+    border-color: #d4af37;
+    box-shadow:
+      0 0 10px rgba(212, 175, 55, 0.4),
+      inset 0 1px 2px rgba(0, 0, 0, 0.3);
   }
 
-  /* Keyboard shortcut hint (Typography floor >= 12px) */
+  /* Keyboard shortcut hint */
   .kbd-shortcut {
-    @apply inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-mono font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-xs select-none;
+    @apply inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-mono font-bold select-none rounded;
+    background: #ebdcc0;
+    color: #64491c;
+    border: 1px solid #c4af88;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  html[data-theme="dark"] .kbd-shortcut {
+    background: #251e30;
+    color: #f7d358;
+    border: 1px solid #57442d;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
   }
 
   /* Filter chip */
   .filter-chip {
-    @apply px-2.5 py-1 text-xs font-semibold rounded-md border transition-all cursor-pointer select-none;
+    @apply px-3 py-1 text-xs font-bold rounded border transition-all cursor-pointer select-none;
+    font-family: "Cinzel", Georgia, serif;
+    letter-spacing: 0.03em;
   }
 }
 
@@ -170,29 +658,34 @@
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-scaleIn {
-  animation: scaleIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: scaleIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Toast container */
+/* Toast container (Blizzard Achievement / Quest Notice style) */
 .toast-stack {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 24px;
+  right: 24px;
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   pointer-events: none;
 }
 .toast-stack > * {
   pointer-events: auto;
+  border-radius: 6px !important;
+  border: 1px solid #d4af37 !important;
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.8),
+    0 0 15px rgba(212, 175, 55, 0.4) !important;
 }
 
-/* Print styling for certificates */
+/* Print styling for certificates (Dalaran Royal Degree) */
 @media print {
   body * {
     visibility: hidden;
@@ -209,8 +702,8 @@
     height: 100vh;
     margin: 0;
     padding: 30mm 20mm;
-    background: white !important;
-    color: black !important;
+    background: #ffffff !important;
+    color: #000000 !important;
     border: none !important;
     box-shadow: none !important;
     z-index: 99999;

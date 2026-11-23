@@ -60,7 +60,7 @@
 9. [Přehled plnění požadavků zadání klienta (100% HOTOVO)](#9-přehled-plnění-požadavků-zadání-klienta-100-hotovo)
    - 9.1 [Tabulka plnění 8 bodů zadání](#91-tabulka-plnění-8-bodů-zadání)
 10. [Historie verzí (Changelog) a Roadmapa](#10-historie-verzí-changelog-a-roadmapa)
-    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.7.1)](#101-historie-verzí-changelog-v100-až-v171)
+    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.8.0)](#101-historie-verzí-changelog-v100-až-v180)
     - 10.2 [Roadmapa dalšího rozvoje](#102-roadmapa-dalšího-rozvoje)
 
 ---
@@ -1370,9 +1370,33 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
 
 ## 10. Historie verzí (Changelog) a Roadmapa
 
-### 10.1 Historie verzí (Changelog v1.0.0 až v1.7.1)
+### 10.1 Historie verzí (Changelog v1.0.0 až v1.8.0)
 
-#### Verze 1.7.1 (Aktuální verze – Oprava ukládání a editace vzdělávacího programu administrátorem)
+#### Verze 1.8.0 (Aktuální verze – Autentický kamenný a pergamenový design dle předlohy Kurzy-Projekt.webp a odstranění označení WoW Forever)
+
+- **Aplikace vizuálního stylu dle předlohy `Kurzy-Projekt.webp` a čistý název systému:**
+  - Vizuální podoba frontendu byla detailně přepracována a sjednocena přesně podle grafické předlohy `Kurzy-Projekt.webp`.
+  - **Odstranění označení "WoW Forever":** Dle požadavku byl kompletně odstraněn přívlastek a odznak "WoW Forever" ze záhlaví, patičky i titulku systému. Systém vystupuje pod čistým oficiálním názvem **Akademie Trutnov**.
+  - **Kamenné zdivo a dřevěné sloupy (Outer Stone Wall & Timber Columns):**
+    - Vnější podklad tvoří hradní kamenné zdivo (`.stone-wall-bg` – castle cobblestone masonry).
+    - Centrální viewport je orámován masivními rustikálními dřevěnými trámy (`.timber-canvas-frame`) s kovovým zlaceným kováním po obou stranách.
+  - **Pergamenové plátno (Parchment Scroll Canvas):**
+    - Hlavní obsahový prostor (`.parchment-canvas`) evokuje zvětralou mapu a vellum s jemnou teplou radiální vinětou a patinou.
+  - **Horní záhlaví (Timber Header & Gold Crest):**
+    - Tmavé ořechovo-bronzové záhlaví se zlaceným reliéfním lemováním, zlatým heraldickým symbolem `⚜ AKADEMIE TRUTNOV`, prohledávacím vstupem ve svitcích a rubínovým akčním tlačítkem `Přihlásit se`.
+  - **Čtveřice přehledových KPI plaket (`.metric-kpi-card`):**
+    - Zlacené pergamenové tabulky se zkosenými hranami, velkými serifovými číslicemi a tmavými čtvercovými kovovými medailony (`.kpi-icon-box`) s jantarovými ikonami po pravé straně.
+  - **Katalogová vyhledávací a filtrační lišta (`.course-filter-toolbar`):**
+    - Jednolitá tmavá bronzová lišta s vnitřním vyhledávacím polem a přepínacími filtry, kde aktivní kategorie ("VŠECHNY PROGRAMY") nese výrazné smaragdově zelené zvýraznění (`#0d2b15`, ohraničení `#22c55e`, text `#4ade80`).
+  - **Karty vzdělávacích programů (3-column Course Cards):**
+    - Formátované pergamenové karty s dvojitým zlaceným rámečkem.
+    - Záhlaví s trojicí pilulek: tmavý kamenný kód `[ AT-K01 ]`, zelený akreditační odznak `[ MŠMT AKREDITACE ]` / břidlicový `[ FIREMNÍ PROGRAM ]`, zlacená cena `[ 9 900 Kč ]`.
+    - Výrazný verzálkový serifový název (`Cinzel`), přehledová anotace, údaj o hodinové dotaci `🕒 40 hod.` a klasické rubínové Blizzard akční tlačítko `ZOBRAZIT TERMÍNY`.
+- **Kvalita a stabilita:**
+  - Všech 119 testů (29 Node test runner + 90 Jest) zůstává 100% zelených.
+  - Plná responzivita a optimalizace pro tmavý i světlý režim.
+
+#### Verze 1.7.1 (Oprava ukládání a editace vzdělávacího programu administrátorem)
 
 - **Oprava klientské chyby při ukládání kurzu v `CoursesView.ts`:**
   - Odstraněn nesoulad v ID selektoru checkboxu MŠMT akreditace (`course-is-accredited` vs `course-accredited` v šabloně formuláře `#modal-course`).
