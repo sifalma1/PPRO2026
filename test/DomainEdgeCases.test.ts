@@ -632,4 +632,38 @@ describe("Domain Edge Cases (Node Test Runner - ADR-01, ADR-02, ADR-03)", () => 
       { message: "Invalid certificate number format 'INVALID-NUM'. Expected format: AT-YYYY-XXXX" }
     );
   });
+
+  test("Idempotent cancellation and non-existent term rejection", async () => {
+    const termId = await termService.createTerm({
+      courseId: "course-idem-node",
+      startDate: "2026-11-01",
+      endDate: "2026-11-20",
+      capacity: 1,
+    });
+
+    const enr = await termService.createEnrollment(termId, {
+      firstName: "A",
+      lastName: "B",
+      email: "ab@node.cz",
+    });
+    const cancelResult1 = await termService.cancelEnrollment(enr.id);
+    assert.strictEqual(cancelResult1.success, true);
+
+    // Cancel again -> idempotent
+    const cancelResult2 = await termService.cancelEnrollment(enr.id);
+    assert.strictEqual(cancelResult2.success, true);
+    assert.strictEqual(cancelResult2.promotedStudentId, undefined);
+
+    // Non-existent term
+    await assert.rejects(
+      async () => {
+        await termService.createEnrollment("non-existent-term", {
+          firstName: "C",
+          lastName: "D",
+          email: "cd@node.cz",
+        });
+      },
+      { message: "Course term was not found." }
+    );
+  });
 });

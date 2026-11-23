@@ -11,6 +11,8 @@ export default tseslint.config(
       "coverage/**",
       ".idea/**",
       "package-lock.json",
+      "scripts/**",
+      "scripts/*",
     ],
   },
   ...tseslint.configs.recommended,

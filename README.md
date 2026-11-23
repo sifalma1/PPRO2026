@@ -31,6 +31,7 @@
 4. [Doménový a datový model (English Model & Data Dictionary)](#4-doménový-a-datový-model-english-model--data-dictionary)
    - 4.1 [Mermaid ER Diagram (10 entit)](#41-mermaid-er-diagram-10-entit)
    - 4.2 [Katalog a specifikace doménových entit](#42-katalog-a-specifikace-doménových-entit)
+   - 4.3 [Konsolidovaná seed data a integrita produkční databáze](#43-konsolidovaná-seed-data-a-integrita-produkční-databáze)
 5. [Frontendová architektura (Vite + TypeScript + Tailwind CSS)](#5-frontendová-architektura-vite--typescript--tailwind-css)
    - 5.1 [Architektonický koncept a vrstvy frontendu](#51-architektonický-koncept-a-vrstvy-frontendu)
    - 5.2 [Struktura adresáře frontend/src/ a popis modulů](#52-struktura-adresáře-frontendsrc-a-popis-modulů)
@@ -54,13 +55,13 @@
 8. [Testovací strategie a zajištění kvality](#8-testovací-strategie-a-zajištění-kvality)
    - 8.1 [Přehled testovací strategie (dvoustupňový testovací harness)](#81-přehled-testovací-strategie-dvoustupňový-testovací-harness)
    - 8.2 [Nativní Node test runner (34 testů – 25 unit + 9 E2E)](#82-nativní-node-test-runner-34-testů--25-unit--9-e2e)
-   - 8.3 [Komplexní testovací sada v Jestu s TypeScript & ESM (110 testů)](#83-komplexní-testovací-sada-v-jestu-s-typescript--esm-110-testů)
-   - 8.4 [Souhrnná tabulka testovacího pokrytí (144 testů, 100% pass)](#84-souhrnná-tabulka-testovacího-pokrytí-144-testů-100-pass)
+   - 8.3 [Komplexní testovací sada v Jestu s TypeScript & ESM (123 testů)](#83-komplexní-testovací-sada-v-jestu-s-typescript--esm-123-testů)
+   - 8.4 [Souhrnná tabulka testovacího pokrytí (157 testů, 100% pass)](#84-souhrnná-tabulka-testovacího-pokrytí-157-testů-100-pass)
    - 8.5 [Kvalita kódu, linting a formátování (ESLint + Prettier)](#85-kvalita-kódu-linting-a-formátování-eslint--prettier)
 9. [Přehled plnění požadavků zadání klienta (100% HOTOVO)](#9-přehled-plnění-požadavků-zadání-klienta-100-hotovo)
    - 9.1 [Tabulka plnění 8 bodů zadání](#91-tabulka-plnění-8-bodů-zadání)
 10. [Historie verzí (Changelog) a Roadmapa](#10-historie-verzí-changelog-a-roadmapa)
-    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.9.1)](#101-historie-verzí-changelog-v100-až-v191)
+    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.9.2)](#101-historie-verzí-changelog-v100-až-v192)
     - 10.2 [Roadmapa dalšího rozvoje](#102-roadmapa-dalšího-rozvoje)
 
 ---
@@ -111,18 +112,24 @@ Systém striktně vymáhá následující byznys pravidla na úrovni aplikační
 
 1. **Recepce & Administrátor (`admin` / `admin123`):**
    - Plná správa kurzů (vytváření, editace, mazání), vypisování termínů a přiřazování učeben a lektorů.
-   - Správa přihlášek, ruční odbavování storen a posunů v pořadníku.
+   - Správa přihlášek: zápis libovolného studenta, ruční odbavování storen a posunů v pořadníku.
+   - Přístup ke kompletnímu jmennému seznamu účastníků včetně kontaktních údajů (telefon, e-mail, organizace, interní poznámky).
    - Zápis a editace prezence na výukových dnech, formální uzavření termínu a hromadné vystavení osvědčení.
+   - Přístup k manažerským přehledům, vytížení učeben a výkazům dotačních hodin.
 2. **Student (`student` / `student123` nebo registrovaný e-mail např. `jan.novak@firma.cz`):**
-   - Přístup do osobního klientského portálu (`GET /api/student/dashboard`).
+   - Přístup do osobního klientského portálu (`GET /api/student/dashboard` / záložka _Můj profil_).
    - Přehled všech vlastních podaných přihlášek včetně aktuálního stavu (Potvrzena / Pozice v pořadníku náhradníků).
    - Průběžný stav docházky na zapsaných kurzech a přímý náhled / tisk vydaných absolventských osvědčení.
-   - Z bezpečnostních důvodů NESMÍ upravovat katalog kurzů, termíny ani zapisovat docházku (HTTP 403 Forbidden).
+   - **Striktní zásada samoobslužnosti:** Přihlášený student může na vypsaný termín zapsat **výhradně sám sebe** (jeho jméno a e-mail jsou v přihlášce uzamčeny a ověřeny proti aktivní relaci; pokus o zápis cizího e-mailu vrátí HTTP 403 Forbidden).
+   - **Ochrana před neoprávněným stornem:** Student může zrušit **pouze svou vlastní přihlášku**; cizí přihlášky nesmí stornovat (HTTP 403 Forbidden).
+   - Z důvodu ochrany osobních údajů (GDPR) nevidí kontaktní údaje (telefony, e-maily, poznámky) ostatních zapsaných účastníků.
+   - Nemá přístup do administrátorských agend (evidence docházky, kniha osvědčení, manažerské výkazy; pokus o přístup vrátí HTTP 403 Forbidden).
 3. **Veřejný návštěvník (Public / Nepřihlášený uživatel):**
-   - Anonymní prohlížení kompletního katalogu vzdělávacích programů a vypsaných termínů.
-   - Možnost odeslat novou přihlášku na termín kurzu (s automatickým zařazením na volné místo nebo na čekací listinu).
-   - Ověřování platnosti certifikátů dle evidenčního čísla (`GET /api/certificates/:id`).
-   - Přísný zákaz jakéhokoliv zásahu do katalogu kurzů (pokus o CUD operaci vrátí HTTP 401 Unauthorized).
+   - Anonymní prohlížení veřejného katalogu vzdělávacích programů a nabídky vypsaných termínů s informací o počtu volných míst.
+   - **Zákaz anonymního zápisu:** Zápis na termín vyžaduje přihlášení (kliknutí na tlačítko zápisu vyzve k přihlášení studenta nebo administrátora).
+   - **Zákaz anonymního storna:** Nepřihlášený uživatel nemůže stornovat žádnou přihlášku (HTTP 401 Unauthorized).
+   - **Ochrana osobních údajů (GDPR):** Anonymní uživatel nevidí jmenné seznamy účastníků, jejich telefony, e-maily ani poznámky.
+   - Veškeré administrátorské prvky a agendy (docházka, kniha osvědčení, lektoři, výkazy, tlačítka pro tvorbu/editaci/mazání) jsou před anonymním uživatelem v navigačním baru i v rozhraní zcela skryty.
 4. **Lektor:**
    - Prohlíží si rozvrh svých výukových dnů.
    - Zapisuje prezenci účastníků (přítomen / nepřítomen / omluven) po skončení každého výukového dne.
@@ -234,17 +241,35 @@ Dotaz zadavatele: _„Zkus zjistit, zdali je vhodné použít Strapi jako admini
        - Student je v aplikační vrstvě automaticky spárován s existujícím záznamem v tabulce `students` a má přístup do svého klientského portálu (`GET /api/student/dashboard`).
        - Z bezpečnostních důvodů je studentovi striktně zakázána jakákoliv modifikace katalogu kurzů či termínů (HTTP 403 Forbidden).
      - **Role Veřejnost (Public):**
-       - Anonymní uživatel může prohlížet katalog kurzů a termínů (`GET /api/courses`, `GET /api/terms`), ověřovat certifikáty a podávat nové přihlášky (`POST /api/terms/:id/enrollments`).
-       - Pokus o neautorizovanou změnu katalogu kurzů vrátí HTTP 401 Unauthorized s jasným českým chybovým hlášením.
+       - Anonymní uživatel může prohlížet veřejný katalog kurzů a vypsaných termínů (`GET /api/courses`, `GET /api/terms`) s informací o počtu volných míst.
+       - **Zabezpečení zápisu a storn:** Pro podání přihlášky na termín (`POST /api/terms/:id/enrollments`) i pro zrušení přihlášky (`POST /api/enrollments/:id/cancel`) je vyžadována autentizace. Anonymní volání vrátí HTTP 401 Unauthorized.
+       - **Ochrana soukromí (GDPR):** Detail termínu pro veřejnost nezobrazuje jmenné seznamy ani kontakty zapsaných účastníků; endpoint `GET /api/terms/:id/enrollments` pro neadministrátory automaticky maskuje osobní data účastníků.
+       - Pokus o neautorizovaný přístup do administrátorských endpointů (`/api/students`, `/api/analytics`, `/api/attendance/*`, `/api/certificates`) vrátí HTTP 401 Unauthorized.
   2. **Bezpečnostní middleware (`requireAdminAuth`, `requireAuth`):**
      - Kontroluje přítomnost a platnost tokenu v hlavičce `Authorization: Bearer <token>` nebo `x-admin-token`.
-     - V produkčním režimu nekompromisně vrací HTTP 401 při absenci tokenu.
+     - Chráněné administrátorské endpointy:
+       - Správa kurzů: `POST`, `PUT`, `DELETE /api/courses/*`
+       - Vypsání termínu: `POST /api/terms`
+       - Zápis a přehled studentů: `GET /api/students`, `GET /api/studenti`
+       - Manažerské přehledy a tržby: `GET /api/analytics`, `GET /api/prehledy`
+       - Evidence docházky a prezenčky: `GET /api/attendance/terms/:id/days`, `GET /api/attendance/days/:id`, `POST /api/attendance/days/:id/mark`, `GET /api/attendance/terms/:id/summary`
+       - Kniha osvědčení: `GET /api/certificates`, `POST /api/certificates/issue`, `POST /api/terms/:id/complete`
+     - V produkčním režimu nekompromisně vrací HTTP 401 při absenci tokenu a HTTP 403 při pokusu studenta o administrátorský zásah.
      - Pro automatizované testy akceptuje standardizované testovací tokeny (`test-admin-token`, `test-student-token`) a pro zachování zpětné kompatibility legacy testů umožňuje transparentní průchod v testovacím režimu bez explicitní hlavičky.
-  3. **Frontendová integrace (SPA Dashboard):**
+  3. **Frontendová integrace (SPA Dashboard & Navigace):**
      - Dialogové okno `#modal-login` s volbou rychlého předvyplnění pro Administrátora i Studenta.
      - Automatické ukládání tokenu do `localStorage` (`akademie_admin_token`) a automatické přikládání Bearer hlavičky v `apiClient.ts`.
-     - Dynamické zobrazení/skrytí akčních tlačítek ("Nový kurz", "Upravit", "Smazat", "Vypsat termín", "Uzavřít termín") dle role přihlášeného uživatele.
-     - Klientský portál studenta s přehledem zapsaných termínů, pozice v pořadníku a náhledy osvědčení.
+     - **Role-based viditelnost navigačního panelu:**
+       - Nepřihlášený uživatel vidí pouze veřejné záložky: _Kurzy_ a _Termíny_ + tlačítko _Přihlásit se_. Položky _Docházka_, _Správa & Výkazy_ i KPI karta osvědčení jsou před ním skryty.
+       - Student vidí záložky: _Kurzy_, _Termíny_ a svůj osobní portál _Můj profil_.
+       - Administrátor vidí kompletní navigační nabídku včetně rozbalovací nabídky _Správa & Výkazy_ (Kniha osvědčení, Lektoři & Učebny, Manažerské výkazy).
+     - **Detail termínu v `TermsView.ts`:**
+       - Administrátor: kompletní tabulka účastníků, telefony, e-maily, poznámky, tlačítka pro storno kohokoliv.
+       - Student: osobní stavová karta s informací o vlastní účasti / pozici v pořadníku a možnost zrušit **pouze svou vlastní účast**.
+       - Veřejnost: přehled obsazenosti a tlačítko přihlášení s výzvou k přihlášení.
+     - **Zápisový formulář `#modal-enrollment`:**
+       - Přihlášený student má své jméno i e-mail předvyplněné a uzamčené (`readOnly`), čímž je zamezeno zápisu jiné osoby.
+       - Administrátor má pole plně editovatelná pro registraci jakéhokoliv studenta.
 
 ---
 
@@ -589,6 +614,32 @@ Následující tabulka specifikuje všech 10 entit doménového modelu, odpovíd
 | **Attendance**   | `attendance`     | `id` (UUID PK), `teaching_day_id` (UUID FK), `student_id` (UUID FK), `is_present` (BOOLEAN), `note` (VARCHAR 255)                                                                                                                     | Unikátní kompozitní index `(teaching_day_id, student_id)`. Záznam prezence účastníka a případné omluvy.                                                                                      |
 | **Certificate**  | `certificates`   | `id` (UUID PK), `enrollment_id` (UUID FK UK), `student_id` (UUID FK), `term_id` (UUID FK), `certificate_number` (VARCHAR 50 UK), `issue_date` (DATE), `attendance_rate` (NUMERIC 5,2), `has_waiver` (BOOLEAN), `waiver_reason` (TEXT) | Garantovaný formát čísla `AT-YYYY-XXXX`. Podmínka: `attendance_rate >= 70.0%`, nebo `has_waiver = true` s písemným zdůvodněním min. 5 znaků (ADR-01). Neměnné.                               |
 
+### 4.3 Konsolidovaná seed data a integrita produkční databáze
+
+V souladu s akademickými požadavky PPRO na syntetická data a čistotu databáze proběhla ve verzi 1.9.1 konsolidace a hloubkový audit PostgreSQL úložiště (`akademie_postgres`) i SQL migračních skriptů ([`migrations/002_seed_kurzy.sql`](file:///C:/Users/skitt/Documents/PPRO/migrations/002_seed_kurzy.sql), [`migrations/004_seed_full_data.sql`](file:///C:/Users/skitt/Documents/PPRO/migrations/004_seed_full_data.sql), [`migrations/005_english_schema_and_completion.sql`](file:///C:/Users/skitt/Documents/PPRO/migrations/005_english_schema_and_completion.sql)):
+
+1. **Nabídka kurzů (8 autentických vzdělávacích programů pro Trutnovsko):**
+   - V katalogu bylo odstraněno veškeré historické testovací smetí (50 duplicitních zkušebních záznamů).
+   - Byla opravena poškozená diakritika u kurzu _Účetnictví a daňová evidence pro praxi_.
+   - Katalog byl rozšířen o 4 nové realistické kurzy reflektující specifika podkrkonošského regionu:
+     - `Krkonošský horský průvodce a základy záchrany` (akreditovaný rekvalifikační program, 120 hod., 18 900 Kč)
+     - `Asistent pedagoga a základy speciální pedagogiky` (akreditovaný program MŠMT, 80 hod., 11 500 Kč)
+     - `Správa počítačových sítí, Linux a kybernetická bezpečnost` (odborný certifikovaný kurz, 60 hod., 15 900 Kč)
+     - `Grafický design, vizuální identita a digitální média` (kreativní profesní workshop, 40 hod., 9 900 Kč)
+2. **Přehled výchozího stavu entit v databázi:**
+   - **8 vzdělávacích kurzů** (`courses`) pokrývajících rekvalifikace i komerční programy.
+   - **3 moderní učebny** (`classrooms`): Počítačová učebna A1 (kapacita 12), Přednáškový sál B2 (kapacita 24), Seminární místnost C3 (kapacita 8).
+   - **4 odborní lektoři** (`lecturers`): Ing. Petr Svoboda, Mgr. Jana Černá, Bc. Tomáš Kučera, Ing. arch. Veronika Horáková.
+   - **5 naplánovaných a probíhajících termínů** (`course_terms`) s přiřazením lektorů přes vazbu M:N (`term_lecturers`).
+   - **6 syntetických studentů** (`students`): Tomáš Marný, Jan Novák, Eva Dvořáková, Martin Kovář, Alena Kratochvílová, Petra Svobodová.
+   - **9 přihlášek** (`enrollments`): kombinace stavů `CONFIRMED`, `WAITLIST` i dokončených `COMPLETED`.
+   - **5 výukových dnů** (`teaching_days`) s rozpadem témat a lektorů dle ADR-05.
+   - **6 záznamů prezence** (`attendance`) pro přesné vyhodnocování docházky.
+   - **2 oficiální osvědčení** (`certificates`): `AT-2026-0001` (100% docházka) a `AT-2026-0002` (vystaveno na základě schválené lektorské výjimky s doloženým odůvodněním).
+3. **Ochrana integrity a automatický úklid po testech:**
+   - V souboru [`test/api-creation-flows.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/api-creation-flows.test.ts) byl implementován teardown hook `after()`, který po proběhnutí integračních E2E testů kaskádově odstraní vytvořené testovací kurzy, termíny, studenty a osvědčení.
+   - Teardown hook automaticky resetuje čítací sekvenci `certificate_counter` na maximální platné vydané číslo certifikátu (`AT-2026-0002`), takže opakované spouštění testovacích sad (`npm test`, `npm run test:jest`) nikdy nezanechává datový odpad v PostgreSQL databázi ani nerozbíjí číselnou řadu diplomů.
+
 ---
 
 ## 5. Frontendová architektura (Vite + TypeScript + Tailwind CSS)
@@ -856,16 +907,16 @@ _Response při chybné validaci (400 Bad Request):_
 
 ---
 
-### 6.3 Termíny a přihlášky s čekací listinou (`/api/terms`, `/api/enrollments`)
+### 6.4 Termíny a přihlášky s čekací listinou (`/api/terms`, `/api/enrollments`)
 
-| Metoda | Endpoint                      | Popis                                                                     |
-| ------ | ----------------------------- | ------------------------------------------------------------------------- |
-| `GET`  | `/api/terms`                  | Seznam termínů (včetně obsazenosti, kapacity a lektorů)                   |
-| `GET`  | `/api/terms/:id`              | Detail konkrétního termínu                                                |
-| `POST` | `/api/terms`                  | Vypsání nového termínu s učebnou a kapacitou                              |
-| `GET`  | `/api/terms/:id/enrollments`  | Seznam přihlášených studentů a čekatelů v pořadníku                       |
-| `POST` | `/api/terms/:id/enrollments`  | Zápis studenta na termín (potvrzení nebo zařazení na Waitlist dle ADR-02) |
-| `POST` | `/api/enrollments/:id/cancel` | Zrušení přihlášky s automatickým posunem náhradníka (ADR-02)              |
+| Metoda | Endpoint                      | Oprávnění | Popis                                                                                                                     |
+| ------ | ----------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `GET`  | `/api/terms`                  | Veřejné   | Seznam termínů (včetně obsazenosti, kapacity a lektorů)                                                                   |
+| `GET`  | `/api/terms/:id`              | Veřejné   | Detail konkrétního termínu                                                                                                |
+| `POST` | `/api/terms`                  | **Admin** | Vypsání nového termínu s učebnou a kapacitou (pro neautorizované HTTP 401)                                                |
+| `GET`  | `/api/terms/:id/enrollments`  | Přihlášen | Seznam přihlášek (Admin vidí plná data a kontakty; neadministrátor/student má osobní údaje ostatních maskovány dle GDPR)  |
+| `POST` | `/api/terms/:id/enrollments`  | Přihlášen | Zápis studenta na termín (Admin zapíše kohokoliv; Student pouze sám sebe, cizí e-mail HTTP 403; anonym HTTP 401)          |
+| `POST` | `/api/enrollments/:id/cancel` | Přihlášen | Storno přihlášky s posunem náhradníka (Admin zruší cokoliv; Student pouze svou přihlášku, cizí HTTP 403; anonym HTTP 401) |
 
 #### Příklad: Zápis studenta na termín (`POST /api/terms/:id/enrollments`)
 
@@ -934,15 +985,15 @@ _Response (200 OK):_
 
 ---
 
-### 6.4 Evidence docházky a výukové dny (`/api/attendance`)
+### 6.5 Evidence docházky a výukové dny (`/api/attendance`)
 
-| Metoda | Endpoint                                | Popis                                                          |
-| ------ | --------------------------------------- | -------------------------------------------------------------- |
-| `GET`  | `/api/attendance/terms/:termId/days`    | Seznam výukových dnů termínu (ADR-05)                          |
-| `POST` | `/api/attendance/terms/:termId/days`    | Vytvoření výukového dne s lektorem a hodinovým rozsahem        |
-| `GET`  | `/api/attendance/days/:dayId`           | Prezenční listina účastníků vybraného dne                      |
-| `POST` | `/api/attendance/days/:dayId/mark`      | Zápis přítomnosti studenta na výuce                            |
-| `GET`  | `/api/attendance/terms/:termId/summary` | Přehled docházky termínu s vyhodnocením pravidla 70 % (ADR-01) |
+| Metoda | Endpoint                                | Oprávnění | Popis                                                                                   |
+| ------ | --------------------------------------- | --------- | --------------------------------------------------------------------------------------- |
+| `GET`  | `/api/attendance/terms/:termId/days`    | **Admin** | Seznam výukových dnů termínu dle ADR-05 (pro neautorizované HTTP 401, student HTTP 403) |
+| `POST` | `/api/attendance/terms/:termId/days`    | **Admin** | Vytvoření výukového dne s lektorem a hodinovým rozsahem (pro neautorizované HTTP 401)   |
+| `GET`  | `/api/attendance/days/:dayId`           | **Admin** | Prezenční listina účastníků vybraného dne (pro neautorizované HTTP 401)                 |
+| `POST` | `/api/attendance/days/:dayId/mark`      | **Admin** | Zápis přítomnosti studenta na výuce (pro neautorizované HTTP 401)                       |
+| `GET`  | `/api/attendance/terms/:termId/summary` | **Admin** | Přehled docházky termínu s vyhodnocením pravidla 70 % dle ADR-01 (HTTP 401/403)         |
 
 #### Příklad: Zápis docházky studenta (`POST /api/attendance/days/:dayId/mark`)
 
@@ -1000,14 +1051,14 @@ _Response (200 OK):_
 
 ---
 
-### 6.5 Osvědčení a certifikáty (`/api/certificates`)
+### 6.6 Osvědčení a certifikáty (`/api/certificates`)
 
-| Metoda | Endpoint                      | Popis                                                                              |
-| ------ | ----------------------------- | ---------------------------------------------------------------------------------- |
-| `POST` | `/api/terms/:termId/complete` | Hromadné uzavření termínu a vystavení osvědčení kvalifikovaným studentům (>= 70 %) |
-| `GET`  | `/api/certificates`           | Seznam všech vydaných osvědčení v systému                                          |
-| `GET`  | `/api/certificates/:id`       | Detail konkrétního osvědčení                                                       |
-| `POST` | `/api/certificates/issue`     | Vystavení osvědčení se schválenou lektorskou výjimkou (ADR-01)                     |
+| Metoda | Endpoint                      | Oprávnění | Popis                                                                                                    |
+| ------ | ----------------------------- | --------- | -------------------------------------------------------------------------------------------------------- |
+| `POST` | `/api/terms/:termId/complete` | **Admin** | Hromadné uzavření termínu a automatické vystavení osvědčení kvalifikovaným studentům (HTTP 401/403)      |
+| `GET`  | `/api/certificates`           | **Admin** | Seznam všech vydaných osvědčení v knize certifikátů (pro neautorizované HTTP 401, student HTTP 403)      |
+| `GET`  | `/api/certificates/:id`       | Veřejné   | Veřejné ověření pravosti a detailu konkrétního osvědčení dle ID                                          |
+| `POST` | `/api/certificates/issue`     | **Admin** | Individuální vystavení osvědčení se schválenou lektorskou výjimkou a písemným odůvodněním (HTTP 401/403) |
 
 #### Příklad: Hromadné uzavření termínu (`POST /api/terms/:termId/complete`)
 
@@ -1066,15 +1117,15 @@ _Response (201 Created):_
 
 ---
 
-### 6.6 Číselníky a manažerská analytika (`/api/lecturers`, `/api/classrooms`, `/api/students`, `/api/analytics`, `/health`)
+### 6.7 Číselníky a manažerská analytika (`/api/lecturers`, `/api/classrooms`, `/api/students`, `/api/analytics`, `/health`)
 
-| Metoda | Endpoint          | Popis                                                                                           |
-| ------ | ----------------- | ----------------------------------------------------------------------------------------------- |
-| `GET`  | `/api/lecturers`  | Seznam lektorů, jejich specializace a celkový součet odučených hodin                            |
-| `GET`  | `/api/classrooms` | Seznam učeben a jejich maximální fyzická kapacita                                               |
-| `GET`  | `/api/students`   | Adresář studentů a počet jejich aktivních přihlášek                                             |
-| `GET`  | `/api/analytics`  | Manažerské ukazatele dle bodu 8 zadání (vytížení termínů, hodiny lektorů, vícekurzoví studenti) |
-| `GET`  | `/health`         | Kontrola provozuschopnosti aplikace (health check vracející status 200 a stav UP)               |
+| Metoda | Endpoint          | Oprávnění | Popis                                                                                                |
+| ------ | ----------------- | --------- | ---------------------------------------------------------------------------------------------------- |
+| `GET`  | `/api/lecturers`  | Veřejné   | Seznam lektorů, jejich specializace a celkový součet odučených hodin                                 |
+| `GET`  | `/api/classrooms` | Veřejné   | Seznam učeben a jejich maximální fyzická kapacita                                                    |
+| `GET`  | `/api/students`   | **Admin** | Adresář studentů s ochranou GDPR (pro studenta HTTP 403 Forbidden, pro nepřihlášené HTTP 401)        |
+| `GET`  | `/api/analytics`  | **Admin** | Manažerské ukazatele (vytížení, hodiny, studenti) chráněné před veřejností i studenty (HTTP 401/403) |
+| `GET`  | `/health`         | Veřejné   | Kontrola provozuschopnosti aplikace (health check vracející status 200 a stav UP)                    |
 
 #### Příklad: Manažerská analytika (`GET /api/analytics`)
 
@@ -1117,7 +1168,7 @@ _Response (200 OK):_
 }
 ```
 
-### 6.7 Zpětně kompatibilní české aliasy
+### 6.8 Zpětně kompatibilní české aliasy
 
 Pro zajištění stoprocentní zpětné kompatibility s původní specifikací podporuje Express router i české aliasy:
 
@@ -1213,7 +1264,7 @@ npm run dev:client
 | `npm run dev:client`   | Spustí samostatný Vite dev server s HMR pro okamžitý vývoj UI                               |
 | `npm run migrate`      | Provede řízené SQL migrace proti konfigurované PostgreSQL databázi                          |
 | `npm test`             | Spustí sadu 34 testů v nativním Node test runneru (25 unit + 9 E2E testů)                   |
-| `npm run test:jest`    | Spustí komplexní sadu 110 testů v frameworku Jest (91 unit + 19 integračních)               |
+| `npm run test:jest`    | Spustí komplexní sadu 168 testů v frameworku Jest (91 unit + 77 integračních/RBAC/Security) |
 | `npm run lint`         | Zkontroluje kód celého projektu statickou analýzou ESLint (Flat Config)                     |
 | `npm run lint:fix`     | Automaticky opraví detekované formátovací a lintingové odchylky                             |
 | `npm run format:check` | Zkontroluje formátování souborů podle standardu Prettier                                    |
@@ -1230,7 +1281,7 @@ Systém využívá moderní dvoustupňový testovací harness kombinující:
 1. **Nativní Node Test Runner (`node --test`):** Zajišťuje bleskové ověření základních doménových modelů, hraničních stavů a reálných integračních toků vytváření entit.
 2. **Jest Test Runner s TypeScript & ESM (`test:jest`):** Poskytuje hloubkové, granulární ověření doménových invariantů, simulaci transakčních stavů s in-memory mocky, hraničních podmínek (edge cases) a integrační testování HTTP vrstvy přes Supertest.
 
-Celý repozitář obsahuje **144 plně automatizovaných testů** se **100% úspěšností (zero failures)**.
+Celý repozitář obsahuje **157 plně automatizovaných testů** se **100% úspěšností (zero failures)**.
 
 ---
 
@@ -1289,9 +1340,9 @@ Sada se spouští příkazem `npm test` a obsahuje 5 testovacích modulů:
 
 ---
 
-### 8.3 Komplexní testovací sada v Jestu s TypeScript & ESM (110 testů)
+### 8.3 Komplexní testovací sada v Jestu s TypeScript & ESM (168 testů)
 
-Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresáři [`test/jest/`](file:///C:/Users/skitt/Documents/PPRO/test/jest/). Je rozdělena do 7 testovacích modulů:
+Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresáři [`test/jest/`](file:///C:/Users/skitt/Documents/PPRO/test/jest/). Je rozdělena do 8 testovacích modulů:
 
 #### 1. Doménová entita `Course` a `CourseService` ([`test/jest/course.service.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/course.service.test.ts) – 17 testů)
 
@@ -1338,7 +1389,7 @@ Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresá
 - REST API docházky (`GET /api/attendance/terms/:termId/days`, `summary`).
 - Číselníky a manažerská analytika (`/api/lecturers`, `/api/classrooms`, `/api/students`, `/api/analytics` a české aliasy).
 
-#### 7. Autentizace, autorizace a RBAC role ([`test/jest/auth.rbac.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/auth.rbac.test.ts) – 19 testů)
+#### 7. Autentizace, autorizace a RBAC role ([`test/jest/auth.rbac.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/auth.rbac.test.ts) – 32 testů)
 
 - **Autentizace administrátora:** Úspěšné přihlášení `admin` / `admin123` (`POST /api/auth/login`), generování Bearer tokenu, ověření přes `GET /api/auth/me`.
 - **Autentizace studenta:** Přihlášení přes e-mail (`jan.novak@firma.cz` / `student123`) a generický účet `student`, vytvoření studentské session s rolí `student`.
@@ -1352,26 +1403,67 @@ Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresá
 - **Klientský portál studenta:**
   - Neautorizované volání `GET /api/student/dashboard` vrací HTTP 401.
   - Přihlášený student i administrátor úspěšně získávají seznam přihlášek, docházku a certifikáty.
+- **Zabezpečení citlivých dat a ochrana soukromí (GDPR – 13 nových testů):**
+  - Neautorizované volání `GET /api/students`, `GET /api/analytics` i `GET /api/certificates` vrací HTTP 401 Unauthorized.
+  - Student pokoušející se o přístup k celkovému adresáři studentů, manažerské analytice nebo knize osvědčení obdrží HTTP 403 Forbidden.
+  - Zákaz anonymního zápisu na termín (`POST /api/terms/:id/enrollments` bez tokenu vrací HTTP 401).
+  - Vynucení samoobslužnosti: pokus studenta o zápis jiné osoby s cizím e-mailem vrací HTTP 403 Forbidden.
+  - Zákaz anonymního storna (`POST /api/enrollments/:id/cancel` bez tokenu vrací HTTP 401).
+  - Ochrana před cizím stornem: pokus studenta o zrušení přihlášky jiného studenta vrací HTTP 403 Forbidden.
+  - Administrátor má plné oprávnění spravovat veškeré zápisy, storna i manažerské agendy.
+
+#### 8. Hloubkový bezpečnostní audit, RBAC, IDOR, SQL parametry a mezní stavy ([`test/jest/security-deep.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/security-deep.test.ts) – 45 testů)
+
+- **Okruh 1 – Chybějící token a prázdné hlavičky (Missing Tokens):**
+  - Přísná blokace neautentizovaných volání administrátorských endpointů (`POST /api/courses`, `PUT /api/courses/:id`, `DELETE /api/courses/:id`, `POST /api/terms`, `GET /api/students`, `GET /api/analytics`, `POST /api/certificates/issue`) s HTTP 401 Unauthorized.
+  - Ochrana chráněných klientských endpointů (`GET /api/student/dashboard`, `GET /api/certificates/:id`, `GET /api/auth/me`) s HTTP 401 při absenci tokenu.
+  - Odmítnutí hlaviček obsahujících pouze bílé znaky (`Authorization: Bearer   ` i `x-admin-token:   `) s HTTP 401.
+- **Okruh 2 – Zfalšovaný podpis a neplatné tokeny (Forged & Invalid Tokens):**
+  - Striktní odmítnutí tokenu se zfalšovaným kryptografickým podpisem (forged JWT HMAC/RSA signature) s HTTP 401.
+  - Odmítnutí náhodných hex řetězců s prefixem `at_` i obecných zkomolených řetězců.
+  - Odmítnutí literálů `null`, `undefined` i garbage textů v Authorization hlavičce.
+  - Okamžitá neplatnost tokenu po odhlášení (`POST /api/auth/logout`) – opakované použití selže s HTTP 401.
+- **Okruh 3 – Expirovaný token a paměťový úklid (Expired Token Lifecycle):**
+  - Ověření, že token s expirovanou platností v minulosti je nekompromisně odmítnut (HTTP 401) v `authMiddleware`, v administrátorských i studentských routách.
+  - Automatické vyčištění (purge) expirované session z interní paměti `AuthService`.
+- **Okruh 4 – Manipulace s cizím studentId, IDOR a ochrana soukromí (GDPR):**
+  - **Zamezení IDOR na klientském portálu:** Pokus studenta o podvržení parametru `?studentId=<victim_id>` je ignorován; systém striktně vrací výhradně data autentizovaného studenta.
+  - **Zamezení IDOR u osvědčení:** Student nemůže zobrazit cizí certifikát přes `GET /api/certificates/:id` (HTTP 403 Forbidden s hlášením o nedostatku oprávnění). Administrátor má přístup ke všem.
+  - **Zamezení manipulace s přihláškami:** Student nemůže stornovat přihlášku jiného studenta (HTTP 403) ani zapsat na kurz cizí osobu/e-mail (HTTP 403).
+  - **GDPR maskování v seznamu účastníků (`GET /api/terms/:id/enrollments`):** Anonymní návštěvníci i ostatní studenti vidí pouze maskovaná jména (`Účastník #1`, `Účastník #2`) bez jakýchkoliv kontaktních údajů (telefon, e-mail, organizace).
+  - Odepření přístupu studenta do celého adresáře studentů a manažerských analýz (HTTP 403).
+- **Okruh 5 – Přetečení ID a mezní vstupy (ID Overflow & Boundary Inputs):**
+  - Ochrana proti buffer overflow a pádu procesu: URL s ID o délce 10 000 znaků v `GET /api/courses/:id` i `GET /api/terms/:id` bezpečně vrací HTTP 404 Not Found.
+  - 64-bitové celočíselné přetečení (`99999999999999999999999999999999999999999999999999999999`) bezpečně vrací HTTP 404 bez výjimky v PostgreSQL typovém systému.
+  - Číselné přetečení kapacity termínu nebo záporné/NaN hodnoty ceny a rozsahu hodin kurzu jsou odmítnuty s HTTP 400 Bad Request.
+- **Okruh 6 – Odolnost proti SQL znakům a injekcím v parametrech (SQL Injection Resistance):**
+  - Klasická SQL injekce v parametru fulltextového vyhledávání kurzů (`?query=' OR 1=1 --`) je bezpečně parametrizována ovladačem PG bez úniku dat či zobrazení nechtěných řádků.
+  - `UNION SELECT` útok v query stringu nevykoná injektovaný dotaz a vrátí čistý výsledek.
+  - SQL znaky v URL parametrech (`GET /api/courses/' OR '1'='1' --`) vrací HTTP 404 bez SQL syntax erroru.
+  - Destruktivní útok `'; DROP TABLE enrollments; --` v URL parametru rušení přihlášky je bezpečně zachycen a tabulky v databázi zůstávají 100% nepoškozeny a aktivní.
+  - SQL injekce v přihlašovacím formuláři (`admin' OR 1=1 --`) selže s HTTP 401 Unauthorized.
+  - SQL znaky v těle záznamu docházky nezpůsobí pád databázového driveru a neohrozí integritu prezenčních listin.
 
 ---
 
-### 8.4 Souhrnná tabulka testovacího pokrytí (144 testů, 100% pass)
+### 8.4 Souhrnná tabulka testovacího pokrytí (203 testů, 100% pass)
 
-| Testovací sada                          | Běhové prostředí  | Zaměření                                                          | Počet testů   | Výsledek                    |
-| --------------------------------------- | ----------------- | ----------------------------------------------------------------- | ------------- | --------------------------- |
-| `test/CourseService.test.ts`            | Node Test Runner  | Doménové invarianty kurzu a CRUD operace                          | 7 testů       | PASS (100 %)                |
-| `test/TermAndEnrollment.test.ts`        | Node Test Runner  | Termíny, kapacity a invarianty waitlistu (ADR-02)                 | 5 testů       | PASS (100 %)                |
-| `test/AttendanceAndCertificate.test.ts` | Node Test Runner  | Výukové dny, docházka a certifikace (ADR-01, ADR-05)              | 8 testů       | PASS (100 %)                |
-| `test/DomainEdgeCases.test.ts`          | Node Test Runner  | Hraniční stavy waitlistu, 70% docházky a unikátnosti registrací   | 5 testů       | PASS (100 %)                |
-| `test/api-creation-flows.test.ts`       | Node Test Runner  | Ucelené integrační End-to-End průchody API                        | 9 testů       | PASS (100 %)                |
-| `test/jest/course.service.test.ts`      | Jest + TypeScript | Hloubkové unit testy kurzu a služeb                               | 17 testů      | PASS (100 %)                |
-| `test/jest/term-and-enrollment.test.ts` | Jest + TypeScript | Transakční posun čekací listiny (ADR-02) a zákaz souběhu (ADR-03) | 14 testů      | PASS (100 %)                |
-| `test/jest/attendance.test.ts`          | Jest + TypeScript | Výukové dny a kalkulace 70% docházky (ADR-01, ADR-05)             | 11 testů      | PASS (100 %)                |
-| `test/jest/certificate.test.ts`         | Jest + TypeScript | Generování diplomů AT-YYYY-XXXX a lektorské výjimky               | 10 testů      | PASS (100 %)                |
-| `test/jest/domain-edge-cases.test.ts`   | Jest + TypeScript | Hloubkové testy kaskádového storna, 70/69.9% docházky a auditů    | 20 testů      | PASS (100 %)                |
-| `test/jest/api.integration.test.ts`     | Jest + Supertest  | Integrační ověření Express rout, chyb a aliasů                    | 19 testů      | PASS (100 %)                |
-| `test/jest/auth.rbac.test.ts`           | Jest + Supertest  | Ověření RBAC oprávnění, přihlášení a ochrany kurzů (ADR-07)       | 19 testů      | PASS (100 %)                |
-| **CELKEM V REPOZITÁŘI**                 |                   | **Kompletní dvoustupňový testovací harness**                      | **144 testů** | **100% ÚSPĚŠNOST (0 chyb)** |
+| Testovací sada                          | Běhové prostředí  | Zaměření                                                                    | Počet testů   | Výsledek                    |
+| --------------------------------------- | ----------------- | --------------------------------------------------------------------------- | ------------- | --------------------------- |
+| `test/CourseService.test.ts`            | Node Test Runner  | Doménové invarianty kurzu a CRUD operace                                    | 7 testů       | PASS (100 %)                |
+| `test/TermAndEnrollment.test.ts`        | Node Test Runner  | Termíny, kapacity a invarianty waitlistu (ADR-02)                           | 5 testů       | PASS (100 %)                |
+| `test/AttendanceAndCertificate.test.ts` | Node Test Runner  | Výukové dny, docházka a certifikace (ADR-01, ADR-05)                        | 8 testů       | PASS (100 %)                |
+| `test/DomainEdgeCases.test.ts`          | Node Test Runner  | Hraniční stavy waitlistu, 70% docházky a unikátnosti registrací             | 5 testů       | PASS (100 %)                |
+| `test/api-creation-flows.test.ts`       | Node Test Runner  | Ucelené integrační End-to-End průchody API                                  | 9 testů       | PASS (100 %)                |
+| `test/jest/course.service.test.ts`      | Jest + TypeScript | Hloubkové unit testy kurzu a služeb                                         | 17 testů      | PASS (100 %)                |
+| `test/jest/term-and-enrollment.test.ts` | Jest + TypeScript | Transakční posun čekací listiny (ADR-02) a zákaz souběhu (ADR-03)           | 14 testů      | PASS (100 %)                |
+| `test/jest/attendance.test.ts`          | Jest + TypeScript | Výukové dny a kalkulace 70% docházky (ADR-01, ADR-05)                       | 11 testů      | PASS (100 %)                |
+| `test/jest/certificate.test.ts`         | Jest + TypeScript | Generování diplomů AT-YYYY-XXXX a lektorské výjimky                         | 10 testů      | PASS (100 %)                |
+| `test/jest/domain-edge-cases.test.ts`   | Jest + TypeScript | Hloubkové testy kaskádového storna, 70/69.9% docházky a auditů              | 20 testů      | PASS (100 %)                |
+| `test/jest/api.integration.test.ts`     | Jest + Supertest  | Integrační ověření Express rout, chyb a aliasů                              | 19 testů      | PASS (100 %)                |
+| `test/jest/auth.rbac.test.ts`           | Jest + Supertest  | Ověření RBAC oprávnění, ochrana zápisů a anonymních přístupů (ADR-07)       | 32 testů      | PASS (100 %)                |
+| `test/jest/security-deep.test.ts`       | Jest + Supertest  | Hloubkový audit: chybějící/expirované/podvržené tokeny, IDOR, SQL, overflow | 45 testů      | PASS (100 %)                |
+| **CELKEM V REPOZITÁŘI**                 |                   | **Kompletní dvoustupňový testovací harness**                                | **203 testů** | **100% ÚSPĚŠNOST (0 chyb)** |
 
 ---
 
@@ -1416,7 +1508,42 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
 
 ## 10. Historie verzí (Changelog) a Roadmapa
 
-### 10.1 Historie verzí (Changelog v1.0.0 až v1.9.1)
+### 10.1 Historie verzí (Changelog v1.0.0 až v1.9.3)
+
+#### Verze 1.9.3 (Hloubkový bezpečnostní audit, eliminace IDOR, zabezpečení proti SQL/overflow injekcím a nová bezpečnostní testovací sada)
+
+- **Hloubkový bezpečnostní audit Express middleware a handlerů:**
+  - **Eliminace IDOR zranitelnosti u osvědčení (`GET /api/certificates/:id`):** Implementována striktní autorizační kontrola vlastnictví diplomu. Pokud požadavek odesílá uživatel s rolí `student`, kontroler ověří shodu `studentId` nebo e-mailu přihlášeného studenta s údaji na osvědčení; pokus o přístup k osvědčení jiného studenta vrátí HTTP 403 Forbidden. Administrátor má přístup ke všem záznamům.
+  - **Zajištění GDPR anonymity pro neověřené uživatele v seznamu přihlášek:** Odstraněna závislost na testovacím přepínači. Jakýkoliv neautentizovaný požadavek na `GET /api/terms/:id/enrollments` vždy obdrží výhradně anonymizovaná jména (`Účastník #1`, `Účastník #2`) bez jakýchkoliv osobních či kontaktních informací.
+  - **Ochrana proti pádu DB při neplatných/přetečených UUID a SQL injection parametrech:** V databázových repozitářích (`PostgresCourseRepository`, `PostgresCertificateRepository` aj.) upraveny dotazy na bezpečné textové porovnávání `id::text = $1`. Dotazy s 64-bitovým celočíselným přetečením, 10 000znakovými řetězci nebo znaky SQL injekce (`' OR 1=1 --`) nezpůsobí pád PostgreSQL serveru na neplatné UUID syntaxi, ale vrátí čistou odpověď HTTP 404 nebo 400.
+  - **Validace a ořezávání bílých znaků v autorizačních tokenech:** Middleware `extractToken` nyní striktně filtruje hlavičky složené pouze z mezer a zabraňuje neplatným stavům.
+  - **Životní cyklus a testování expirovaných tokenů:** Do `AuthService` přidána metoda pro deterministické testování expirovaných relací; ověřeno správné odmítnutí s HTTP 401 a automatický úklid z paměti.
+- **Nová bezpečnostní testovací sada `test/jest/security-deep.test.ts` (45 testů):**
+  - Pokrývá 6 kritických bezpečnostních okruhů:
+    1. Chybějící token a prázdné hlavičky (401 na admin i student endpointy).
+    2. Zfalšovaný podpis a neplatné tokeny (forged JWT, náhodné řetězce, null/undefined, logout invalidace).
+    3. Vypršený token a paměťový úklid.
+    4. Manipulace s cizím studentId, IDOR a GDPR maskování kontaktů.
+    5. Přetečení ID a mezní vstupy (10k znaků, celočíselné přetečení, extrémní kapacity).
+    6. Odolnost proti SQL injekcím v URL parametrech, query filtrech, tělech požadavků a loginu.
+- **Rozšíření celkového testovacího pokrytí:**
+  - Testovací sada vzrostla ze 157 na **203 testů** (35 Node Test Runner + 168 Jest testů), všechny prochází se 100% úspěšností (0 chyb).
+
+#### Verze 1.9.2 (Hardening RBAC politik, ochrana osobních údajů GDPR, zákaz anonymních zápisů a neoprávněných storen)
+
+- **Hardening Role-Based Access Control (RBAC) a ochrana soukromí (GDPR):**
+  - **Zabezpečení zápisů na termíny (`POST /api/terms/:id/enrollments`):** Anonymní zápisy bez přihlášení jsou blokovány s HTTP 401 Unauthorized. Přihlášený student může na kurz přihlásit **výhradně sám sebe** (jeho e-mail je ověřován proti aktivní relaci, pokus o zápis cizí osoby vrátí HTTP 403 Forbidden). Pouze administrátor může zapsat libovolného studenta.
+  - **Zabezpečení storen přihlášek (`POST /api/enrollments/:id/cancel`):** Storno vyžaduje autentizaci (HTTP 401 při absenci tokenu). Přihlášený student může zrušit **pouze svou vlastní přihlášku**; pokus o smazání účasti jiného studenta vrátí HTTP 403 Forbidden. Administrátor má plné právo stornovat jakoukoliv přihlášku.
+  - **Ochrana osobních údajů studentů v seznamu přihlášek (`GET /api/terms/:id/enrollments`):** Pro neadministrátory jsou osobní kontakty (telefonní čísla, e-mailové adresy, interní poznámky) ostatních studentů automaticky maskovány.
+  - **Zabezpečení citlivých administrátorských endpointů:** Endpointy `/api/students` (přehled všech studentů), `/api/analytics` (manažerské tržby a statistiky), `/api/certificates` (kniha osvědčení) a `/api/attendance/*` (výukové dny a prezenčky) jsou striktně chráněny middlewarem `requireAdminAuth` (HTTP 401 pro neověřené, HTTP 403 pro studenty).
+- **Frontendové zpřístupnění a ochrana rozhraní pro anonymní uživatele i studenty:**
+  - **Role-based navigace v záhlaví:** Pro anonymního návštěvníka jsou zcela skryty agendy _Docházka_ a _Správa & Výkazy_ (včetně knihy osvědčení a manažerských výkazů) a KPI karta osvědčení. Pro studenta je zobrazena přímá záložka _Můj profil_.
+  - **Navigační strážce (`Header.setActiveTab`):** Pokus o přechod na administrátorskou záložku bez oprávnění administrátora zobrazí varovnou notifikaci a otevře přihlašovací dialog.
+  - **Veřejné zobrazení detailu termínu (`TermsView.ts`):** Pro veřejnost a nepřihlášené uživatele je skryta jmenná tabulka účastníků a je nahrazena přehledovou kartou obsazenosti termínu s tlačítkem _Přihlásit se na termín_. Pro studenta je vykreslena osobní karta s přehledem stavu jeho vlastní přihlášky a tlačítkem pro zrušení výhradně jeho účasti.
+  - **Uzamčení polí v zápisovém formuláři (`#modal-enrollment`):** Přihlášený student má své jméno i e-mail nastavené na `readOnly` se zamknutým vizuálem a ověřovacím odznakem profilu.
+- **Rozšíření testovací sady na 157 testů (100% pass):**
+  - Do `test/jest/auth.rbac.test.ts` přidáno 13 nových integračních testů pokrývajících RBAC ochranu studentů, analytiky, certifikátů, zákaz anonymního i cizího storna a zákaz zápisu cizí osoby studentem.
+  - Celkový počet testů vzrostl ze 144 na **157 testů** (34 Node test runner + 123 Jest), všechny prochází se 100% úspěšností (0 chyb).
 
 #### Verze 1.9.1 (Audit a ozdravení databáze, oprava poškozených dat, dočištění klientského portálu a odstranění zbývajících vývojářských štítků)
 

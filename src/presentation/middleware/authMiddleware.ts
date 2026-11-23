@@ -101,14 +101,16 @@ export function createRequireAuth(authService: AuthService) {
   };
 }
 
-function extractToken(req: Request): string | null {
+export function extractToken(req: Request): string | null {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith("Bearer ")) {
-    return authHeader.substring(7).trim();
+    const token = authHeader.substring(7).trim();
+    return token.length > 0 ? token : null;
   }
   const customHeader = req.headers["x-admin-token"] || req.headers["x-auth-token"];
   if (customHeader && typeof customHeader === "string") {
-    return customHeader.trim();
+    const token = customHeader.trim();
+    return token.length > 0 ? token : null;
   }
   return null;
 }

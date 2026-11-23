@@ -14,8 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Cinzel+Decorative:wght@700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/assets/index-Doyazzrt.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-ByAFrgge.css">
+    <script type="module" crossorigin src="/assets/index-CrkcDURs.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BitzCoqU.css">
   </head>
   <body
     class="stone-wall-bg min-h-screen flex flex-col font-sans transition-colors duration-200 antialiased selection:bg-amber-600 selection:text-white"
@@ -81,7 +81,12 @@
             </button>
 
             <!-- 3. Evidence docházky -->
-            <button class="nav-tab-btn" data-tab="attendance" title="Evidence docházky">
+            <button
+              class="nav-tab-btn admin-only"
+              data-tab="attendance"
+              id="nav-tab-attendance"
+              title="Evidence docházky"
+            >
               <svg
                 class="w-3.5 h-3.5 opacity-80"
                 viewBox="0 0 24 24"
@@ -95,8 +100,28 @@
               <span>Docházka</span>
             </button>
 
-            <!-- 4. Dropdown menu: Správa & Výkazy -->
-            <div class="relative" id="nav-dropdown-container">
+            <!-- 4. Klientský portál (Student / Profil) -->
+            <button
+              class="nav-tab-btn hidden"
+              data-tab="student"
+              id="nav-tab-student"
+              title="Klientský portál studenta"
+            >
+              <svg
+                class="w-3.5 h-3.5 opacity-80"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span>Můj profil</span>
+            </button>
+
+            <!-- 5. Dropdown menu: Správa & Výkazy -->
+            <div class="relative admin-only" id="nav-dropdown-container">
               <button
                 id="btn-nav-dropdown"
                 type="button"
@@ -291,8 +316,21 @@
         >
           <button class="nav-tab-btn active px-2.5 py-1.5" data-tab="courses">Kurzy</button>
           <button class="nav-tab-btn px-2.5 py-1.5" data-tab="terms">Termíny</button>
-          <button class="nav-tab-btn px-2.5 py-1.5" data-tab="attendance">Docházka</button>
-          <div class="relative" id="mobile-nav-dropdown-container">
+          <button
+            class="nav-tab-btn px-2.5 py-1.5 admin-only"
+            data-tab="attendance"
+            id="mobile-nav-tab-attendance"
+          >
+            Docházka
+          </button>
+          <button
+            class="nav-tab-btn hidden px-2.5 py-1.5"
+            data-tab="student"
+            id="mobile-nav-tab-student"
+          >
+            Můj profil
+          </button>
+          <div class="relative admin-only" id="mobile-nav-dropdown-container">
             <button
               id="mobile-btn-nav-dropdown"
               type="button"
@@ -402,7 +440,7 @@
             </div>
           </div>
 
-          <div class="metric-kpi-card">
+          <div class="metric-kpi-card admin-only" id="kpi-certs-card">
             <div>
               <div
                 class="text-[11px] font-bold text-amber-900/80 dark:text-amber-200/80 uppercase tracking-wider font-display"
@@ -469,6 +507,7 @@
               <input
                 type="text"
                 id="filter-search-course"
+                aria-label="Vyhledat v katalogu programů"
                 class="w-full pl-8 pr-8 py-1.5 text-xs bg-[#fdfaf2] dark:bg-[#120d09] border border-[#c9b48f] dark:border-[#7c622e] focus:border-[#caa049] rounded placeholder-[#8c734b] dark:placeholder-[#8f7959] focus:outline-none text-[#2b1f13] dark:text-[#faeed4] font-sans shadow-inner transition-colors"
                 placeholder="Vyhledat v katalogu (stiskněte / pro rychlé zaměření)..."
               />
@@ -582,7 +621,8 @@
             </div>
 
             <div
-              class="p-2.5 rounded-lg bg-[#f8f1de] dark:bg-[#15111e] border border-[#caa049]/40 mb-3 text-xs text-[#6e4e1b] dark:text-[#fce8bd] flex items-center justify-between shadow-xs"
+              id="term-detail-admin-hint"
+              class="p-2.5 rounded-lg bg-[#f8f1de] dark:bg-[#15111e] border border-[#caa049]/40 mb-3 text-xs text-[#6e4e1b] dark:text-[#fce8bd] flex items-center justify-between shadow-xs admin-only"
             >
               <span class="flex items-center gap-1.5 font-medium">
                 <span
@@ -593,7 +633,10 @@
               </span>
             </div>
 
-            <div class="table-box-wrap">
+            <!-- Veřejný / studentský přehled termínu bez GDPR dat cizích účastníků -->
+            <div id="term-public-view-wrap" class="hidden my-3"></div>
+
+            <div class="table-box-wrap admin-only" id="term-enrollments-table-wrap">
               <div class="overflow-x-auto">
                 <table class="table-tw">
                   <thead>
@@ -965,7 +1008,7 @@
           </div>
         </section>
 
-        <!-- 7. Klientský portál studenta (ADR-07) -->
+        <!-- 7. Klientský portál studenta -->
         <section id="tab-student" class="tab-pane hidden animate-fadeIn"></section>
       </main>
 
@@ -991,7 +1034,7 @@
 
     <!-- ==================== MODÁLNÍ DIALOGY ==================== -->
 
-    <!-- Modal: Přihlášení (Admin & Student) - ADR-07 -->
+    <!-- Modal: Přihlášení (Admin & Student) -->
     <div id="modal-login" class="modal-overlay hidden" style="display: none">
       <div class="modal-dialog max-w-md">
         <div
@@ -1850,95 +1893,6 @@
             Rozumím [Esc]
           </button>
         </div>
-      </div>
-    </div>
-
-    <!-- Modal: Přihlášení do systému -->
-    <div id="modal-login" class="modal-overlay hidden" style="display: none">
-      <div class="modal-dialog">
-        <div
-          class="px-5 py-3.5 border-b border-slate-200/90 dark:border-slate-800 flex items-center justify-between"
-        >
-          <div class="flex items-center gap-2">
-            <span class="badge-chip badge-chip-green">Autentizace</span>
-            <h3 class="text-sm font-bold text-slate-900 dark:text-white">Přihlášení do systému</h3>
-          </div>
-          <button
-            class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg font-bold p-1 leading-none"
-            data-close="modal-login"
-            aria-label="Zavřít"
-          >
-            ×
-          </button>
-        </div>
-        <form id="form-login" class="p-5 space-y-4 overflow-y-auto">
-          <div
-            class="p-3 bg-slate-50 dark:bg-slate-950/60 rounded-lg border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400"
-          >
-            <div class="font-bold text-slate-800 dark:text-slate-200 mb-1.5">
-              Rychlý výběr role (Demo přístup):
-            </div>
-            <div class="flex items-center gap-2">
-              <button
-                type="button"
-                id="btn-demo-login-admin"
-                class="btn-secondary-tw btn-sm-tw flex-1"
-              >
-                <span>Admin (správa & zápis)</span>
-              </button>
-              <button
-                type="button"
-                id="btn-demo-login-student"
-                class="btn-secondary-tw btn-sm-tw flex-1"
-              >
-                <span>Student (náhled)</span>
-              </button>
-            </div>
-          </div>
-          <div>
-            <label
-              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
-              for="login-username"
-            >
-              Uživatelské jméno / E-mail <span class="text-rose-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="login-username"
-              class="input-tw"
-              placeholder="admin nebo student"
-              required
-              autocomplete="username"
-            />
-          </div>
-          <div>
-            <label
-              class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
-              for="login-password"
-            >
-              Heslo <span class="text-rose-500">*</span>
-            </label>
-            <input
-              type="password"
-              id="login-password"
-              class="input-tw"
-              placeholder="admin123 / student123"
-              required
-              autocomplete="current-password"
-            />
-          </div>
-          <div
-            id="form-login-error"
-            class="p-2.5 text-xs text-rose-600 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-lg"
-            style="display: none"
-          ></div>
-          <div
-            class="flex justify-end gap-2 pt-3 border-t border-slate-200/90 dark:border-slate-800"
-          >
-            <button type="button" class="btn-secondary-tw" data-close="modal-login">Zrušit</button>
-            <button type="submit" class="btn-primary-tw">Přihlásit se</button>
-          </div>
-        </form>
       </div>
     </div>
 

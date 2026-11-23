@@ -1,9 +1,27 @@
-import { Pool } from "pg";
+import { Pool, PoolClient } from "pg";
 import { Certificate } from "../../domain/entities/Certificate.js";
 import {
   CertificateResponseDto,
   IssueCertificateDto,
 } from "../../application/dto/CertificateDto.js";
+
+interface CertificateDbRow {
+  id: string;
+  enrollment_id: string;
+  student_id: string;
+  first_name: string;
+  last_name: string;
+  student_email: string;
+  student_org?: string | null;
+  term_id: string;
+  course_title: string;
+  certificate_number: string;
+  issue_date: Date | string;
+  attendance_rate: number | string;
+  has_waiver: boolean;
+  waiver_reason?: string | null;
+  created_at: Date | string;
+}
 
 export class PostgresCertificateRepository {
   constructor(private readonly db: Pool) {}
@@ -36,7 +54,7 @@ export class PostgresCertificateRepository {
       JOIN students s ON s.id = c.student_id
       JOIN course_terms t ON t.id = c.term_id
       JOIN courses co ON co.id = t.course_id
-      WHERE c.id = $1;
+      WHERE c.id::text = $1;
     `;
     const res = await this.db.query(sql, [id]);
     if (res.rows.length === 0) return null;
@@ -47,7 +65,7 @@ export class PostgresCertificateRepository {
    * Generates the next sequential certificate number: AT-YYYY-XXXX
    * e.g., AT-2026-0001
    */
-  public async getNextCertificateNumber(client?: any): Promise<string> {
+  public async getNextCertificateNumber(client?: PoolClient): Promise<string> {
     const currentYear = new Date().getFullYear();
     const dbClient = client || (await this.db.connect());
     const shouldRelease = !client;
@@ -211,7 +229,7 @@ export class PostgresCertificateRepository {
     }
   }
 
-  private mapToDto(r: any): CertificateResponseDto {
+  private mapToDto(r: CertificateDbRow): CertificateResponseDto {
     return {
       id: r.id,
       enrollmentId: r.enrollment_id,

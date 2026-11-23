@@ -3,12 +3,14 @@ import {
   CreateTeachingDayDto,
   MarkAttendanceDto,
   AttendanceSummaryDto,
+  TeachingDayResponseDto,
+  StudentDayAttendanceDto,
 } from "../../application/dto/AttendanceDto.js";
 
 export class PostgresAttendanceRepository {
   constructor(private readonly db: Pool) {}
 
-  public async getTeachingDays(termId: string): Promise<any[]> {
+  public async getTeachingDays(termId: string): Promise<TeachingDayResponseDto[]> {
     const sql = `
       SELECT 
         td.id, td.term_id, td.lecturer_id, td.day_date, td.hours, td.topic,
@@ -55,7 +57,7 @@ export class PostgresAttendanceRepository {
     return res.rows[0].id;
   }
 
-  public async getAttendanceForDay(teachingDayId: string): Promise<any[]> {
+  public async getAttendanceForDay(teachingDayId: string): Promise<StudentDayAttendanceDto[]> {
     const sql = `
       SELECT 
         td.id as teaching_day_id,

@@ -2,6 +2,17 @@ import { Pool } from "pg";
 import { Course } from "../../domain/entities/Course.js";
 import { ICourseRepository, CourseFilter } from "../../domain/repositories/ICourseRepository.js";
 
+interface CourseDbRow {
+  id: string;
+  title: string;
+  annotation: string;
+  hours: number;
+  price: string | number;
+  is_accredited: boolean;
+  created_at?: Date;
+  updated_at?: Date;
+}
+
 export class PostgresCourseRepository implements ICourseRepository {
   constructor(private readonly db: Pool) {}
 
@@ -11,7 +22,7 @@ export class PostgresCourseRepository implements ICourseRepository {
       FROM courses
       WHERE 1=1
     `;
-    const params: any[] = [];
+    const params: (string | boolean)[] = [];
 
     if (filter?.isAccredited !== undefined) {
       params.push(filter.isAccredited);
@@ -26,19 +37,19 @@ export class PostgresCourseRepository implements ICourseRepository {
     query += ` ORDER BY created_at DESC`;
 
     const res = await this.db.query(query, params);
-    return res.rows.map((row) => this.mapToEntity(row));
+    return res.rows.map((row) => this.mapToEntity(row as CourseDbRow));
   }
 
   public async findById(id: string): Promise<Course | null> {
     const res = await this.db.query(
       `SELECT id, title, annotation, hours, price, is_accredited, created_at, updated_at
        FROM courses
-       WHERE id = $1`,
+       WHERE id::text = $1`,
       [id]
     );
 
     if (res.rows.length === 0) return null;
-    return this.mapToEntity(res.rows[0]);
+    return this.mapToEntity(res.rows[0] as CourseDbRow);
   }
 
   public async create(course: Course): Promise<Course> {
@@ -49,28 +60,28 @@ export class PostgresCourseRepository implements ICourseRepository {
       [course.title, course.annotation, course.hours, course.price, course.isAccredited]
     );
 
-    return this.mapToEntity(res.rows[0]);
+    return this.mapToEntity(res.rows[0] as CourseDbRow);
   }
 
   public async update(id: string, course: Course): Promise<Course | null> {
     const res = await this.db.query(
       `UPDATE courses
        SET title = $1, annotation = $2, hours = $3, price = $4, is_accredited = $5, updated_at = NOW()
-       WHERE id = $6
+       WHERE id::text = $6
        RETURNING id, title, annotation, hours, price, is_accredited, created_at, updated_at`,
       [course.title, course.annotation, course.hours, course.price, course.isAccredited, id]
     );
 
     if (res.rows.length === 0) return null;
-    return this.mapToEntity(res.rows[0]);
+    return this.mapToEntity(res.rows[0] as CourseDbRow);
   }
 
   public async delete(id: string): Promise<boolean> {
-    const res = await this.db.query("DELETE FROM courses WHERE id = $1", [id]);
+    const res = await this.db.query("DELETE FROM courses WHERE id::text = $1", [id]);
     return (res.rowCount ?? 0) > 0;
   }
 
-  private mapToEntity(row: any): Course {
+  private mapToEntity(row: CourseDbRow): Course {
     return new Course({
       id: row.id,
       title: row.title,

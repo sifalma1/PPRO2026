@@ -376,6 +376,19 @@ export class AuthService {
     };
   }
 
+  /**
+   * Helper method for tests to inject an expired session.
+   */
+  public createExpiredSessionForTesting(token: string, user: UserSession): void {
+    const past = new Date(Date.now() - 3600 * 1000);
+    this.sessions.set(token, {
+      token,
+      user,
+      createdAt: new Date(Date.now() - 2 * 3600 * 1000),
+      expiresAt: past,
+    });
+  }
+
   private generateToken(): string {
     return "at_" + crypto.randomBytes(24).toString("hex");
   }

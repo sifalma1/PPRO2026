@@ -260,4 +260,145 @@ describe("Admin & Student Authentication & RBAC Authorization (Supertest)", () =
       expect(res.body.data).toBeDefined();
     });
   });
+
+  describe("4. Anonymous vs Admin Policy Protection for Sensitive Data & Enrollments", () => {
+    let termId: string;
+    let enrollmentId: string;
+
+    it("Unauthenticated request to GET /api/students returns 401 Unauthorized", async () => {
+      const res = await request(app).get("/api/students").set("x-enforce-auth", "true");
+      expect(res.status).toBe(401);
+      expect(res.body.success).toBe(false);
+    });
+
+    it("Student role attempting GET /api/students returns 403 Forbidden", async () => {
+      const res = await request(app)
+        .get("/api/students")
+        .set("Authorization", `Bearer ${studentToken}`);
+      expect(res.status).toBe(403);
+      expect(res.body.success).toBe(false);
+    });
+
+    it("Authenticated Admin can access GET /api/students", async () => {
+      const res = await request(app)
+        .get("/api/students")
+        .set("Authorization", `Bearer ${adminToken}`);
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+
+    it("Unauthenticated request to GET /api/analytics returns 401 Unauthorized", async () => {
+      const res = await request(app).get("/api/analytics").set("x-enforce-auth", "true");
+      expect(res.status).toBe(401);
+      expect(res.body.success).toBe(false);
+    });
+
+    it("Student role attempting GET /api/analytics returns 403 Forbidden", async () => {
+      const res = await request(app)
+        .get("/api/analytics")
+        .set("Authorization", `Bearer ${studentToken}`);
+      expect(res.status).toBe(403);
+      expect(res.body.success).toBe(false);
+    });
+
+    it("Authenticated Admin can access GET /api/analytics", async () => {
+      const res = await request(app)
+        .get("/api/analytics")
+        .set("Authorization", `Bearer ${adminToken}`);
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it("Unauthenticated request to GET /api/certificates returns 401 Unauthorized", async () => {
+      const res = await request(app).get("/api/certificates").set("x-enforce-auth", "true");
+      expect(res.status).toBe(401);
+      expect(res.body.success).toBe(false);
+    });
+
+    it("Authenticated Admin can access GET /api/certificates", async () => {
+      const res = await request(app)
+        .get("/api/certificates")
+        .set("Authorization", `Bearer ${adminToken}`);
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it("Unauthenticated request to POST /api/terms/:id/enrollments returns 401 Unauthorized", async () => {
+      // Get an existing term
+      const termsRes = await request(app).get("/api/terms");
+      expect(termsRes.status).toBe(200);
+      expect(termsRes.body.data.length).toBeGreaterThan(0);
+      termId = termsRes.body.data[0].id;
+
+      const res = await request(app)
+        .post(`/api/terms/${termId}/enrollments`)
+        .set("x-enforce-auth", "true")
+        .send({
+          firstName: "Anonym",
+          lastName: "Uživatel",
+          email: "anonym@example.com",
+        });
+
+      expect(res.status).toBe(401);
+      expect(res.body.success).toBe(false);
+    });
+
+    it("Student role attempting to enroll someone else with different email returns 403 Forbidden", async () => {
+      const res = await request(app)
+        .post(`/api/terms/${termId}/enrollments`)
+        .set("Authorization", `Bearer ${studentToken}`)
+        .send({
+          firstName: "Cizí",
+          lastName: "Student",
+          email: "cizi.student@example.com",
+        });
+
+      expect(res.status).toBe(403);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error).toContain("Přihlášený student může zapsat pouze sám sebe");
+    });
+
+    it("Unauthenticated request to POST /api/enrollments/:id/cancel returns 401 Unauthorized", async () => {
+      const res = await request(app)
+        .post("/api/enrollments/00000000-0000-0000-0000-000000000000/cancel")
+        .set("x-enforce-auth", "true");
+
+      expect(res.status).toBe(401);
+      expect(res.body.success).toBe(false);
+    });
+
+    it("Student role attempting to cancel another student's enrollment returns 403 Forbidden", async () => {
+      // Create an enrollment as admin for a different student
+      const enrRes = await request(app)
+        .post(`/api/terms/${termId}/enrollments`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send({
+          firstName: "Adminem",
+          lastName: "Zapsaný",
+          email: `zapsany.${Date.now()}@firma.cz`,
+        });
+
+      expect(enrRes.status).toBe(201);
+      enrollmentId = enrRes.body.data.id;
+
+      // Student Jan Novák tries to cancel this other student's enrollment
+      const cancelRes = await request(app)
+        .post(`/api/enrollments/${enrollmentId}/cancel`)
+        .set("Authorization", `Bearer ${studentToken}`);
+
+      expect(cancelRes.status).toBe(403);
+      expect(cancelRes.body.success).toBe(false);
+      expect(cancelRes.body.error).toContain("Student může zrušit pouze svou vlastní přihlášku");
+    });
+
+    it("Authenticated Admin can cancel any enrollment", async () => {
+      const cancelRes = await request(app)
+        .post(`/api/enrollments/${enrollmentId}/cancel`)
+        .set("Authorization", `Bearer ${adminToken}`);
+
+      expect(cancelRes.status).toBe(200);
+      expect(cancelRes.body.success).toBe(true);
+    });
+  });
 });

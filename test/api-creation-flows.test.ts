@@ -154,7 +154,7 @@ describe("End-to-End API Creation Flows (Akademie Trutnov)", () => {
 
     const res = await fetch(`${BASE_URL}/api/terms/${createdTermId}/enrollments`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: adminHeaders,
       body: JSON.stringify(payload),
     });
 
@@ -187,7 +187,7 @@ describe("End-to-End API Creation Flows (Akademie Trutnov)", () => {
 
     const res = await fetch(`${BASE_URL}/api/terms/${createdTermId}/enrollments`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: adminHeaders,
       body: JSON.stringify(payload),
     });
 
@@ -246,7 +246,9 @@ describe("End-to-End API Creation Flows (Akademie Trutnov)", () => {
     assert.ok(student1Id, "Student 1 must exist");
 
     // Fetch roster for this day
-    const rosterRes = await fetch(`${BASE_URL}/api/attendance/days/${createdTeachingDayId}`);
+    const rosterRes = await fetch(`${BASE_URL}/api/attendance/days/${createdTeachingDayId}`, {
+      headers: adminHeaders,
+    });
     const rosterJson = await rosterRes.json();
     assert.equal(rosterRes.status, 200);
     assert.ok(Array.isArray(rosterJson.data), "Expected roster data array");
@@ -269,7 +271,9 @@ describe("End-to-End API Creation Flows (Akademie Trutnov)", () => {
     assert.equal(markJson.success, true);
 
     // Verify attendance summary
-    const sumRes = await fetch(`${BASE_URL}/api/attendance/terms/${createdTermId}/summary`);
+    const sumRes = await fetch(`${BASE_URL}/api/attendance/terms/${createdTermId}/summary`, {
+      headers: adminHeaders,
+    });
     const sumJson = await sumRes.json();
     assert.equal(sumRes.status, 200);
     assert.equal(sumJson.data.length, 1);
@@ -312,7 +316,7 @@ describe("End-to-End API Creation Flows (Akademie Trutnov)", () => {
     // Let's create an enrollment for a new student with 0% attendance
     const newStudentRes = await fetch(`${BASE_URL}/api/terms/${createdTermId}/enrollments`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: adminHeaders,
       body: JSON.stringify({
         firstName: "Nemocný",
         lastName: "Absolvent",

@@ -934,6 +934,27 @@
     @apply max-w-3xl;
   }
 
+  .modal-dialog h3 {
+    font-family: "Cinzel", Georgia, serif;
+    letter-spacing: 0.025em;
+    color: #4a3512;
+  }
+  html[data-theme="dark"] .modal-dialog h3 {
+    color: #faeed4;
+  }
+  .modal-dialog label {
+    color: #5c4318;
+  }
+  html[data-theme="dark"] .modal-dialog label {
+    color: #d1b88e;
+  }
+  .modal-dialog [class*="border-b"] {
+    border-color: rgba(202, 160, 73, 0.35);
+  }
+  .modal-dialog [class*="border-t"] {
+    border-color: rgba(202, 160, 73, 0.35);
+  }
+
   /* ================= FORM CONTROLS ================= */
   .input-tw {
     @apply w-full px-3 py-1.5 text-xs rounded text-[#2b2216] dark:text-amber-100 placeholder-amber-900/40 dark:placeholder-amber-200/40 focus-visible:outline-none transition-all font-sans;

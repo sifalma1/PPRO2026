@@ -178,48 +178,6 @@ export class Header {
       Modal.open("modal-login");
     });
 
-    // Quick-fill demo credentials in login modal
-    const btnDemoAdmin = document.getElementById("btn-demo-login-admin");
-    const btnDemoStudent = document.getElementById("btn-demo-login-student");
-    const loginUser = document.getElementById("login-username") as HTMLInputElement;
-    const loginPass = document.getElementById("login-password") as HTMLInputElement;
-
-    btnDemoAdmin?.addEventListener("click", () => {
-      if (loginUser) loginUser.value = "admin";
-      if (loginPass) loginPass.value = "admin123";
-    });
-
-    btnDemoStudent?.addEventListener("click", () => {
-      if (loginUser) loginUser.value = "student";
-      if (loginPass) loginPass.value = "student123";
-    });
-
-    // Login form submit
-    const formLogin = document.getElementById("form-login") as HTMLFormElement;
-    const formLoginError = document.getElementById("form-login-error");
-
-    formLogin?.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (formLoginError) formLoginError.style.display = "none";
-
-      const username = loginUser?.value.trim() || "";
-      const password = loginPass?.value || "";
-
-      try {
-        const result = await authApi.login(username, password);
-        Toast.success(`Vítejte, ${result.user.name}!`);
-        Modal.close("modal-login");
-        formLogin.reset();
-        this.renderAuthState(result.user);
-      } catch (err: unknown) {
-        if (formLoginError) {
-          formLoginError.textContent =
-            err instanceof Error ? err.message : "Chyba při přihlašování.";
-          formLoginError.style.display = "block";
-        }
-      }
-    });
-
     // Logout button
     const btnLogout = document.getElementById("btn-logout");
     btnLogout?.addEventListener("click", async () => {
@@ -247,6 +205,10 @@ export class Header {
     const authUserName = document.getElementById("auth-user-name");
     const authUserBadge = document.getElementById("auth-user-badge");
 
+    const adminElements = document.querySelectorAll<HTMLElement>(".admin-only");
+    const navTabStudent = document.getElementById("nav-tab-student");
+    const mobileNavTabStudent = document.getElementById("mobile-nav-tab-student");
+
     if (user) {
       if (unauthContainer) unauthContainer.classList.add("hidden");
       if (authContainer) {
@@ -263,12 +225,50 @@ export class Header {
           authUserBadge.className = "badge-chip badge-chip-blue font-mono uppercase text-xs";
         }
       }
+
+      if (user.role === "admin") {
+        // Show all administrative navigation items
+        adminElements.forEach((el) => {
+          el.classList.remove("hidden");
+          el.style.display = "";
+        });
+        if (navTabStudent) navTabStudent.classList.remove("hidden");
+        if (mobileNavTabStudent) mobileNavTabStudent.classList.remove("hidden");
+      } else {
+        // Student role: Hide administrative controls, show personal portal
+        adminElements.forEach((el) => {
+          el.classList.add("hidden");
+          el.style.display = "none";
+        });
+        if (navTabStudent) navTabStudent.classList.remove("hidden");
+        if (mobileNavTabStudent) mobileNavTabStudent.classList.remove("hidden");
+
+        const adminTabs = ["attendance", "certificates", "lecturers", "analytics"];
+        if (adminTabs.includes(this.activeTab)) {
+          this.setActiveTab("student");
+          this.onTabChange("student");
+        }
+      }
     } else {
+      // Anonymous user: Hide all administrative controls and student portal from navbar
       if (authContainer) {
         authContainer.classList.add("hidden");
         authContainer.classList.remove("flex");
       }
       if (unauthContainer) unauthContainer.classList.remove("hidden");
+
+      adminElements.forEach((el) => {
+        el.classList.add("hidden");
+        el.style.display = "none";
+      });
+      if (navTabStudent) navTabStudent.classList.add("hidden");
+      if (mobileNavTabStudent) mobileNavTabStudent.classList.add("hidden");
+
+      const protectedTabs = ["attendance", "certificates", "lecturers", "analytics", "student"];
+      if (protectedTabs.includes(this.activeTab)) {
+        this.setActiveTab("courses");
+        this.onTabChange("courses");
+      }
     }
   }
 
@@ -334,6 +334,22 @@ export class Header {
   }
 
   public setActiveTab(tabId: string): void {
+    // Role-based Access Control Guard
+    const adminTabs = ["attendance", "certificates", "lecturers", "analytics"];
+    const studentTabs = ["student"];
+
+    if (adminTabs.includes(tabId) && !authApi.isAdmin()) {
+      Toast.warning("Tato sekce je určena výhradně pro administrátory vzdělávacího centra.");
+      Modal.open("modal-login");
+      return;
+    }
+
+    if (studentTabs.includes(tabId) && !authApi.isAuthenticated()) {
+      Toast.info("Pro zobrazení klientského portálu se prosím nejprve přihlaste.");
+      Modal.open("modal-login");
+      return;
+    }
+
     this.activeTab = tabId;
 
     // 1. Update individual buttons

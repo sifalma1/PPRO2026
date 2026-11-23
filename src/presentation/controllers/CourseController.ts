@@ -20,8 +20,9 @@ export class CourseController {
 
       const courses = await this.courseService.getAllCourses({ isAccredited, query });
       res.status(200).json({ success: true, count: courses.length, data: courses });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : String(err);
+      res.status(500).json({ success: false, error });
     }
   };
 
@@ -29,8 +30,9 @@ export class CourseController {
     try {
       const course = await this.courseService.getCourseById(String(req.params.id));
       res.status(200).json({ success: true, data: course });
-    } catch (err: any) {
-      res.status(404).json({ success: false, error: err.message });
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : String(err);
+      res.status(404).json({ success: false, error });
     }
   };
 
@@ -52,8 +54,9 @@ export class CourseController {
       res
         .status(201)
         .json({ success: true, message: "Course created successfully.", data: created });
-    } catch (err: any) {
-      res.status(400).json({ success: false, error: err.message });
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : String(err);
+      res.status(400).json({ success: false, error });
     }
   };
 
@@ -77,8 +80,9 @@ export class CourseController {
       res
         .status(200)
         .json({ success: true, message: "Course updated successfully.", data: updated });
-    } catch (err: any) {
-      res.status(400).json({ success: false, error: err.message });
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : String(err);
+      res.status(400).json({ success: false, error });
     }
   };
 
@@ -86,8 +90,9 @@ export class CourseController {
     try {
       await this.courseService.deleteCourse(String(req.params.id));
       res.status(200).json({ success: true, message: "Course deleted successfully." });
-    } catch (err: any) {
-      res.status(404).json({ success: false, error: err.message });
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : String(err);
+      res.status(404).json({ success: false, error });
     }
   };
 }

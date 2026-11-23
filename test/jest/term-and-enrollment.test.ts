@@ -3,14 +3,48 @@ import { CourseTerm } from "../../src/domain/entities/CourseTerm.js";
 import { Enrollment } from "../../src/domain/entities/Enrollment.js";
 import { TermService } from "../../src/application/services/TermService.js";
 import { PostgresTermRepository } from "../../src/infrastructure/database/PostgresTermRepository.js";
+import {
+  CreateTermDto,
+  TermResponseDto,
+  LecturerDto,
+  ClassroomDto,
+  StudentDto,
+  AnalyticsDto,
+  CancelEnrollmentResultDto,
+} from "../../src/application/dto/TermDto.js";
+import { CreateEnrollmentDto, EnrollmentResponseDto } from "../../src/application/dto/EnrollmentDto.js";
+
+interface MockTerm {
+  id: string;
+  courseId: string;
+  classroomId: string | null;
+  classroomName?: string;
+  courseTitle?: string;
+  coursePrice?: number;
+  courseHours?: number;
+  startDate: string;
+  endDate: string;
+  capacity: number;
+  status: string;
+}
+
+interface MockStudent {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string | null;
+  organization?: string | null;
+  enrollmentCount?: number;
+}
 
 /**
  * Stateful in-memory term and enrollment repository simulating DB transactions & ADR-02 / ADR-03 rules.
  */
 class InMemoryTermRepository {
-  public terms: any[] = [];
-  public enrollments: any[] = [];
-  public students: any[] = [];
+  public terms: MockTerm[] = [];
+  public enrollments: EnrollmentResponseDto[] = [];
+  public students: MockStudent[] = [];
 
   async findAll(): Promise<any[]> {
     return this.terms.map((t) => {

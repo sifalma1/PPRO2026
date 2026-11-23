@@ -1,6 +1,6 @@
 /**
  * Certificates & Graduates View - Akademie Trutnov
- * Official registry of issued certificates (AT-YYYY-XXXX), term closure (ADR-01),
+ * Official registry of issued certificates (AT-YYYY-XXXX), term closure,
  * lecturer waiver workflow, and representative certificate preview/print dialog.
  */
 import { Certificate, CourseTerm } from "../types";

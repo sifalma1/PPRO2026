@@ -14,10 +14,11 @@ export class AuthController {
         token: result.token,
         user: result.user,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : "Neplatné přihlašovací jméno nebo heslo.";
       res.status(401).json({
         success: false,
-        error: err.message || "Neplatné přihlašovací jméno nebo heslo.",
+        error: error || "Neplatné přihlašovací jméno nebo heslo.",
       });
     }
   };
@@ -32,8 +33,9 @@ export class AuthController {
         success: true,
         message: "Odhlášení proběhlo úspěšně.",
       });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : String(err);
+      res.status(500).json({ success: false, error });
     }
   };
 
@@ -56,8 +58,9 @@ export class AuthController {
         authenticated: true,
         user,
       });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : String(err);
+      res.status(500).json({ success: false, error });
     }
   };
 
@@ -71,8 +74,9 @@ export class AuthController {
         authenticated: Boolean(user),
         user: user || null,
       });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : String(err);
+      res.status(500).json({ success: false, error });
     }
   };
 
@@ -103,8 +107,9 @@ export class AuthController {
         success: true,
         data: dashboardData,
       });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : String(err);
+      res.status(500).json({ success: false, error });
     }
   };
 
@@ -112,16 +117,6 @@ export class AuthController {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith("Bearer ")) {
       return authHeader.substring(7).trim();
-    }
-    const adminToken = req.headers["x-admin-token"] || req.headers["x-auth-token"];
-    if (adminToken && typeof adminToken === "string") {
-      return adminToken.trim();
-    }
-    if (req.body && req.body.token) {
-      return String(req.body.token).trim();
-    }
-    if (req.query && req.query.token) {
-      return String(req.query.token).trim();
     }
     return null;
   }

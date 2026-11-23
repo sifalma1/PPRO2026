@@ -1,6 +1,6 @@
 /**
  * Terms & Waitlist View - Akademie Trutnov
- * Manages course terms, capacity limits, segmented meters, waitlist queuing (ADR-02),
+ * Manages course terms, capacity limits, segmented meters, waitlist queuing,
  * and student enrollments.
  */
 import { CourseTerm, Enrollment } from "../types";
@@ -83,6 +83,9 @@ export class TermsView {
     // Listen for auth state changes
     document.addEventListener("akademie:auth-changed", () => {
       this.renderTerms();
+      if (this.selectedTermId) {
+        this.selectTerm(this.selectedTermId);
+      }
     });
   }
 
@@ -208,17 +211,21 @@ export class TermsView {
             <button
               class="btn-secondary-tw btn-sm-tw btn-view-term"
               data-id="${term.id}"
-              title="Zobrazit detail přihlášek a pořadník náhradníků"
+              title="Zobrazit detail termínu"
             >
-              Přihlášky (${term.confirmedCount + term.waitlistCount})
+              ${authApi.isAdmin() ? `Přihlášky (${term.confirmedCount + term.waitlistCount})` : `Detail & Zápis`}
             </button>
-            <button
-              class="btn-ghost-tw btn-sm-tw btn-jump-attendance text-emerald-700 dark:text-emerald-400"
-              data-id="${term.id}"
-              title="Přejít do evidence docházky pro tento termín"
-            >
-              Docházka
-            </button>
+            ${
+              authApi.isAdmin()
+                ? `<button
+                    class="btn-ghost-tw btn-sm-tw btn-jump-attendance text-emerald-700 dark:text-emerald-400"
+                    data-id="${term.id}"
+                    title="Přejít do evidence docházky pro tento termín"
+                  >
+                    Docházka
+                  </button>`
+                : ""
+            }
           </div>
         </td>
       `;
@@ -251,8 +258,40 @@ export class TermsView {
     if (!term) return;
 
     if (this.termDetailBox) this.termDetailBox.style.display = "block";
+
+    const btnOpenEnroll = document.getElementById("btn-open-enroll");
+    if (btnOpenEnroll) {
+      if (authApi.isAdmin()) {
+        btnOpenEnroll.innerHTML = `
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+            <line x1="20" y1="8" x2="20" y2="14"></line>
+            <line x1="23" y1="11" x2="17" y2="11"></line>
+          </svg>
+          Zapsat studenta (Admin)
+        `;
+      } else {
+        btnOpenEnroll.innerHTML = `
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+            <line x1="20" y1="8" x2="20" y2="14"></line>
+            <line x1="23" y1="11" x2="17" y2="11"></line>
+          </svg>
+          Přihlásit se na termín
+        `;
+      }
+    }
+
     if (this.detailTermTitle) {
-      this.detailTermTitle.textContent = `Přihlášky a pořadník: ${term.courseTitle}`;
+      if (authApi.isAdmin()) {
+        this.detailTermTitle.textContent = `Evidence přihlášek a pořadník: ${term.courseTitle}`;
+      } else if (authApi.isStudent()) {
+        this.detailTermTitle.textContent = `Detail termínu a má účast: ${term.courseTitle}`;
+      } else {
+        this.detailTermTitle.textContent = `Veřejný přehled termínu: ${term.courseTitle}`;
+      }
     }
     if (this.detailTermInfo) {
       this.detailTermInfo.innerHTML = `
@@ -273,70 +312,239 @@ export class TermsView {
   }
 
   private renderEnrollments(): void {
-    if (!this.enrollmentsTableBody) return;
-    this.enrollmentsTableBody.innerHTML = "";
+    const adminHint = document.getElementById("term-detail-admin-hint");
+    const adminTableWrap = document.getElementById("term-enrollments-table-wrap");
+    const publicViewWrap = document.getElementById("term-public-view-wrap");
 
-    if (this.enrollments.length === 0) {
-      this.enrollmentsTableBody.innerHTML = `
-        <tr>
-          <td colspan="6" class="text-center py-8 text-amber-800/60 dark:text-amber-200/50 italic">
-            Na tento termín se zatím nikdo nepřihlásil. Použijte tlačítko "Zaregistrovat studenta" výše.
+    const term = this.terms.find((t) => t.id === this.selectedTermId);
+    if (!term) return;
+
+    const isAdmin = authApi.isAdmin();
+    const isStudent = authApi.isStudent();
+    const currentUser = authApi.getUser();
+
+    if (isAdmin) {
+      // 1. ADMIN VIEW: Full student roster with contact details, notes, and cancel buttons
+      if (adminHint) adminHint.classList.remove("hidden");
+      if (adminTableWrap) adminTableWrap.classList.remove("hidden");
+      if (publicViewWrap) publicViewWrap.classList.add("hidden");
+
+      if (!this.enrollmentsTableBody) return;
+      this.enrollmentsTableBody.innerHTML = "";
+
+      if (this.enrollments.length === 0) {
+        this.enrollmentsTableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-8 text-amber-800/60 dark:text-amber-200/50 italic">
+              Na tento termín se zatím nikdo nepřihlásil. Použijte tlačítko "Zapsat studenta (Admin)" výše.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      this.enrollments.forEach((enr) => {
+        let statusHtml = "";
+        if (enr.status === "CONFIRMED") {
+          statusHtml = '<span class="badge-chip badge-chip-green">Potvrzeno</span>';
+        } else if (enr.status === "WAITLIST") {
+          statusHtml = `<span class="badge-chip badge-chip-yellow">Náhradník #${enr.waitlistPosition || 1}</span>`;
+        } else if (enr.status === "CANCELLED") {
+          statusHtml = '<span class="badge-chip badge-chip-red">Zrušeno</span>';
+        } else if (enr.status === "COMPLETED") {
+          statusHtml = '<span class="badge-chip badge-chip-blue">Absolvováno</span>';
+        }
+
+        const dateStr = new Date(enr.submittedAt).toLocaleString("cs-CZ", {
+          dateStyle: "short",
+          timeStyle: "short",
+        });
+        const canCancel = enr.status === "CONFIRMED" || enr.status === "WAITLIST";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>
+            <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${enr.studentName}</div>
+            ${enr.note ? `<div class="text-xs text-[#8c6d3b] dark:text-[#c4a974] mt-0.5 truncate max-w-xs font-mono">Pozn.: ${enr.note}</div>` : ""}
           </td>
-        </tr>
-      `;
+          <td class="font-mono text-xs text-[#6e5223] dark:text-[#d1b88e]">${enr.studentEmail || "-"}</td>
+          <td class="text-xs">
+            <div class="font-mono text-[#5c4318] dark:text-[#e2d5b8] tabular-nums">${enr.studentPhone || "-"}</div>
+            ${enr.studentOrganization ? `<div class="text-xs text-[#8c6d3b] dark:text-[#c4a974]">${enr.studentOrganization}</div>` : ""}
+          </td>
+          <td class="font-mono text-xs text-[#8c6d3b] dark:text-[#c4a974] tabular-nums">${dateStr}</td>
+          <td>${statusHtml}</td>
+          <td class="text-right">
+            ${
+              canCancel
+                ? `<button class="btn-ghost-tw btn-sm-tw btn-cancel-enroll text-rose-700 dark:text-rose-400 hover:bg-rose-900/15" data-id="${enr.id}">
+                    Zrušit účast
+                   </button>`
+                : '<span class="text-amber-600/50 text-xs font-mono">-</span>'
+            }
+          </td>
+        `;
+
+        const cancelBtn = tr.querySelector(".btn-cancel-enroll");
+        cancelBtn?.addEventListener("click", () => this.handleCancelEnrollment(enr));
+
+        this.enrollmentsTableBody?.appendChild(tr);
+      });
       return;
     }
 
-    this.enrollments.forEach((enr) => {
-      let statusHtml = "";
-      if (enr.status === "CONFIRMED") {
-        statusHtml = '<span class="badge-chip badge-chip-green">Potvrzeno</span>';
-      } else if (enr.status === "WAITLIST") {
-        statusHtml = `<span class="badge-chip badge-chip-yellow">Náhradník #${enr.waitlistPosition || 1}</span>`;
-      } else if (enr.status === "CANCELLED") {
-        statusHtml = '<span class="badge-chip badge-chip-red">Zrušeno</span>';
-      } else if (enr.status === "COMPLETED") {
-        statusHtml = '<span class="badge-chip badge-chip-blue">Absolvováno</span>';
-      }
+    // 2. NON-ADMIN (Student or Anonymous Visitor): Hide private table, show privacy-compliant card
+    if (adminHint) adminHint.classList.add("hidden");
+    if (adminTableWrap) adminTableWrap.classList.add("hidden");
+    if (publicViewWrap) publicViewWrap.classList.remove("hidden");
 
-      const dateStr = new Date(enr.submittedAt).toLocaleString("cs-CZ", {
-        dateStyle: "short",
-        timeStyle: "short",
+    if (isStudent && currentUser) {
+      // Logged in student: check if student has registration on this term
+      const studentEmail = (currentUser.email || "").toLowerCase();
+      const studentId = currentUser.studentId;
+      const myEnrollment = this.enrollments.find((e) => {
+        return (
+          (studentId && e.studentId === studentId) ||
+          (studentEmail && e.studentEmail && e.studentEmail.toLowerCase() === studentEmail)
+        );
       });
-      const canCancel = enr.status === "CONFIRMED" || enr.status === "WAITLIST";
 
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>
-          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${enr.studentName}</div>
-          ${enr.note ? `<div class="text-xs text-[#8c6d3b] dark:text-[#c4a974] mt-0.5 truncate max-w-xs font-mono">Pozn.: ${enr.note}</div>` : ""}
-        </td>
-        <td class="font-mono text-xs text-[#6e5223] dark:text-[#d1b88e]">${enr.studentEmail}</td>
-        <td class="text-xs">
-          <div class="font-mono text-[#5c4318] dark:text-[#e2d5b8] tabular-nums">${enr.studentPhone || "-"}</div>
-          ${enr.studentOrganization ? `<div class="text-xs text-[#8c6d3b] dark:text-[#c4a974]">${enr.studentOrganization}</div>` : ""}
-        </td>
-        <td class="font-mono text-xs text-[#8c6d3b] dark:text-[#c4a974] tabular-nums">${dateStr}</td>
-        <td>${statusHtml}</td>
-        <td class="text-right">
-          ${
-            canCancel
-              ? `<button class="btn-ghost-tw btn-sm-tw btn-cancel-enroll text-rose-700 dark:text-rose-400 hover:bg-rose-900/15" data-id="${enr.id}">
-                  Zrušit účast
-                 </button>`
-              : '<span class="text-amber-600/50 text-xs font-mono">-</span>'
-          }
-        </td>
+      if (myEnrollment) {
+        const isConfirmed = myEnrollment.status === "CONFIRMED";
+        const isWaitlist = myEnrollment.status === "WAITLIST";
+        const isCancelled = myEnrollment.status === "CANCELLED";
+        const isCompleted = myEnrollment.status === "COMPLETED";
+
+        let myBadge = "";
+        if (isConfirmed) {
+          myBadge =
+            '<span class="badge-chip badge-chip-green text-sm px-2.5 py-1">Potvrzená registrace (Místo zajištěno)</span>';
+        } else if (isWaitlist) {
+          myBadge = `<span class="badge-chip badge-chip-yellow text-sm px-2.5 py-1">V pořadníku náhradníků (Pozice #${myEnrollment.waitlistPosition || 1})</span>`;
+        } else if (isCancelled) {
+          myBadge =
+            '<span class="badge-chip badge-chip-red text-sm px-2.5 py-1">Vaše účast byla zrušena</span>';
+        } else if (isCompleted) {
+          myBadge =
+            '<span class="badge-chip badge-chip-blue text-sm px-2.5 py-1">Kurz byl úspěšně absolvován</span>';
+        }
+
+        const dateStr = new Date(myEnrollment.submittedAt).toLocaleDateString("cs-CZ");
+        const canCancel = isConfirmed || isWaitlist;
+
+        if (publicViewWrap) {
+          publicViewWrap.innerHTML = `
+            <div class="card-box border border-[#caa049]/40 p-5 rounded-xl bg-[#fdfaf2] dark:bg-[#1a130d] shadow-sm">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-[#caa049]/20">
+                <div>
+                  <div class="text-xs font-semibold uppercase tracking-wider text-[#8c6d3b] dark:text-[#caa049]">Vaše přihláška na termín</div>
+                  <h4 class="text-base font-bold font-display text-[#4a3512] dark:text-[#faeed4] mt-0.5">${term.courseTitle}</h4>
+                </div>
+                <div>${myBadge}</div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 my-4 text-xs">
+                <div class="p-3 rounded-lg bg-amber-500/10">
+                  <div class="text-[11px] text-[#8c6d3b] dark:text-[#c4a974] font-semibold">Harmonogram výuky</div>
+                  <div class="font-mono font-bold text-[#4a3512] dark:text-[#faeed4] mt-0.5">${term.startDate} až ${term.endDate}</div>
+                </div>
+                <div class="p-3 rounded-lg bg-amber-500/10">
+                  <div class="text-[11px] text-[#8c6d3b] dark:text-[#c4a974] font-semibold">Učebna Trutnov</div>
+                  <div class="font-bold text-[#4a3512] dark:text-[#faeed4] mt-0.5">${term.classroomName}</div>
+                </div>
+                <div class="p-3 rounded-lg bg-amber-500/10">
+                  <div class="text-[11px] text-[#8c6d3b] dark:text-[#c4a974] font-semibold">Datum přihlášení</div>
+                  <div class="font-mono text-[#4a3512] dark:text-[#faeed4] mt-0.5">${dateStr}</div>
+                </div>
+              </div>
+              ${
+                canCancel
+                  ? `<div class="flex items-center justify-between pt-3 border-t border-[#caa049]/20">
+                      <span class="text-xs text-[#7c5e2d] dark:text-[#c4a974]">V případě změny plánů můžete svou účast odvolat.</span>
+                      <button id="btn-cancel-my-enrollment" class="btn-ghost-tw btn-sm-tw text-rose-700 dark:text-rose-400 hover:bg-rose-900/15">
+                        Zrušit mou účast na termínu
+                      </button>
+                    </div>`
+                  : ""
+              }
+            </div>
+          `;
+
+          const cancelMyBtn = publicViewWrap.querySelector("#btn-cancel-my-enrollment");
+          cancelMyBtn?.addEventListener("click", () => this.handleCancelEnrollment(myEnrollment));
+        }
+        return;
+      }
+    }
+
+    // Student NOT enrolled OR Anonymous Visitor
+    const isFull = term.confirmedCount >= term.capacity;
+    const vacancies = Math.max(0, term.capacity - term.confirmedCount);
+
+    if (publicViewWrap) {
+      publicViewWrap.innerHTML = `
+        <div class="card-box border border-[#caa049]/40 p-6 rounded-xl bg-[#fdfaf2] dark:bg-[#1a130d] text-center max-w-2xl mx-auto shadow-sm">
+          <h4 class="text-base font-bold font-display text-[#4a3512] dark:text-[#faeed4] mb-1">
+            Obsazenost kurzu: ${term.courseTitle}
+          </h4>
+          <p class="text-xs text-[#7c5e2d] dark:text-[#c4a974] mb-4">
+            Termín: <strong>${term.startDate} až ${term.endDate}</strong> • Místo: <strong>${term.classroomName}</strong>
+          </p>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5 max-w-md mx-auto text-left">
+            <div class="p-3 rounded-lg bg-amber-500/10 border border-[#caa049]/30">
+              <div class="text-[11px] text-[#8c6d3b] dark:text-[#c4a974] font-semibold">Kapacita</div>
+              <div class="text-lg font-bold font-mono text-[#4a3512] dark:text-[#faeed4]">${term.capacity} míst</div>
+            </div>
+            <div class="p-3 rounded-lg bg-amber-500/10 border border-[#caa049]/30">
+              <div class="text-[11px] text-[#8c6d3b] dark:text-[#c4a974] font-semibold">Potvrzeno</div>
+              <div class="text-lg font-bold font-mono text-emerald-700 dark:text-emerald-400">${term.confirmedCount} studentů</div>
+            </div>
+            <div class="p-3 rounded-lg bg-amber-500/10 border border-[#caa049]/30 col-span-2 sm:col-span-1">
+              <div class="text-[11px] text-[#8c6d3b] dark:text-[#c4a974] font-semibold">Stav míst</div>
+              <div class="text-sm font-bold ${isFull ? "text-amber-600 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400"} mt-1">
+                ${isFull ? `Plno (${term.waitlistCount} náhradníků)` : `Volno (${vacancies} míst)`}
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-lg bg-amber-500/10 border border-[#caa049]/20 text-xs text-[#6e4e1b] dark:text-[#faeed4] mb-5">
+            Z důvodu ochrany osobních údajů (GDPR) je kompletní jmenný seznam přihlášených účastníků a docházka přístupná pouze administrátorům centra.
+          </div>
+
+          <button id="btn-public-enroll-cta" class="btn-primary-tw inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+            Přihlásit se na tento termín
+          </button>
+        </div>
       `;
 
-      const cancelBtn = tr.querySelector(".btn-cancel-enroll");
-      cancelBtn?.addEventListener("click", () => this.handleCancelEnrollment(enr));
-
-      this.enrollmentsTableBody?.appendChild(tr);
-    });
+      const ctaBtn = publicViewWrap.querySelector("#btn-public-enroll-cta");
+      ctaBtn?.addEventListener("click", () => this.openEnrollmentModal());
+    }
   }
 
   private async handleCancelEnrollment(enr: Enrollment): Promise<void> {
+    const currentUser = authApi.getUser();
+    const isAdmin = authApi.isAdmin();
+    const isOwn =
+      currentUser &&
+      ((currentUser.studentId && enr.studentId === currentUser.studentId) ||
+        (currentUser.email &&
+          enr.studentEmail &&
+          currentUser.email.toLowerCase() === enr.studentEmail.toLowerCase()));
+
+    if (!isAdmin && !isOwn) {
+      Toast.error(
+        "Nemáte oprávnění zrušit tuto přihlášku. Můžete zrušit pouze svou vlastní účast."
+      );
+      return;
+    }
+
     const isConfirmedSpot = enr.status === "CONFIRMED";
     const promptMsg = isConfirmedSpot
       ? `Opravdu chcete zrušit účast studenta ${enr.studentName}?\n\nZrušením se uvolní místo a první náhradník z pořadníku bude automaticky povýšen na potvrzeného!`
@@ -349,6 +557,9 @@ export class TermsView {
       const res = await termsApi.cancelEnrollment(enr.id);
       Toast.success(res.message);
       await this.load();
+      if (this.selectedTermId) {
+        await this.selectTerm(this.selectedTermId);
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Nepodařilo se zrušit přihlášku.";
       Toast.error(msg);
@@ -458,6 +669,14 @@ export class TermsView {
       return;
     }
 
+    if (!authApi.isAuthenticated()) {
+      Toast.info(
+        "Pro přihlášení na kurz se prosím nejprve přihlaste jako student nebo administrátor."
+      );
+      Modal.open("modal-login");
+      return;
+    }
+
     const term = this.terms.find((t) => t.id === this.selectedTermId);
     if (!term) return;
 
@@ -467,17 +686,65 @@ export class TermsView {
     const termIdInput = document.getElementById("enrollment-term-id") as HTMLInputElement;
     if (termIdInput) termIdInput.value = this.selectedTermId;
 
+    const firstNameInput = document.getElementById("student-first-name") as HTMLInputElement;
+    const lastNameInput = document.getElementById("student-last-name") as HTMLInputElement;
+    const emailInput = document.getElementById("student-email") as HTMLInputElement;
+    const currentUser = authApi.getUser();
+
+    if (authApi.isStudent() && currentUser) {
+      const parts = (currentUser.name || "").trim().split(/\s+/);
+      const firstName = parts[0] || "";
+      const lastName = parts.slice(1).join(" ") || "";
+
+      if (firstNameInput) {
+        firstNameInput.value = firstName;
+        firstNameInput.readOnly = true;
+        firstNameInput.classList.add("bg-amber-100/30", "cursor-not-allowed");
+      }
+      if (lastNameInput) {
+        lastNameInput.value = lastName;
+        lastNameInput.readOnly = true;
+        lastNameInput.classList.add("bg-amber-100/30", "cursor-not-allowed");
+      }
+      if (emailInput) {
+        emailInput.value = currentUser.email || "";
+        emailInput.readOnly = true;
+        emailInput.classList.add("bg-amber-100/30", "cursor-not-allowed");
+      }
+    } else {
+      if (firstNameInput) {
+        firstNameInput.readOnly = false;
+        firstNameInput.classList.remove("bg-amber-100/30", "cursor-not-allowed");
+      }
+      if (lastNameInput) {
+        lastNameInput.readOnly = false;
+        lastNameInput.classList.remove("bg-amber-100/30", "cursor-not-allowed");
+      }
+      if (emailInput) {
+        emailInput.readOnly = false;
+        emailInput.classList.remove("bg-amber-100/30", "cursor-not-allowed");
+      }
+    }
+
     if (this.enrollmentTermNotice) {
       const isFull = term.confirmedCount >= term.capacity;
+      const studentNote =
+        authApi.isStudent() && currentUser
+          ? `<div class="mt-2 pt-2 border-t border-amber-300/40 text-xs font-semibold text-[#5c4318] dark:text-[#fce8bd]">
+              Přihlašujete se pod ověřeným profilem: <strong>${currentUser.name}</strong> (${currentUser.email})
+             </div>`
+          : "";
+
       this.enrollmentTermNotice.innerHTML = `
         <div class="p-2.5 rounded-lg ${isFull ? "bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300" : "bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300"} text-xs mb-3">
           <strong>${term.courseTitle}</strong> (${term.startDate} až ${term.endDate})<br/>
           Obsazeno: ${term.confirmedCount} z ${term.capacity} míst.
           ${
             isFull
-              ? `<span class="block mt-1 font-semibold text-amber-900 dark:text-amber-200">Kapacita termínu je naplněna! Student bude automaticky zařazen do pořadníku na pozici Náhradník #${term.waitlistCount + 1}.</span>`
-              : '<span class="block mt-1 text-emerald-900 dark:text-emerald-200">Na termínu jsou volná místa – student bude zaregistrován jako POTVRZENÝ.</span>'
+              ? `<span class="block mt-1 font-semibold text-amber-900 dark:text-amber-200">Kapacita termínu je naplněna! Budete zařazen(a) do pořadníku na pozici Náhradník #${term.waitlistCount + 1}.</span>`
+              : '<span class="block mt-1 text-emerald-900 dark:text-emerald-200">Na termínu jsou volná místa – registrace bude POTVRZENA.</span>'
           }
+          ${studentNote}
         </div>
       `;
     }

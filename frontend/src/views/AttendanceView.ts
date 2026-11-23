@@ -1,7 +1,7 @@
 /**
  * Attendance View - Akademie Trutnov
  * Daily teaching day blocks, student attendance tracking, bulk actions,
- * and 70% rule compliance matrix (ADR-01, ADR-05).
+ * and 70% rule compliance matrix.
  */
 import { TeachingDay, AttendanceRosterStudent, AttendanceSummaryItem, CourseTerm } from "../types";
 import { attendanceApi, CreateTeachingDayPayload } from "../api/attendanceApi";

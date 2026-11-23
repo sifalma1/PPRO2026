@@ -25,6 +25,15 @@ export interface TeachingDayResponseDto {
   presentCount: number;
 }
 
+export interface StudentDayAttendanceDto {
+  teachingDayId: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  isPresent: boolean;
+  note?: string | null;
+}
+
 export interface AttendanceSummaryDto {
   studentId: string;
   studentName: string;

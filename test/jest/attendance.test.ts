@@ -7,18 +7,50 @@ import {
   AttendanceSummaryDto,
   CreateTeachingDayDto,
   MarkAttendanceDto,
+  TeachingDayResponseDto,
+  StudentDayAttendanceDto,
 } from "../../src/application/dto/AttendanceDto.js";
+
+interface MockTeachingDay {
+  id: string;
+  termId: string;
+  dayDate: string;
+  hours: number;
+  topic: string;
+  lecturerId: string | null;
+}
+
+interface MockAttendanceRecord {
+  teachingDayId: string;
+  studentId: string;
+  isPresent: boolean;
+  note?: string | null;
+}
+
+interface MockEnrolledStudent {
+  id: string;
+  termId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
 
 /**
  * In-memory repository for isolated Attendance and Teaching Day testing
  */
 class InMemoryAttendanceRepository {
-  public teachingDays: any[] = [];
-  public attendanceRecords: any[] = [];
-  public enrolledStudents: any[] = [];
+  public teachingDays: MockTeachingDay[] = [];
+  public attendanceRecords: MockAttendanceRecord[] = [];
+  public enrolledStudents: MockEnrolledStudent[] = [];
 
-  async getTeachingDays(termId: string): Promise<any[]> {
-    return this.teachingDays.filter((d) => d.termId === termId);
+  async getTeachingDays(termId: string): Promise<TeachingDayResponseDto[]> {
+    return this.teachingDays
+      .filter((d) => d.termId === termId)
+      .map((d) => ({
+        ...d,
+        attendanceCount: 0,
+        presentCount: 0,
+      }));
   }
 
   async createTeachingDay(dto: CreateTeachingDayDto): Promise<string> {
@@ -34,7 +66,7 @@ class InMemoryAttendanceRepository {
     return id;
   }
 
-  async getAttendanceForDay(teachingDayId: string): Promise<any[]> {
+  async getAttendanceForDay(teachingDayId: string): Promise<StudentDayAttendanceDto[]> {
     const day = this.teachingDays.find((d) => d.id === teachingDayId);
     if (!day) return [];
     return this.enrolledStudents

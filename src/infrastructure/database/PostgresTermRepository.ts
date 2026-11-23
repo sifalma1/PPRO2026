@@ -1,11 +1,19 @@
 import { Pool } from "pg";
-import { CreateTermDto } from "../../application/dto/TermDto.js";
-import { CreateEnrollmentDto } from "../../application/dto/EnrollmentDto.js";
+import {
+  CreateTermDto,
+  TermResponseDto,
+  LecturerDto,
+  ClassroomDto,
+  StudentDto,
+  AnalyticsDto,
+  CancelEnrollmentResultDto,
+} from "../../application/dto/TermDto.js";
+import { CreateEnrollmentDto, EnrollmentResponseDto } from "../../application/dto/EnrollmentDto.js";
 
 export class PostgresTermRepository {
   constructor(private readonly db: Pool) {}
 
-  public async findAll(): Promise<any[]> {
+  public async findAll(): Promise<TermResponseDto[]> {
     const sql = `
       SELECT 
         t.id, t.course_id, c.title as course_title, c.price as course_price, c.hours as course_hours,
@@ -53,7 +61,7 @@ export class PostgresTermRepository {
     }));
   }
 
-  public async findById(id: string): Promise<any | null> {
+  public async findById(id: string): Promise<TermResponseDto | null> {
     const list = await this.findAll();
     return list.find((t) => t.id === id) || null;
   }
@@ -119,7 +127,7 @@ export class PostgresTermRepository {
     return (res.rowCount ?? 0) > 0;
   }
 
-  public async getEnrollmentsForTerm(termId: string): Promise<any[]> {
+  public async getEnrollmentsForTerm(termId: string): Promise<EnrollmentResponseDto[]> {
     const sql = `
       SELECT 
         e.id, e.term_id, e.student_id, e.submitted_at, e.status, e.waitlist_position, e.note,
@@ -155,10 +163,43 @@ export class PostgresTermRepository {
   }
 
   /**
+   * Fetch a single enrollment by its ID including student information.
+   */
+  public async getEnrollmentById(id: string): Promise<EnrollmentResponseDto | null> {
+    const query = `
+      SELECT e.id, e.term_id, e.student_id, e.status, e.waitlist_position, e.submitted_at, e.note,
+             s.first_name, s.last_name, s.email, s.phone, s.organization
+      FROM enrollments e
+      JOIN students s ON s.id = e.student_id
+      WHERE e.id = $1
+    `;
+    const res = await this.db.query(query, [id]);
+    if (res.rows.length === 0) return null;
+    const r = res.rows[0];
+    return {
+      id: r.id,
+      termId: r.term_id,
+      studentId: r.student_id,
+      studentName: `${r.first_name} ${r.last_name}`,
+      studentEmail: r.email,
+      studentPhone: r.phone,
+      studentOrganization: r.organization,
+      submittedAt:
+        r.submitted_at instanceof Date ? r.submitted_at.toISOString() : String(r.submitted_at),
+      status: r.status,
+      waitlistPosition: r.waitlist_position,
+      note: r.note,
+    };
+  }
+
+  /**
    * Enroll a student into a course term with strict capacity check,
    * automatic waitlist placement (ADR-02), and concurrent registration validation (ADR-03).
    */
-  public async createEnrollment(termId: string, studentData: CreateEnrollmentDto): Promise<any> {
+  public async createEnrollment(
+    termId: string,
+    studentData: CreateEnrollmentDto
+  ): Promise<EnrollmentResponseDto> {
     const client = await this.db.connect();
     try {
       await client.query("BEGIN");
@@ -261,9 +302,16 @@ export class PostgresTermRepository {
         termId,
         studentId,
         studentName: `${studentData.firstName} ${studentData.lastName}`,
+        studentEmail: studentData.email,
+        studentPhone: studentData.phone || null,
+        studentOrganization: studentData.organization || null,
         status: eRes.rows[0].status,
         waitlistPosition: eRes.rows[0].waitlist_position,
-        submittedAt: eRes.rows[0].submitted_at,
+        submittedAt:
+          eRes.rows[0].submitted_at instanceof Date
+            ? eRes.rows[0].submitted_at.toISOString()
+            : String(eRes.rows[0].submitted_at),
+        note: studentData.note || null,
       };
     } catch (e) {
       await client.query("ROLLBACK");
@@ -277,9 +325,7 @@ export class PostgresTermRepository {
    * Cancel enrollment with automatic waitlist advancement (ADR-02).
    * When a confirmed spot is cancelled, candidate #1 is automatically promoted.
    */
-  public async cancelEnrollment(
-    enrollmentId: string
-  ): Promise<{ success: boolean; promotedStudentId?: string }> {
+  public async cancelEnrollment(enrollmentId: string): Promise<CancelEnrollmentResultDto> {
     const client = await this.db.connect();
     try {
       await client.query("BEGIN");
@@ -344,7 +390,7 @@ export class PostgresTermRepository {
     }
   }
 
-  public async getLecturers(): Promise<any[]> {
+  public async getLecturers(): Promise<LecturerDto[]> {
     const sql = `
       SELECT 
         l.id, l.first_name, l.last_name, l.email, l.phone, l.specialization,
@@ -370,7 +416,7 @@ export class PostgresTermRepository {
     }));
   }
 
-  public async getClassrooms(): Promise<any[]> {
+  public async getClassrooms(): Promise<ClassroomDto[]> {
     const sql = "SELECT id, name, address, capacity FROM classrooms ORDER BY name ASC";
     const res = await this.db.query(sql);
     return res.rows.map((r) => ({
@@ -381,7 +427,7 @@ export class PostgresTermRepository {
     }));
   }
 
-  public async getStudents(): Promise<any[]> {
+  public async getStudents(): Promise<StudentDto[]> {
     const sql = `
       SELECT 
         s.id, s.first_name, s.last_name, s.email, s.phone, s.organization,
@@ -404,7 +450,7 @@ export class PostgresTermRepository {
     }));
   }
 
-  public async getAnalytics(): Promise<any> {
+  public async getAnalytics(): Promise<AnalyticsDto> {
     const terms = await this.findAll();
     const lecturers = await this.getLecturers();
 

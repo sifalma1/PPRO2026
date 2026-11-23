@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Certificate } from "../../src/domain/entities/Certificate.js";
+import { CourseTerm } from "../../src/domain/entities/CourseTerm.js";
+import { TeachingDay } from "../../src/domain/entities/TeachingDay.js";
 import { TermService } from "../../src/application/services/TermService.js";
 import { CertificateService } from "../../src/application/services/CertificateService.js";
 import { AttendanceService } from "../../src/application/services/AttendanceService.js";
@@ -1162,6 +1164,204 @@ describe("Domain Edge Cases & Boundary Conditions (Jest Suite)", () => {
           attendanceRate: 100.1,
         });
       }).toThrow("Attendance rate must be a percentage between 0 and 100.");
+    });
+  });
+
+  // =========================================================================
+  // 6. Extrémní doménové invarianty a zátěžové stavy (Stress & Extreme Conditions)
+  // =========================================================================
+  describe("6. Extreme Domain Invariants & Stress Conditions", () => {
+    it("handles extreme queue load with 25+ waitlisted candidates without gap or index drift (ADR-02)", async () => {
+      const termId = await termService.createTerm({
+        courseId: "course-stress-queue",
+        startDate: "2026-11-01",
+        endDate: "2026-11-30",
+        capacity: 2,
+      });
+
+      // 2 confirmed spots
+      const s1 = await termService.createEnrollment(termId, {
+        firstName: "Confirmed",
+        lastName: "One",
+        email: "c1@stress.cz",
+      });
+      const s2 = await termService.createEnrollment(termId, {
+        firstName: "Confirmed",
+        lastName: "Two",
+        email: "c2@stress.cz",
+      });
+      expect(s1.status).toBe("CONFIRMED");
+      expect(s2.status).toBe("CONFIRMED");
+
+      // Register 25 waitlisted candidates
+      const waitlistedIds: string[] = [];
+      for (let i = 1; i <= 25; i++) {
+        const enr = await termService.createEnrollment(termId, {
+          firstName: `WaitlistStudent`,
+          lastName: `${i}`,
+          email: `waitlist${i}@stress.cz`,
+        });
+        expect(enr.status).toBe("WAITLIST");
+        expect(enr.waitlistPosition).toBe(i);
+        waitlistedIds.push(enr.id);
+      }
+
+      const term = await termService.getTermById(termId);
+      expect(term.confirmedCount).toBe(2);
+      expect(term.waitlistCount).toBe(25);
+
+      // Cancel Confirmed S1 -> Waitlist #1 promoted, remaining 24 shift down
+      const cancel1 = await termService.cancelEnrollment(s1.id);
+      expect(cancel1.success).toBe(true);
+
+      let list = await termService.getEnrollmentsForTerm(termId);
+      const promoted = list.find((e) => e.id === waitlistedIds[0]);
+      expect(promoted?.status).toBe("CONFIRMED");
+      expect(promoted?.waitlistPosition).toBeNull();
+
+      // Verify the remaining 24 candidates now have positions 1 through 24
+      const activeWaitlistAfterPromotion = list
+        .filter((e) => e.status === "WAITLIST")
+        .sort((a, b) => (a.waitlistPosition ?? 0) - (b.waitlistPosition ?? 0));
+      expect(activeWaitlistAfterPromotion).toHaveLength(24);
+      activeWaitlistAfterPromotion.forEach((item, index) => {
+        expect(item.waitlistPosition).toBe(index + 1);
+      });
+
+      // Cancel a candidate in the middle of the waitlist (e.g. position 10)
+      const middleCandidate = activeWaitlistAfterPromotion[9]; // 10th item (position 10)
+      const cancelMiddle = await termService.cancelEnrollment(middleCandidate.id);
+      expect(cancelMiddle.success).toBe(true);
+
+      list = await termService.getEnrollmentsForTerm(termId);
+      const remainingWaitlist = list
+        .filter((e) => e.status === "WAITLIST")
+        .sort((a, b) => (a.waitlistPosition ?? 0) - (b.waitlistPosition ?? 0));
+
+      expect(remainingWaitlist).toHaveLength(23);
+      // Strictly consecutive positions 1, 2, ..., 23 with zero duplicates and zero gaps
+      remainingWaitlist.forEach((item, index) => {
+        expect(item.waitlistPosition).toBe(index + 1);
+      });
+    });
+
+    it("handles idempotent cancellation when attempting to cancel an already cancelled enrollment", async () => {
+      const termId = await termService.createTerm({
+        courseId: "course-idempotent-cancel",
+        startDate: "2026-11-01",
+        endDate: "2026-11-20",
+        capacity: 1,
+      });
+
+      const s1 = await termService.createEnrollment(termId, {
+        firstName: "S1",
+        lastName: "One",
+        email: "s1@idem.cz",
+      });
+      const s2 = await termService.createEnrollment(termId, {
+        firstName: "S2",
+        lastName: "Two",
+        email: "s2@idem.cz",
+      });
+      expect(s2.waitlistPosition).toBe(1);
+
+      // Cancel S1 first time -> promotes S2
+      const firstCancel = await termService.cancelEnrollment(s1.id);
+      expect(firstCancel.success).toBe(true);
+      expect(firstCancel.promotedStudentId).toBe(s2.studentId);
+
+      let list = await termService.getEnrollmentsForTerm(termId);
+      expect(list.find((e) => e.id === s1.id)?.status).toBe("CANCELLED");
+      expect(list.find((e) => e.id === s2.id)?.status).toBe("CONFIRMED");
+
+      // Attempt to cancel S1 a second time -> idempotent, no error, no side effects
+      const secondCancel = await termService.cancelEnrollment(s1.id);
+      expect(secondCancel.success).toBe(true);
+      expect(secondCancel.promotedStudentId).toBeUndefined();
+
+      list = await termService.getEnrollmentsForTerm(termId);
+      expect(list.find((e) => e.id === s1.id)?.status).toBe("CANCELLED");
+      expect(list.find((e) => e.id === s2.id)?.status).toBe("CONFIRMED");
+    });
+
+    it("strictly rejects enrollment attempt on a non-existent course term", async () => {
+      await expect(
+        termService.createEnrollment("00000000-0000-0000-0000-000000000000", {
+          firstName: "Ghost",
+          lastName: "Student",
+          email: "ghost@nowhere.com",
+        })
+      ).rejects.toThrow("Course term was not found.");
+    });
+
+    it("validates date chronology and constraints across CourseTerm and TeachingDay entities", () => {
+      // Chronology invariant in CourseTerm
+      expect(() => {
+        new CourseTerm({
+          courseId: "c-chrono",
+          startDate: "2026-12-01",
+          endDate: "2026-11-01",
+          capacity: 10,
+        });
+      }).toThrow("Start date cannot be after end date.");
+
+      expect(() => {
+        new CourseTerm({
+          courseId: "c-cap",
+          startDate: "2026-11-01",
+          endDate: "2026-11-10",
+          capacity: 0,
+        });
+      }).toThrow("Term capacity must be a positive integer.");
+
+      // Invariants in TeachingDay
+      expect(() => {
+        new TeachingDay({
+          termId: "t-date",
+          dayDate: "",
+          hours: 4,
+          topic: "Valid Topic",
+        });
+      }).toThrow("Teaching day requires a valid date.");
+
+      expect(() => {
+        new TeachingDay({
+          termId: "t-hours",
+          dayDate: "2026-11-05",
+          hours: -2,
+          topic: "Valid Topic",
+        });
+      }).toThrow("Teaching day hours must be a positive integer.");
+    });
+
+    it("enforces robust lecturer waiver validation under stress (empty, whitespace, special unicode characters)", () => {
+      // Whitespace and control character justification (< 5 effective characters)
+      expect(() => {
+        new Certificate({
+          enrollmentId: "e-ws",
+          studentId: "s-ws",
+          termId: "t-ws",
+          certificateNumber: "AT-2026-0099",
+          issueDate: "2026-11-30",
+          attendanceRate: 65.0,
+          hasWaiver: true,
+          waiverReason: " \n\t   ", // only whitespace
+        });
+      }).toThrow("Instructor waiver requires a written justification of at least 5 characters.");
+
+      // Valid unicode waiver justification
+      const unicodeCert = new Certificate({
+        enrollmentId: "e-uni",
+        studentId: "s-uni",
+        termId: "t-uni",
+        certificateNumber: "AT-2026-0099",
+        issueDate: "2026-11-30",
+        attendanceRate: 65.0,
+        hasWaiver: true,
+        waiverReason: "Lékařská zpráva doložena a uznána lektorem ⚕️",
+      });
+      expect(unicodeCert.hasWaiver).toBe(true);
+      expect(unicodeCert.waiverReason).toContain("Lékařská zpráva");
     });
   });
 });

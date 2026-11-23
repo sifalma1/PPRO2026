@@ -7,14 +7,35 @@ import {
   IssueCertificateDto,
 } from "../../src/application/dto/CertificateDto.js";
 
+interface MockCertificateEnrollment {
+  id: string;
+  termId: string;
+  studentId: string;
+  studentName?: string;
+  studentEmail?: string;
+  courseTitle?: string;
+  status: string;
+}
+
+interface MockTeachingDay {
+  id: string;
+  termId: string;
+}
+
+interface MockAttendanceRecord {
+  teachingDayId: string;
+  studentId: string;
+  isPresent: boolean;
+}
+
 /**
  * In-memory repository mock for isolated Certificate testing
  */
 class InMemoryCertificateRepository {
-  public certificates: any[] = [];
-  public enrollments: any[] = [];
-  public teachingDays: any[] = [];
-  public attendanceRecords: any[] = [];
+  public certificates: CertificateResponseDto[] = [];
+  public enrollments: MockCertificateEnrollment[] = [];
+  public teachingDays: MockTeachingDay[] = [];
+  public attendanceRecords: MockAttendanceRecord[] = [];
   private counter: number = 0;
 
   async findAll(): Promise<CertificateResponseDto[]> {

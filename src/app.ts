@@ -61,7 +61,7 @@ export function createApp(options?: { authService?: AuthService }): Express {
 
   // Initialize presentation controllers
   const courseController = new CourseController(courseService);
-  const termController = new TermController(termService);
+  const termController = new TermController(termService, authService);
   const attendanceController = new AttendanceController(attendanceService);
   const certificateController = new CertificateController(certificateService);
   const authController = new AuthController(authService);
@@ -103,23 +103,31 @@ export function createApp(options?: { authService?: AuthService }): Express {
   app.post("/api/enrollments/:enrollmentId/cancel", termController.cancelEnrollment);
   app.post("/api/prihlasky/:prihlaskaId/cancel", termController.cancelEnrollment);
 
-  // 4. Teaching Days & Attendance (ADR-01, ADR-05)
+  // 4. Teaching Days & Attendance (ADR-01, ADR-05) - Protected with Admin Auth
   const attendanceRouter = Router();
-  attendanceRouter.get("/terms/:termId/days", attendanceController.getTeachingDays);
+  attendanceRouter.get(
+    "/terms/:termId/days",
+    requireAdminAuth,
+    attendanceController.getTeachingDays
+  );
   attendanceRouter.post(
     "/terms/:termId/days",
     requireAdminAuth,
     attendanceController.createTeachingDay
   );
-  attendanceRouter.get("/days/:dayId", attendanceController.getAttendanceForDay);
+  attendanceRouter.get("/days/:dayId", requireAdminAuth, attendanceController.getAttendanceForDay);
   attendanceRouter.post("/days/:dayId/mark", requireAdminAuth, attendanceController.markAttendance);
-  attendanceRouter.get("/terms/:termId/summary", attendanceController.getAttendanceSummary);
+  attendanceRouter.get(
+    "/terms/:termId/summary",
+    requireAdminAuth,
+    attendanceController.getAttendanceSummary
+  );
   app.use("/api/attendance", attendanceRouter);
 
-  // 5. Certificates (ADR-01)
+  // 5. Certificates (ADR-01) - Protected with Admin / Authenticated Auth
   const certificateRouter = Router();
-  certificateRouter.get("/", certificateController.getAll);
-  certificateRouter.get("/:id", certificateController.getById);
+  certificateRouter.get("/", requireAdminAuth, certificateController.getAll);
+  certificateRouter.get("/:id", requireAuth, certificateController.getById);
   certificateRouter.post("/issue", requireAdminAuth, certificateController.issue);
   app.use("/api/certificates", certificateRouter);
   app.use("/api/osvedceni", certificateRouter);
@@ -129,10 +137,10 @@ export function createApp(options?: { authService?: AuthService }): Express {
   app.get("/api/lektori", termController.getLecturers);
   app.get("/api/classrooms", termController.getClassrooms);
   app.get("/api/ucebny", termController.getClassrooms);
-  app.get("/api/students", termController.getStudents);
-  app.get("/api/studenti", termController.getStudents);
-  app.get("/api/analytics", termController.getAnalytics);
-  app.get("/api/prehledy", termController.getAnalytics);
+  app.get("/api/students", requireAdminAuth, termController.getStudents);
+  app.get("/api/studenti", requireAdminAuth, termController.getStudents);
+  app.get("/api/analytics", requireAdminAuth, termController.getAnalytics);
+  app.get("/api/prehledy", requireAdminAuth, termController.getAnalytics);
 
   // Health check endpoint
   app.get("/health", (req, res) => {

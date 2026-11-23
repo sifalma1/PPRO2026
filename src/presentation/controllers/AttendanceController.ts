@@ -9,8 +9,9 @@ export class AttendanceController {
       const termId = String(req.params.termId || req.params.id);
       const days = await this.attendanceService.getTeachingDays(termId);
       res.status(200).json({ success: true, count: days.length, data: days });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : String(err);
+      res.status(500).json({ success: false, error });
     }
   };
 
@@ -35,8 +36,9 @@ export class AttendanceController {
         message: "Teaching day created successfully.",
         data: { id: dayId },
       });
-    } catch (err: any) {
-      res.status(400).json({ success: false, error: err.message });
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : String(err);
+      res.status(400).json({ success: false, error });
     }
   };
 
@@ -45,8 +47,9 @@ export class AttendanceController {
       const dayId = String(req.params.dayId || req.params.id);
       const records = await this.attendanceService.getAttendanceForDay(dayId);
       res.status(200).json({ success: true, count: records.length, data: records });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : String(err);
+      res.status(500).json({ success: false, error });
     }
   };
 
@@ -61,8 +64,9 @@ export class AttendanceController {
         note: note ? String(note) : undefined,
       });
       res.status(200).json({ success: true, message: "Attendance recorded successfully." });
-    } catch (err: any) {
-      res.status(400).json({ success: false, error: err.message });
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : String(err);
+      res.status(400).json({ success: false, error });
     }
   };
 
@@ -71,8 +75,9 @@ export class AttendanceController {
       const termId = String(req.params.termId || req.params.id);
       const summary = await this.attendanceService.getAttendanceSummary(termId);
       res.status(200).json({ success: true, count: summary.length, data: summary });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : String(err);
+      res.status(500).json({ success: false, error });
     }
   };
 }

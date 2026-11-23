@@ -3,12 +3,14 @@ import {
   CreateTeachingDayDto,
   MarkAttendanceDto,
   AttendanceSummaryDto,
+  TeachingDayResponseDto,
+  StudentDayAttendanceDto,
 } from "../dto/AttendanceDto.js";
 
 export class AttendanceService {
   constructor(private readonly repo: PostgresAttendanceRepository) {}
 
-  public async getTeachingDays(termId: string): Promise<any[]> {
+  public async getTeachingDays(termId: string): Promise<TeachingDayResponseDto[]> {
     return await this.repo.getTeachingDays(termId);
   }
 
@@ -21,7 +23,7 @@ export class AttendanceService {
     return await this.repo.createTeachingDay(dto);
   }
 
-  public async getAttendanceForDay(teachingDayId: string): Promise<any[]> {
+  public async getAttendanceForDay(teachingDayId: string): Promise<StudentDayAttendanceDto[]> {
     return await this.repo.getAttendanceForDay(teachingDayId);
   }
 
