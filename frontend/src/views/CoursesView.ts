@@ -50,13 +50,6 @@ export class CoursesView {
   }
 
   private bindEvents(): void {
-    // Quick search bar trigger from header
-    const btnQuickSearch = document.getElementById("btn-quick-search");
-    btnQuickSearch?.addEventListener("click", () => {
-      this.searchInput?.focus();
-      this.searchInput?.select();
-    });
-
     // Search input
     this.searchInput?.addEventListener("input", (e) => {
       this.searchQuery = (e.target as HTMLInputElement).value.toLowerCase().trim();
@@ -215,18 +208,28 @@ export class CoursesView {
               isAdmin
                 ? `
               <button
-                class="btn-secondary-tw btn-sm-tw btn-edit-course"
+                class="btn-secondary-tw p-1.5 rounded btn-edit-course"
                 data-id="${course.id}"
                 title="Upravit parametry kurzu"
+                aria-label="Upravit kurz"
               >
-                Upravit
+                <svg class="w-3.5 h-3.5 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
               </button>
               <button
-                class="btn-ghost-tw btn-sm-tw btn-delete-course text-rose-700 dark:text-rose-400 hover:bg-rose-900/10"
+                class="btn-secondary-tw p-1.5 rounded btn-delete-course hover:border-rose-500/60"
                 data-id="${course.id}"
                 title="Smazat kurz z katalogu"
+                aria-label="Smazat kurz"
               >
-                Smazat
+                <svg class="w-3.5 h-3.5 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
               </button>
             `
                 : ""

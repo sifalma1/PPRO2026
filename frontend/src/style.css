@@ -159,13 +159,24 @@
 
   /* ================= NAVIGATION TABS & DROPDOWN (Quest Log & Spellbook Tabs) ================= */
   .nav-tab-btn {
-    @apply px-3 py-1.5 text-xs font-semibold rounded transition-all text-amber-900/80 dark:text-amber-200/80 hover:text-amber-950 dark:hover:text-amber-100 flex items-center gap-1.5 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 cursor-pointer;
+    @apply px-3 py-1.5 text-xs font-semibold rounded transition-all flex items-center gap-1.5 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 cursor-pointer;
     font-family: "Cinzel", Georgia, serif;
     border: 1px solid transparent;
+    color: #faeed4 !important;
   }
   .nav-tab-btn:hover {
-    background: rgba(198, 155, 61, 0.15);
-    border-color: rgba(198, 155, 61, 0.35);
+    background: rgba(202, 160, 73, 0.22);
+    border-color: rgba(202, 160, 73, 0.45);
+    color: #ffffff !important;
+  }
+  .nav-tab-btn svg {
+    color: #f7d358;
+    opacity: 0.95;
+  }
+  .nav-tab-btn .nav-tab-kbd {
+    background: #251b14;
+    color: #fce28b;
+    border: 1px solid #7c622e;
   }
   .nav-tab-btn.active {
     background: linear-gradient(180deg, #c5973d 0%, #8e6822 50%, #5a4013 100%);
@@ -184,18 +195,20 @@
   }
 
   .dropdown-nav-item {
-    @apply w-full px-3 py-2 text-xs font-medium rounded text-slate-800 dark:text-slate-200 hover:text-amber-950 dark:hover:text-amber-100 flex items-center justify-between gap-3 transition-colors text-left cursor-pointer;
+    @apply w-full px-3 py-2 text-xs font-medium rounded flex items-center justify-between gap-3 transition-colors text-left cursor-pointer;
     border-left: 2px solid transparent;
+    color: #faeed4 !important;
   }
   .dropdown-nav-item:hover {
-    background: rgba(198, 155, 61, 0.12);
-    border-left-color: #c69b3d;
+    background: rgba(202, 160, 73, 0.22);
+    border-left-color: #caa049;
+    color: #ffffff !important;
   }
   .dropdown-nav-item.active {
-    background: rgba(198, 155, 61, 0.2);
-    color: #d4af37 !important;
+    background: rgba(202, 160, 73, 0.35);
+    color: #ffd700 !important;
     font-weight: 700;
-    border-left-color: #f7d358;
+    border-left-color: #ffd700;
   }
 
   /* ================= WARCRAFT ITEM RARITY BADGES & CHIPS ================= */

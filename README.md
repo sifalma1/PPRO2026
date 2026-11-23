@@ -1372,7 +1372,19 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
 
 ### 10.1 Historie verzí (Changelog v1.0.0 až v1.8.0)
 
-#### Verze 1.8.0 (Aktuální verze – Autentický kamenný a pergamenový design dle předlohy Kurzy-Projekt.webp a odstranění označení WoW Forever)
+#### Verze 1.8.1 (Optimalizace čitelnosti navbaru ve světlém režimu, ikony akcí kurzů a zjednodušení lišty)
+
+- **Vylepšení kontrastu a čitelnosti záhlaví (Navbar Readability):**
+  - Vyřešen nízký kontrast textu navigačních záložek a dropdown menu ve světlém režimu. Záložky nyní využívají jasný světlý krémovo-zlatý text (`#faeed4`) a jantarové ikony (`#f7d358`), čímž je zaručena vysoká čitelnost a kontrast na tmavém dřevěném masivu v obou režimech (světlý i tmavý).
+  - Přepracováno dropdown menu a mobilní navigace do jednotného tmavého ořechového stylu se zlatým orámováním a vysoce kontrastními popisky.
+- **Odstranění vyhledávacího pole z navbaru:**
+  - Odstraněno redundantní vyhledávací tlačítko „Hledat ve svitcích...“ ze záhlaví; vyhledávání je plně soustředěno do dedikované lišty katalogu kurzů.
+- **Ikony pro akce administrátora u kurzů (Icon Buttons):**
+  - Textová tlačítka „Upravit“ a „Smazat“ na kartách kurzů byla nahrazena kompaktními zlacenými ikonami s tooltipy (ikona tužky pro editaci parametrů kurzu a ikona koše pro smazání), což šetří prostor v zápatí karet a předchází nežádoucímu zalamování.
+- **Kvalita a stabilita:**
+  - Všech 119 testů (29 Node test runner + 90 Jest) zůstává 100% zelených.
+
+#### Verze 1.8.0 (Autentický kamenný a pergamenový design dle předlohy Kurzy-Projekt.webp a odstranění označení WoW Forever)
 
 - **Aplikace vizuálního stylu dle předlohy `Kurzy-Projekt.webp` a čistý název systému:**
   - Vizuální podoba frontendu byla detailně přepracována a sjednocena přesně podle grafické předlohy `Kurzy-Projekt.webp`.
