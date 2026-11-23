@@ -133,7 +133,7 @@ export class CertificatesView {
     if (this.certificates.length === 0) {
       this.certificatesTableBody.innerHTML = `
         <tr>
-          <td colspan="7" class="text-center py-10 text-slate-400">
+          <td colspan="7" class="text-center py-10 text-amber-800/60 dark:text-amber-200/50 italic">
             Zatím nebyla vystavena žádná osvědčení. Uzavřete termín kurzu nebo udělte lektorskou výjimku.
           </td>
         </tr>
@@ -151,16 +151,16 @@ export class CertificatesView {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>
-          <span class="font-mono font-bold text-xs text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
+          <span class="font-mono font-bold text-xs text-amber-900 dark:text-amber-200 bg-[#fbf5e6] dark:bg-[#1a1424] px-2.5 py-0.5 rounded border border-[#caa049]">
             ${c.certificateNumber}
           </span>
         </td>
         <td>
-          <div class="font-bold text-slate-900 dark:text-white">${c.studentName}</div>
-          <div class="font-mono text-xs text-slate-500">${c.studentEmail}</div>
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${c.studentName}</div>
+          <div class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974]">${c.studentEmail}</div>
         </td>
-        <td class="text-xs font-medium text-slate-800 dark:text-slate-200">${c.courseTitle}</td>
-        <td class="font-mono text-xs text-slate-500 tabular-nums">${c.issueDate}</td>
+        <td class="text-xs font-medium font-display text-[#4a3512] dark:text-[#eeddbb]">${c.courseTitle}</td>
+        <td class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974] tabular-nums">${c.issueDate}</td>
         <td>
           <span class="font-mono font-bold text-xs tabular-nums ${c.attendanceRate >= 70 ? "text-emerald-700 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}">
             ${c.attendanceRate} %

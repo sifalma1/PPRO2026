@@ -439,8 +439,8 @@ describe("CourseTerm and Enrollment Entities & TermService (Jest Unit Tests)", (
       const termOverview = await service.getTermById(termId);
       expect(termOverview.confirmedCount).toBe(2);
       expect(termOverview.waitlistCount).toBe(2);
-      expect(termOverview.isFull).toBe(true);
-      expect(termOverview.availableSpots).toBe(0);
+      expect((termOverview as any).isFull).toBe(true);
+      expect((termOverview as any).availableSpots).toBe(0);
     });
 
     it("promotes #1 waitlisted student to CONFIRMED and shifts remaining queue when a confirmed student cancels (ADR-02)", async () => {

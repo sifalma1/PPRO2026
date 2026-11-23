@@ -133,7 +133,7 @@ export class TermsView {
     if (this.terms.length === 0) {
       this.termsTableBody.innerHTML = `
         <tr>
-          <td colspan="7" class="text-center py-10 text-slate-400">
+          <td colspan="7" class="text-center py-10 text-amber-800/60 dark:text-amber-200/50 italic">
             Dosud nebyly vypsány žádné termíny kurzů.
           </td>
         </tr>
@@ -168,15 +168,15 @@ export class TermsView {
 
       tr.innerHTML = `
         <td>
-          <div class="font-bold text-slate-900 dark:text-white">${term.courseTitle}</div>
-          <div class="font-mono text-xs text-slate-400 mt-0.5">ID: ${term.id.slice(0, 8)}...</div>
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${term.courseTitle}</div>
+          <div class="font-mono text-xs text-[#8c6d3b] dark:text-[#c4a974] mt-0.5">ID: ${term.id.slice(0, 8)}...</div>
         </td>
-        <td class="font-mono text-xs tabular-nums">
+        <td class="font-mono text-xs tabular-nums text-[#5c4318] dark:text-[#e2d5b8]">
           <span>${term.startDate}</span>
-          <span class="text-slate-400 mx-1">→</span>
+          <span class="text-amber-500/70 mx-1">→</span>
           <span>${term.endDate}</span>
         </td>
-        <td class="text-xs text-slate-700 dark:text-slate-300">
+        <td class="text-xs text-[#5c4318] dark:text-[#e2d5b8]">
           <div class="font-medium">${term.classroomName || "Neuvedena"}</div>
         </td>
         <td>
@@ -184,9 +184,9 @@ export class TermsView {
             <span class="font-mono text-xs font-bold tabular-nums ${isFull ? "text-amber-600 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400"}">
               ${term.confirmedCount} / ${term.capacity}
             </span>
-            <div class="w-20 h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden shrink-0">
+            <div class="w-20 forged-meter-track">
               <div
-                class="h-full rounded-full transition-all duration-300 ${isFull ? "bg-amber-500" : "bg-emerald-600"}"
+                class="h-full rounded-xs transition-all duration-300 ${isFull ? "bg-amber-500" : "bg-emerald-600"}"
                 style="width: ${fillPercentage}%;"
               ></div>
             </div>
@@ -198,10 +198,10 @@ export class TermsView {
                     ADR-02: ${term.waitlistCount} ${term.waitlistCount === 1 ? "náhradník" : "náhradníci"}
                   </span>
                  </div>`
-              : `<div class="text-xs text-slate-400 mt-0.5 font-mono tabular-nums">Volno: ${Math.max(0, term.capacity - term.confirmedCount)} míst</div>`
+              : `<div class="text-xs text-[#8c6d3b] dark:text-[#c4a974] mt-0.5 font-mono tabular-nums">Volno: ${Math.max(0, term.capacity - term.confirmedCount)} míst</div>`
           }
         </td>
-        <td class="text-xs text-slate-600 dark:text-slate-400">${lecturersList}</td>
+        <td class="text-xs text-[#6e5223] dark:text-[#d1b88e]">${lecturersList}</td>
         <td>${statusBadge}</td>
         <td class="text-right">
           <div class="inline-flex items-center gap-1.5">
@@ -256,9 +256,9 @@ export class TermsView {
     }
     if (this.detailTermInfo) {
       this.detailTermInfo.innerHTML = `
-        Termín: <strong class="font-mono text-slate-900 dark:text-white">${term.startDate} až ${term.endDate}</strong> •
-        Učebna: <strong class="text-slate-900 dark:text-white">${term.classroomName}</strong> •
-        Obsazenost: <strong class="font-mono text-slate-900 dark:text-white">${term.confirmedCount} / ${term.capacity} míst</strong>
+        Termín: <strong class="font-mono text-[#4a3512] dark:text-[#faeed4]">${term.startDate} až ${term.endDate}</strong> •
+        Učebna: <strong class="text-[#4a3512] dark:text-[#faeed4]">${term.classroomName}</strong> •
+        Obsazenost: <strong class="font-mono text-[#4a3512] dark:text-[#faeed4]">${term.confirmedCount} / ${term.capacity} míst</strong>
         ${term.waitlistCount > 0 ? ` • (<span class="text-amber-600 dark:text-amber-400 font-semibold font-mono">${term.waitlistCount} v pořadníku ADR-02</span>)` : ""}
       `;
     }
@@ -279,7 +279,7 @@ export class TermsView {
     if (this.enrollments.length === 0) {
       this.enrollmentsTableBody.innerHTML = `
         <tr>
-          <td colspan="6" class="text-center py-8 text-slate-400">
+          <td colspan="6" class="text-center py-8 text-amber-800/60 dark:text-amber-200/50 italic">
             Na tento termín se zatím nikdo nepřihlásil. Použijte tlačítko "Zaregistrovat studenta" výše.
           </td>
         </tr>
@@ -308,23 +308,23 @@ export class TermsView {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>
-          <div class="font-bold text-slate-900 dark:text-white">${enr.studentName}</div>
-          ${enr.note ? `<div class="text-xs text-slate-400 mt-0.5 truncate max-w-xs">Pozn.: ${enr.note}</div>` : ""}
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${enr.studentName}</div>
+          ${enr.note ? `<div class="text-xs text-[#8c6d3b] dark:text-[#c4a974] mt-0.5 truncate max-w-xs font-mono">Pozn.: ${enr.note}</div>` : ""}
         </td>
-        <td class="font-mono text-xs text-slate-600 dark:text-slate-400">${enr.studentEmail}</td>
+        <td class="font-mono text-xs text-[#6e5223] dark:text-[#d1b88e]">${enr.studentEmail}</td>
         <td class="text-xs">
-          <div class="font-mono text-slate-700 dark:text-slate-300 tabular-nums">${enr.studentPhone || "-"}</div>
-          ${enr.studentOrganization ? `<div class="text-xs text-slate-400">${enr.studentOrganization}</div>` : ""}
+          <div class="font-mono text-[#5c4318] dark:text-[#e2d5b8] tabular-nums">${enr.studentPhone || "-"}</div>
+          ${enr.studentOrganization ? `<div class="text-xs text-[#8c6d3b] dark:text-[#c4a974]">${enr.studentOrganization}</div>` : ""}
         </td>
-        <td class="font-mono text-xs text-slate-500 tabular-nums">${dateStr}</td>
+        <td class="font-mono text-xs text-[#8c6d3b] dark:text-[#c4a974] tabular-nums">${dateStr}</td>
         <td>${statusHtml}</td>
         <td class="text-right">
           ${
             canCancel
-              ? `<button class="btn-ghost-tw btn-sm-tw btn-cancel-enroll text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40" data-id="${enr.id}">
+              ? `<button class="btn-ghost-tw btn-sm-tw btn-cancel-enroll text-rose-700 dark:text-rose-400 hover:bg-rose-900/15" data-id="${enr.id}">
                   Zrušit účast
                  </button>`
-              : '<span class="text-slate-400 text-xs">-</span>'
+              : '<span class="text-amber-600/50 text-xs font-mono">-</span>'
           }
         </td>
       `;

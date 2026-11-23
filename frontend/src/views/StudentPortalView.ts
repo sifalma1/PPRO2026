@@ -72,16 +72,16 @@ export class StudentPortalView {
     if (!user) {
       this.container.innerHTML = `
         <div class="card-box text-center py-12 max-w-xl mx-auto">
-          <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto mb-3">
+          <div class="w-12 h-12 rounded-full bg-[#f4ebce] dark:bg-[#251e30] text-[#8c6d3b] dark:text-[#f8df95] flex items-center justify-center mx-auto mb-3 border border-[#caa049]">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
           </div>
-          <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1">
+          <h3 class="text-base font-bold font-display text-[#4a3512] dark:text-[#faeed4] mb-1">
             Klientský portál studenta Akademie Trutnov
           </h3>
-          <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-4 leading-relaxed">
+          <p class="text-xs text-[#7c5e2d] dark:text-[#c4a974] max-w-sm mx-auto mb-4 leading-relaxed">
             Pro zobrazení Vašich podaných přihlášek, pozice v pořadníku náhradníků, evidence docházky a vydaných osvědčení se prosím přihlaste.
           </p>
           <button id="btn-student-portal-login" class="btn-primary-tw mx-auto flex items-center gap-2">
@@ -127,12 +127,12 @@ export class StudentPortalView {
               </div>
               <div>
                 <div class="flex items-center gap-2">
-                  <h2 class="text-base font-bold text-slate-900 dark:text-white">
+                  <h2 class="text-base font-bold font-display text-[#4a3512] dark:text-[#faeed4]">
                     ${student.name}
                   </h2>
                   <span class="badge-chip badge-chip-blue font-mono text-xs">Student</span>
                 </div>
-                <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex flex-wrap items-center gap-3">
+                <div class="text-xs text-[#7c5e2d] dark:text-[#c4a974] mt-0.5 flex flex-wrap items-center gap-3">
                   <span>✉️ ${student.email}</span>
                   ${student.organization ? `<span>🏢 ${student.organization}</span>` : ""}
                 </div>
@@ -155,34 +155,34 @@ export class StudentPortalView {
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div class="metric-kpi-card">
             <div>
-              <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Aktivní přihlášky</div>
-              <div class="text-xl font-bold font-mono tabular-nums text-slate-900 dark:text-white mt-0.5">${confirmedCount}</div>
+              <div class="text-xs font-semibold text-[#7c5e2d] dark:text-[#c4a974] uppercase tracking-wider font-display">Aktivní přihlášky</div>
+              <div class="text-xl font-bold font-mono tabular-nums text-[#4a3512] dark:text-[#faeed4] mt-0.5">${confirmedCount}</div>
             </div>
           </div>
           <div class="metric-kpi-card">
             <div>
-              <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pořadník náhradníků</div>
+              <div class="text-xs font-semibold text-[#7c5e2d] dark:text-[#c4a974] uppercase tracking-wider font-display">Pořadník náhradníků</div>
               <div class="text-xl font-bold font-mono tabular-nums text-amber-600 dark:text-amber-400 mt-0.5">${waitlistCount}</div>
             </div>
           </div>
           <div class="metric-kpi-card">
             <div>
-              <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Průměrná docházka</div>
+              <div class="text-xs font-semibold text-[#7c5e2d] dark:text-[#c4a974] uppercase tracking-wider font-display">Průměrná docházka</div>
               <div class="text-xl font-bold font-mono tabular-nums ${avgAttendance >= 70 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600"} mt-0.5">${avgAttendance} %</div>
             </div>
           </div>
           <div class="metric-kpi-card">
             <div>
-              <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Získaná osvědčení</div>
-              <div class="text-xl font-bold font-mono tabular-nums text-sky-600 dark:text-sky-400 mt-0.5">${certificates.length}</div>
+              <div class="text-xs font-semibold text-[#7c5e2d] dark:text-[#c4a974] uppercase tracking-wider font-display">Získaná osvědčení</div>
+              <div class="text-xl font-bold font-mono tabular-nums text-amber-600 dark:text-amber-400 mt-0.5">${certificates.length}</div>
             </div>
           </div>
         </div>
 
         <!-- Enrollments Table -->
         <div class="table-box-wrap">
-          <div class="px-5 py-3.5 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
-            <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+          <div class="table-box-header px-5 py-3.5 flex items-center justify-between">
+            <h3 class="text-xs font-bold uppercase tracking-wider font-display text-[#4a3512] dark:text-[#fce8bd]">
               Moje zapsané kurzy & termíny
             </h3>
             <span class="badge-chip badge-chip-slate font-mono text-xs">${enrollments.length} zápisů</span>
@@ -203,7 +203,7 @@ export class StudentPortalView {
               <tbody>
                 ${
                   enrollments.length === 0
-                    ? `<tr><td colspan="6" class="py-8 text-center text-xs text-slate-400">Zatím nemáte žádné aktivní přihlášky. Vyberte si kurz v katalogu!</td></tr>`
+                    ? `<tr><td colspan="6" class="py-8 text-center text-xs text-amber-800/60 dark:text-amber-200/50 italic">Zatím nemáte žádné aktivní přihlášky. Vyberte si kurz v katalogu!</td></tr>`
                     : enrollments
                         .map((enr) => {
                           const attItem = attendance.find((a) => a.termId === enr.termId);
@@ -229,13 +229,13 @@ export class StudentPortalView {
 
                           return `
                             <tr>
-                              <td class="font-semibold text-slate-900 dark:text-white">
+                              <td class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">
                                 ${enr.courseTitle}
                               </td>
-                              <td class="font-mono text-xs">
+                              <td class="font-mono text-xs text-[#5c4318] dark:text-[#e2d5b8]">
                                 ${enr.startDate} až ${enr.endDate}
                               </td>
-                              <td class="text-xs text-slate-600 dark:text-slate-400">
+                              <td class="text-xs text-[#6e5223] dark:text-[#d1b88e]">
                                 ${enr.classroomName || "Centrum Trutnov"}
                               </td>
                               <td>${statusBadge}</td>
@@ -250,12 +250,12 @@ export class StudentPortalView {
                               <td class="text-right">
                                 ${
                                   certItem
-                                    ? `<button class="btn-student-cert-preview font-mono text-xs font-bold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 px-2.5 py-0.5 rounded border border-sky-300 dark:border-sky-800 hover:border-sky-400 hover:underline" data-cert="${certItem.certificateNumber}">
+                                    ? `<button class="btn-student-cert-preview badge-chip badge-chip-blue font-mono text-xs cursor-pointer hover:border-amber-400 transition-colors" data-cert="${certItem.certificateNumber}">
                                         📜 ${certItem.certificateNumber}
                                       </button>`
                                     : qualifies
-                                      ? '<span class="text-xs text-slate-400">Připraveno k vydání</span>'
-                                      : '<span class="text-xs text-slate-400">–</span>'
+                                      ? '<span class="text-xs text-[#8c6d3b] dark:text-[#c4a974]">Připraveno k vydání</span>'
+                                      : '<span class="text-amber-600/50 text-xs font-mono">–</span>'
                                 }
                               </td>
                             </tr>
@@ -273,8 +273,8 @@ export class StudentPortalView {
           certificates.length > 0
             ? `
           <div class="card-box">
-            <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-200/80 dark:border-slate-800">
-              <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+            <div class="flex items-center justify-between mb-3 pb-2 border-b border-[#caa049]/40">
+              <h3 class="text-xs font-bold uppercase tracking-wider font-display text-[#4a3512] dark:text-[#fce8bd]">
                 Vydaná osvědčení o absolvování (ADR-01)
               </h3>
               <span class="badge-chip badge-chip-green">MŠMT Akreditace</span>
@@ -283,15 +283,15 @@ export class StudentPortalView {
               ${certificates
                 .map(
                   (c) => `
-                <div class="p-3.5 rounded-xl border border-sky-200 dark:border-sky-800/80 bg-sky-50/50 dark:bg-sky-950/30 flex items-center justify-between gap-3">
+                <div class="p-3.5 rounded-xl border border-[#caa049]/40 bg-[#fbf5e6]/80 dark:bg-[#1a1424] flex items-center justify-between gap-3 shadow-xs">
                   <div>
-                    <div class="font-mono text-xs font-bold text-sky-800 dark:text-sky-300">
+                    <div class="font-mono text-xs font-bold text-amber-800 dark:text-amber-300">
                       ${c.certificateNumber}
                     </div>
-                    <div class="text-xs font-bold text-slate-900 dark:text-white mt-0.5">
+                    <div class="text-xs font-bold font-display text-[#4a3512] dark:text-[#faeed4] mt-0.5">
                       ${c.courseTitle}
                     </div>
-                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 tabular-nums">
+                    <div class="text-xs text-[#7c5e2d] dark:text-[#c4a974] mt-1 tabular-nums font-mono">
                       Vydáno: ${c.issueDate} • Docházka: ${c.attendanceRate}%
                     </div>
                   </div>

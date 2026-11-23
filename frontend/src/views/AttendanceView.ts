@@ -93,7 +93,8 @@ export class AttendanceView {
               "text-xs font-semibold text-emerald-600 dark:text-emerald-400 label-status";
           } else {
             statusLabel.textContent = "Nepřítomen";
-            statusLabel.className = "text-xs font-semibold text-slate-400 label-status";
+            statusLabel.className =
+              "text-xs font-semibold text-amber-700/60 dark:text-amber-200/50 label-status";
           }
         }
       });
@@ -196,7 +197,7 @@ export class AttendanceView {
     if (this.teachingDays.length === 0) {
       this.daysTableBody.innerHTML = `
         <tr>
-          <td colspan="5" class="text-center py-8 text-slate-400">
+          <td colspan="5" class="text-center py-8 text-amber-800/60 dark:text-amber-200/50 italic">
             Tento termín zatím nemá vypsané žádné výukové dny.
           </td>
         </tr>
@@ -211,10 +212,10 @@ export class AttendanceView {
       }
 
       tr.innerHTML = `
-        <td class="font-mono text-xs font-bold text-slate-900 dark:text-white">${day.dayDate}</td>
-        <td class="text-xs font-medium text-slate-800 dark:text-slate-200">${day.topic}</td>
-        <td class="font-mono text-xs text-slate-600 dark:text-slate-400">${day.hours} hod.</td>
-        <td class="text-xs text-slate-500">${day.lecturerName || "Neurčen"}</td>
+        <td class="font-mono text-xs font-bold text-[#4a3512] dark:text-[#faeed4]">${day.dayDate}</td>
+        <td class="text-xs font-medium font-display text-[#4a3512] dark:text-[#eeddbb]">${day.topic}</td>
+        <td class="font-mono text-xs text-[#6e5223] dark:text-[#d1b88e]">${day.hours} hod.</td>
+        <td class="text-xs text-[#7c5e2d] dark:text-[#c4a974]">${day.lecturerName || "Neurčen"}</td>
         <td class="text-right">
           <button class="btn-secondary-tw btn-sm-tw btn-select-day" data-id="${day.id}">
             Zapsat (${day.presentCount}/${day.attendanceCount})
@@ -237,7 +238,7 @@ export class AttendanceView {
       this.rosterDayTitle.textContent = `Prezenční listina: ${day.dayDate}`;
     }
     if (this.rosterDaySubtitle) {
-      this.rosterDaySubtitle.innerHTML = `Téma: <strong class="text-slate-900 dark:text-white">${day.topic}</strong> • Lektor: ${day.lecturerName || "Neurčen"} • Rozsah: <strong class="font-mono">${day.hours} hod.</strong>`;
+      this.rosterDaySubtitle.innerHTML = `Téma: <strong class="text-[#4a3512] dark:text-[#faeed4] font-display">${day.topic}</strong> • Lektor: ${day.lecturerName || "Neurčen"} • Rozsah: <strong class="font-mono">${day.hours} hod.</strong>`;
     }
 
     try {
@@ -254,7 +255,7 @@ export class AttendanceView {
     if (this.rosterTableBody) {
       this.rosterTableBody.innerHTML = `
         <tr>
-          <td colspan="4" class="text-center py-8 text-slate-400">${message}</td>
+          <td colspan="4" class="text-center py-8 text-amber-800/60 dark:text-amber-200/50 italic">${message}</td>
         </tr>
       `;
     }
@@ -277,19 +278,19 @@ export class AttendanceView {
 
       tr.innerHTML = `
         <td>
-          <div class="font-bold text-slate-900 dark:text-white">${student.studentName}</div>
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${student.studentName}</div>
         </td>
-        <td class="font-mono text-xs text-slate-500">${student.studentEmail}</td>
+        <td class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974]">${student.studentEmail}</td>
         <td>
           <label class="inline-flex items-center gap-2 cursor-pointer select-none">
             <input
               type="checkbox"
-              class="att-checkbox w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 dark:border-slate-700 cursor-pointer"
+              class="att-checkbox w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-[#caa049] accent-[#caa049] cursor-pointer"
               data-student="${student.studentId}"
               ${student.isPresent ? "checked" : ""}
             />
             <span
-              class="text-xs font-semibold label-status ${student.isPresent ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400"}"
+              class="text-xs font-semibold label-status ${student.isPresent ? "text-emerald-600 dark:text-emerald-400" : "text-amber-700/60 dark:text-amber-200/50"}"
               data-student="${student.studentId}"
             >
               ${student.isPresent ? "Přítomen" : "Nepřítomen"}
@@ -316,7 +317,8 @@ export class AttendanceView {
             "text-xs font-semibold text-emerald-600 dark:text-emerald-400 label-status";
         } else {
           statusLabel.textContent = "Nepřítomen";
-          statusLabel.className = "text-xs font-semibold text-slate-400 label-status";
+          statusLabel.className =
+            "text-xs font-semibold text-amber-700/60 dark:text-amber-200/50 label-status";
         }
       });
 
@@ -370,7 +372,7 @@ export class AttendanceView {
     if (this.summary.length === 0) {
       this.summaryTableBody.innerHTML = `
         <tr>
-          <td colspan="7" class="text-center py-8 text-slate-400">
+          <td colspan="7" class="text-center py-8 text-amber-800/60 dark:text-amber-200/50 italic">
             Dosud nejsou k dispozici žádná data pro souhrn docházky.
           </td>
         </tr>
@@ -386,7 +388,7 @@ export class AttendanceView {
       let certBadge = "";
       if (item.certificateIssued) {
         certBadge = `
-          <button class="btn-cert-preview font-mono text-xs font-bold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 px-2 py-0.5 rounded border border-sky-300 dark:border-sky-800 hover:border-sky-400 hover:underline" data-cert="${item.certificateNumber || ""}">
+          <button class="btn-cert-preview badge-chip badge-chip-blue font-mono text-xs cursor-pointer hover:border-amber-400 transition-colors" data-cert="${item.certificateNumber || ""}">
             ${item.certificateNumber} ↗
           </button>
         `;
@@ -399,18 +401,18 @@ export class AttendanceView {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>
-          <div class="font-bold text-slate-900 dark:text-white">${item.studentName}</div>
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${item.studentName}</div>
         </td>
-        <td class="font-mono text-xs text-slate-500">${item.studentEmail}</td>
-        <td class="font-mono text-xs">${item.attendedDays} z ${item.totalDays} dnů</td>
+        <td class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974]">${item.studentEmail}</td>
+        <td class="font-mono text-xs text-[#5c4318] dark:text-[#e2d5b8]">${item.attendedDays} z ${item.totalDays} dnů</td>
         <td>
           <div class="flex items-center gap-2">
             <span class="font-mono text-xs font-bold ${item.qualifiesForCertificate ? "text-emerald-700 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}">
               ${item.attendancePercentage} %
             </span>
-            <div class="w-16 h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden shrink-0">
+            <div class="w-16 forged-meter-track">
               <div
-                class="h-full rounded-full transition-all duration-300 ${item.qualifiesForCertificate ? "bg-emerald-600" : "bg-rose-500"}"
+                class="h-full rounded-xs transition-all duration-300 ${item.qualifiesForCertificate ? "bg-emerald-600" : "bg-rose-500"}"
                 style="width: ${Math.min(100, item.attendancePercentage)}%;"
               ></div>
             </div>
@@ -424,7 +426,7 @@ export class AttendanceView {
               ? `<button class="btn-secondary-tw btn-sm-tw btn-waiver-shortcut text-amber-700 dark:text-amber-400" data-student="${item.studentId}">
                   Udělit výjimku
                  </button>`
-              : '<span class="text-slate-400 text-xs">-</span>'
+              : '<span class="text-amber-600/50 text-xs font-mono">-</span>'
           }
         </td>
       `;

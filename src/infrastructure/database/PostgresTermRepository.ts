@@ -187,8 +187,17 @@ export class PostgresTermRepository {
         studentId = insRes.rows[0].id;
       }
 
-      // 2. Concurrency rule ADR-03:
-      // Student cannot have multiple active confirmed registrations for terms of the SAME course.
+      // 2. Check if student already has active enrollment in THIS term
+      const duplRes = await client.query(
+        "SELECT id, status FROM enrollments WHERE term_id = $1 AND student_id = $2 AND status IN ('CONFIRMED', 'WAITLIST')",
+        [termId, studentId]
+      );
+      if (duplRes.rows.length > 0) {
+        throw new Error("Student is already enrolled or on the waitlist for this term.");
+      }
+
+      // Concurrency rule ADR-03:
+      // Student cannot have multiple active confirmed registrations for terms of the SAME course in another term.
       const termInfo = await client.query(
         "SELECT course_id, capacity FROM course_terms WHERE id = $1",
         [termId]
@@ -200,22 +209,13 @@ export class PostgresTermRepository {
       const sameCourseCheck = `
         SELECT e.id FROM enrollments e
         JOIN course_terms ct ON ct.id = e.term_id
-        WHERE ct.course_id = $1 AND e.student_id = $2 AND e.status = 'CONFIRMED'
+        WHERE ct.course_id = $1 AND e.student_id = $2 AND e.status = 'CONFIRMED' AND ct.id != $3
       `;
-      const sameCourseRes = await client.query(sameCourseCheck, [courseId, studentId]);
+      const sameCourseRes = await client.query(sameCourseCheck, [courseId, studentId, termId]);
       if (sameCourseRes.rows.length > 0) {
         throw new Error(
           "Student already has an active confirmed enrollment for this course in another term (ADR-03 rule)."
         );
-      }
-
-      // Check if student already has active enrollment in THIS term
-      const duplRes = await client.query(
-        "SELECT id, status FROM enrollments WHERE term_id = $1 AND student_id = $2 AND status IN ('CONFIRMED', 'WAITLIST')",
-        [termId, studentId]
-      );
-      if (duplRes.rows.length > 0) {
-        throw new Error("Student is already enrolled or on the waitlist for this term.");
       }
 
       // 3. Count confirmed spots

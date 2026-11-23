@@ -35,7 +35,7 @@
    - 5.1 [Architektonický koncept a vrstvy frontendu](#51-architektonický-koncept-a-vrstvy-frontendu)
    - 5.2 [Struktura adresáře frontend/src/ a popis modulů](#52-struktura-adresáře-frontendsrc-a-popis-modulů)
    - 5.3 [Komponenty uživatelského rozhraní (Header, Modal, Toast)](#53-komponenty-uživatelského-rozhraní-header-modal-toast)
-   - 5.4 [Krkonošský design systém, barevné tokeny a moderní webové standardy](#54-krkonošský-design-systém-barevné-tokeny-a-moderní-webové-standardy)
+   - 5.4 [Fantasy design systém dle Kurzy-Projekt.webp, runové tabulky a barevné tokeny](#54-fantasy-design-systém-dle-kurzy-projektwebp-runové-tabulky-a-barevné-tokeny)
    - 5.5 [Produkční build a integrace s Express backendem](#55-produkční-build-a-integrace-s-express-backendem)
 6. [Kompletní katalog REST API rozhraní](#6-kompletní-katalog-rest-api-rozhraní)
    - 6.1 [Konvence a společné formáty odpovědí](#61-konvence-a-společné-formáty-odpovědí)
@@ -53,14 +53,14 @@
    - 7.4 [Přehled všech npm skriptů](#74-přehled-všech-npm-skriptů)
 8. [Testovací strategie a zajištění kvality](#8-testovací-strategie-a-zajištění-kvality)
    - 8.1 [Přehled testovací strategie (dvoustupňový testovací harness)](#81-přehled-testovací-strategie-dvoustupňový-testovací-harness)
-   - 8.2 [Nativní Node test runner (29 testů – 20 unit + 9 E2E)](#82-nativní-node-test-runner-29-testů--20-unit--9-e2e)
-   - 8.3 [Komplexní testovací sada v Jestu s TypeScript & ESM (71 testů)](#83-komplexní-testovací-sada-v-jestu-s-typescript--esm-71-testů)
-   - 8.4 [Souhrnná tabulka testovacího pokrytí (119 testů, 100% pass)](#84-souhrnná-tabulka-testovacího-pokrytí-119-testů-100-pass)
+   - 8.2 [Nativní Node test runner (34 testů – 25 unit + 9 E2E)](#82-nativní-node-test-runner-34-testů--25-unit--9-e2e)
+   - 8.3 [Komplexní testovací sada v Jestu s TypeScript & ESM (110 testů)](#83-komplexní-testovací-sada-v-jestu-s-typescript--esm-110-testů)
+   - 8.4 [Souhrnná tabulka testovacího pokrytí (144 testů, 100% pass)](#84-souhrnná-tabulka-testovacího-pokrytí-144-testů-100-pass)
    - 8.5 [Kvalita kódu, linting a formátování (ESLint + Prettier)](#85-kvalita-kódu-linting-a-formátování-eslint--prettier)
 9. [Přehled plnění požadavků zadání klienta (100% HOTOVO)](#9-přehled-plnění-požadavků-zadání-klienta-100-hotovo)
    - 9.1 [Tabulka plnění 8 bodů zadání](#91-tabulka-plnění-8-bodů-zadání)
 10. [Historie verzí (Changelog) a Roadmapa](#10-historie-verzí-changelog-a-roadmapa)
-    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.8.0)](#101-historie-verzí-changelog-v100-až-v180)
+    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.9.0)](#101-historie-verzí-changelog-v100-až-v190)
     - 10.2 [Roadmapa dalšího rozvoje](#102-roadmapa-dalšího-rozvoje)
 
 ---
@@ -638,27 +638,55 @@ frontend/src/
 - **`Modal.ts`:** Plně přístupný modální dialog splňující standardy WAI-ARIA. Podporuje zavření stiskem klávesy `Escape`, kliknutím mimo dialogové okno (backdrop click), uzamčení posunu stránky na pozadí (`overflow: hidden`) a plynulou animaci `scaleIn` s backdrop blur efektem.
 - **`Toast.ts`:** Toastový notifikační systém zobrazující zprávy v pravém horním rohu obrazovky. Podporuje 4 typy hlášení (úspěch, chyba, varování, informace) s automatickým časovačem skrytí (default 4000 ms) a možností manuálního zavření křížkem.
 
-### 5.4 Krkonošský design systém, barevné tokeny a moderní webové standardy
+### 5.4 Fantasy design systém dle Kurzy-Projekt.webp, runové tabulky a barevné tokeny
 
-Vizuální styl frontendu byl kompletně přepracován s využitím moderních standardů webového designu (Generative UI):
+Vizuální styl frontendu byl detailně sjednocen a přepracován přesně podle grafické předlohy [`Kurzy-Projekt.webp`](file:///C:/Users/skitt/Documents/PPRO/Kurzy-Projekt.webp) (WoW Classic / Dalaran / pergamenový runový svitek) s eliminací generických moderních SaaS prvků:
 
-1. **Odstranění generických prvků a institucionální identita:**
-   - Eliminace křiklavých fialových/modrých gradientů, plovoucích rozostřených koulí, prázdných nevyužitých okrajů a levného glassmorphismu.
-   - Autentická břidlicovo-smaragdová institucionální identita Akademie Trutnov inspirovaná podkrkonošským regionem (smaragdové akcenty `#059669` / `#10b981`, břidlicové povrchy pro Dark mode a čisté slate odstíny pro Light mode).
-2. **Barevné tokeny a povrchy (Dark & Light Mode):**
-   - _Dark mode (vysoký kontrast a ergonomie):_ Hluboké břidlicové pozadí `#0a0f1d`, karty a panely `#0f172a`, ohraničení a dělicí linie `#1e293b`, smaragdové akcentní prvky `#059669` / `#10b981`.
-   - _Light mode (čistý akademický tiskový vzhled):_ Neutrální pozadí `#f8fafc`, bílé karty `#ffffff`, jemná ohraničení `#e2e8f0` a kontrastní texty `#0f172a` / `#334155`.
-   - _Perzistence volby:_ Uložení tématu do `localStorage.getItem("theme")` s automatickou detekcí systémových preferencí (`prefers-color-scheme: dark`).
-3. **Typografická pravidla a čitelnost:**
-   - **Striktní spodní hranice velikosti písma (Typography floor):** Minimální čitelná velikost písma je `text-xs` (12px / 0.75rem). Veškerý dřívější nečitelný mikrotext (`text-[9px]`, `text-[10px]`, `text-[11px]`) byl kompletně odstraněn a nahrazen čitelným písmem s optimálním řádkováním a kontrastem.
-   - **Tabulární číslice (`tabular-nums`):** Všechny číselné hodnoty, ceny kurzů, kapacity, datumy, hodiny dotace, procenta docházky i evidenční čísla osvědčení využívají `font-variant-numeric: tabular-nums` pro dokonalé vertikální zarovnání ve sloupcích tabulek i kartách.
-4. **Vysoká informační hustota a struktura:**
-   - Horní KPI přehledový pruh se 4 klíčovými metrikami (nabídka kurzů, vypsané termíny, průměrná docházka, vydaná osvědčení).
-   - Datové tabulky s fixními záhlavími, jemným hover efektem řádků a konzistentními statusovými odznaky.
-   - Přístupné formuláře se zřetelnými popisky (12px bold), validací a klávesovými zkratkami.
-5. **Akreditovaný tiskový styl diplomu (`@media print`):**
-   - Kniha osvědčení obsahuje dedikovaný tiskový styl, který při tisku z prohlížeče (`Ctrl+P`) nebo kliknutí na „Tisk diplomu“ zformátuje certifikát do oficiálního akreditovaného diplomu formátu A4 na šířku.
-   - Skryje všechny rušivé prvky (header, filtry, tlačítka, modály) a vygeneruje čistý diplom s ornamentálním rámečkem, razítkem Akademie Trutnov, evidenčním číslem a podpisovou doložkou.
+1. **Materiálová hierarchie a autentické fantasy textury:**
+   - **Kamenné zdivo (`.stone-wall-bg`):** Vnější podklad tvoří autentické hradní zdivo (ashlar stone masonry) s bezešvým kvádrovým patternem zdiva, zkosenými hranami bloků, hlubokými spárami, atmosférickým osvětlením pochodněmi (torchlight ambient sconce glow), vinětou a horizontálními dřevěnými vaznicemi (tie-beams).
+   - **Masivní dřevěné trámy (`.timber-canvas-frame`):** Centrální viewport je orámován těžkými rustikálními dřevěnými sloupy (vertikální dřevěné trámy s letokruhy, kovanými mosaznými nýty a zlaceným ohraničením `#caa049`), které vrhají hluboký stín na kamenné zdivo.
+   - **Zvětralé pergamenové plátno (`.parchment-canvas`):** Hlavní pracovní plocha evokuje zvětralou mapu a vellum s teplým radiálním gradientem (`#f8f1e2` -> `#eee1c4` -> `#dec69b` v Light módu; hluboký obsidián `#191424` -> `#110d1a` -> `#0b0912` v Dark módu), jemnou papírovou texturou vláken a spálenými okraji (burnished edge vignette).
+   - **Záhlaví archivu Dalaranu:** Tmavé ořechové záhlaví se zlaceným erbem `⚜ AKADEMIE TRUTNOV` (`.wow-crest-text`) v majestátním verzálkovém serifu `Cinzel`.
+
+2. **Runové tabulky a svitkový kodex (Runic Ledger Tables):**
+   - **Svitkový kontejner (`.table-box-wrap`):** Masivní zlacené/mosazné ohraničení (`border: 2px solid #caa049`) se zaoblenými rohy (`rounded-lg`), vnitřní zlatavou vellum září v Light módu (`inset 0 0 0 1px #fae19c`, `inset 0 2px 12px rgba(120, 88, 38, 0.12)`) a hlubokým stínem v Dark módu pro dojem pergamenového svitku či cechovní knihy.
+   - **Dekorativní záhlavní lišta (`.table-box-header`):** Sjednocená lišta kontejnerů tabulek s jemným pergamenovým přechodem a zlacenou dělicí linkou (`border-bottom: 2px solid #caa049`).
+   - **Záhlaví sloupců (`.table-tw th`):** Výrazné verzálkové písmo `Cinzel` (font-weight 700, tracking 0.05em, text-shadow), pergamenový gradient v Light módu (`#f4ecd6` -> `#e6d6b6`), obsidiánový gradient v Dark módu (`#241d30` -> `#161220`) a 2px zlaté spodní ohraničení (`border-bottom: 2px solid #caa049`).
+   - **Datové řádky (`.table-tw td`):** Jemná zlacená linka (`border-bottom: 1px solid rgba(202, 160, 73, 0.22/0.16)`), písmo `JetBrains Mono` pro ID, časy, hodiny, data a kapacity, striktně zarovnané přes `font-variant-numeric: tabular-nums`.
+   - **Vellum Zebra Striping (`tbody tr:nth-child(even)`):** Střídavé podbarvení sudých řádků jemným pergamenovým nádechem (`rgba(245, 236, 216, 0.65)` v Light, `rgba(26, 20, 36, 0.9)` v Dark).
+   - **Plynulý zlatavý hover (`tbody tr:hover`):** Zvýraznění řádku podsvícením v tónu teplého zlata (`rgba(202, 160, 73, 0.2/0.26)`) s jemným vnitřním stínem.
+   - **Aktivní výběrový řádek (`.table-tw tbody tr.row-selected`):** Masivní 5px zlatý levý okraj (`#d4af37` v Light, `#ffd700` v Dark) s vnitřní zlatavou září pro okamžitou indikaci zvoleného termínu či výukového dne.
+   - **Kovaná měřidla kapacity a docházky (`.forged-meter-track`):** Tmavé kované lůžko (`#251a12`) s tenkým mosazným rámečkem (`1px solid #7c622e`, `rounded-sm`), nahrazující generické moderní kulaté pilulky.
+
+3. **Barevné tokeny a povrchy (Parchment & Obsidian / Brass):**
+   - _Dark mode (Obsidian & Brass):_ Hluboký obsidián `#0b0a10`, podklad plátna `#13101b`, ohraničení a kování `#caa049` a `#d4af37`, pergamenové písmo `#fce8bd` a `#ece5f5`.
+   - _Light mode (Parchment & Warm Gold):_ Teplý pergamen `#f7efe0` / `#eee2c7`, zlacené mosazné linky `#caa049`, hluboký inkoustový text `#2b1f13` / `#4a3512`.
+   - **Čtveřice přehledových KPI plaket (`.metric-kpi-card`):** Zlacené pergamenové destičky s velkými serifovými číslicemi a kovanými čtvercovými medailony (`.kpi-icon-box`) v autentických barvách předlohy `Kurzy-Projekt.webp`:
+     1. _Nabídka programů:_ Smaragdově zelená (`#22c55e`)
+     2. _Vypsané termíny:_ Kovaná zlatá (`#caa049`)
+     3. _Průměrná docházka:_ Smaragdově zelená (`#22c55e`)
+     4. _Vydaná osvědčení:_ Azurově modrá (`#38bdf8`)
+   - **Filtrační a vyhledávací lišta (`.course-filter-toolbar`):** Tmavá bronzová lišta s vnitřním vyhledávačem, smaragdově zeleným aktivním filtrem (`.filter-chip-active` – `#0d2b15`, ohraničení `#22c55e`) a purpurovým Kirin Tor / Epic odznakem počítadla programů (`.badge-pill-purple` – `#2c123b`, ohraničení `#a335ee`).
+   - **Herní akční tlačítka:**
+     - _Blizzard Ruby (`.btn-primary-tw`):_ Rubínový přechod `#991b1b` -> `#7f1d1d` se zlatavým rámečkem a textovým stínem.
+     - _Sunwell Gold (`.btn-secondary-tw`):_ Zlacený přechod `#b45309` -> `#78350f` se zlatým ohraničením `#caa049`.
+     - _Blood Oath Crimson (`.btn-danger-tw`):_ Temně rudý přechod pro nebezpečné akce a storno přihlášek.
+     - _Ironforge Walnut (`.btn-wood-tw`):_ Tmavé kované dřevo s mosazným lemováním.
+
+4. **Úplná eliminace generického SaaS vzhledu:**
+   - Dle doporučení designových auditů bylo odstraněno přes 250 výskytů generických studených šedých tříd `slate-*` z `frontend/index.html` i všech pohledů v `frontend/src/views/` (`TermsView.ts`, `AttendanceView.ts`, `CertificatesView.ts`, `LecturersView.ts`, `AnalyticsView.ts`, `StudentPortalView.ts`, `Toast.ts`).
+   - Detail termínu `#term-detail-box` byl plně převeden na třídy `.card-box` a `.table-box-wrap`.
+   - Modální dialogy přetvořeny do stylu magických kodexů a quest logů (`.modal-overlay`, `.modal-dialog` se zlaceným 2px rámem `#c69b3d` / `#d4af37` a animací měřítka).
+
+5. **Typografická pravidla a čitelnost:**
+   - **Nadpisy a hlavičky tabulek:** Výhradně 'Cinzel' / 'Cinzel Decorative' s velkými písmeny a jemným trackingem.
+   - **Běžný text a anotace:** 'Inter' s optimalizovaným řádkováním pro maximální ergonomii čtení.
+   - **Technické údaje a číslice (`tabular-nums`):** 'JetBrains Mono' pro veškerá ID, evidenční čísla osvědčení, datumy, hodiny, ceny, kapacity i procenta docházky, zajišťující precizní vertikální lícování ve sloupcích.
+   - **Striktní spodní hranice velikosti písma:** Minimální čitelná velikost písma je `text-xs` (12px / 0.75rem); veškerý dřívější nečitelný mikrotext byl eliminován.
+
+6. **Akreditovaný tiskový styl diplomu (`@media print`):**
+   - Kniha osvědčení obsahuje tiskový styl formátu A4 na šířku.
+   - Při tisku (`Ctrl+P` nebo tlačítko tisku) skryje všechny navigační prvky a vygeneruje čistý absolventský diplom s heraldickým ornamentálním rámem, pečetí Akademie Trutnov, evidenčním číslem `AT-YYYY-XXXX` a podpisovou doložkou.
 
 ### 5.5 Produkční build a integrace s Express backendem
 
@@ -1184,8 +1212,8 @@ npm run dev:client
 | `npm run dev`          | Spustí vývojový backend s automatickým restartem při změně kódu (`tsx watch`)               |
 | `npm run dev:client`   | Spustí samostatný Vite dev server s HMR pro okamžitý vývoj UI                               |
 | `npm run migrate`      | Provede řízené SQL migrace proti konfigurované PostgreSQL databázi                          |
-| `npm test`             | Spustí sadu 29 testů v nativním Node test runneru (20 unit + 9 E2E testů)                   |
-| `npm run test:jest`    | Spustí komplexní sadu 71 testů v frameworku Jest (53 unit + 18 integračních)                |
+| `npm test`             | Spustí sadu 34 testů v nativním Node test runneru (25 unit + 9 E2E testů)                   |
+| `npm run test:jest`    | Spustí komplexní sadu 110 testů v frameworku Jest (91 unit + 19 integračních)               |
 | `npm run lint`         | Zkontroluje kód celého projektu statickou analýzou ESLint (Flat Config)                     |
 | `npm run lint:fix`     | Automaticky opraví detekované formátovací a lintingové odchylky                             |
 | `npm run format:check` | Zkontroluje formátování souborů podle standardu Prettier                                    |
@@ -1199,16 +1227,16 @@ npm run dev:client
 
 Systém využívá moderní dvoustupňový testovací harness kombinující:
 
-1. **Nativní Node Test Runner (`node --test`):** Zajišťuje bleskové ověření základních doménových modelů a reálných integračních toků vytváření entit.
-2. **Jest Test Runner s TypeScript & ESM (`test:jest`):** Poskytuje hloubkové, granulární ověření doménových invariantů, simulaci transakčních stavů s in-memory mocky a integrační testování HTTP vrstvy přes Supertest.
+1. **Nativní Node Test Runner (`node --test`):** Zajišťuje bleskové ověření základních doménových modelů, hraničních stavů a reálných integračních toků vytváření entit.
+2. **Jest Test Runner s TypeScript & ESM (`test:jest`):** Poskytuje hloubkové, granulární ověření doménových invariantů, simulaci transakčních stavů s in-memory mocky, hraničních podmínek (edge cases) a integrační testování HTTP vrstvy přes Supertest.
 
-Celý repozitář obsahuje **100 plně automatizovaných testů** se **100% úspěšností (zero failures)**.
+Celý repozitář obsahuje **144 plně automatizovaných testů** se **100% úspěšností (zero failures)**.
 
 ---
 
-### 8.2 Nativní Node test runner (29 testů – 20 unit + 9 E2E)
+### 8.2 Nativní Node test runner (34 testů – 25 unit + 9 E2E)
 
-Sada se spouští příkazem `npm test` a obsahuje 4 testovací moduly:
+Sada se spouští příkazem `npm test` a obsahuje 5 testovacích modulů:
 
 #### 1. Doménové invarianty kurzů ([`test/CourseService.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/CourseService.test.ts) – 7 testů)
 
@@ -1239,7 +1267,15 @@ Sada se spouští příkazem `npm test` a obsahuje 4 testovací moduly:
 - `Rejects certificate waiver if written justification is missing or too short`: Odmítnutí výjimky při odůvodnění kratším než 5 znaků.
 - `Validates certificate numbering format: AT-YYYY-XXXX`: Striktní validace masky čísla certifikátu.
 
-#### 4. Integrační toky API ([`test/api-creation-flows.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/api-creation-flows.test.ts) – 9 E2E testů)
+#### 4. Hraniční doménové stavy a invarianty ([`test/DomainEdgeCases.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/DomainEdgeCases.test.ts) – 5 testů)
+
+- `Cascading promotion across 3 consecutive cancellations of confirmed spots (ADR-02)`: Kaskádový posun náhradníků při 3 po sobě jdoucích stornech potvrzených účastí.
+- `Boundary attendance calculation 70.0% vs 69.9% with and without waiver (ADR-01)`: Přesná hrana 70.0 % (auto-pass) vs 69.9 % (vyžaduje výjimku lektora).
+- `Rejects duplicate registration in same term and prevents duplicate active registration for same course (ADR-03)`: Zákaz vícenásobné registrace studenta na stejný termín a kontrola souběhu.
+- `Term closure when no students meet 70% threshold transitions term to COMPLETED with 0 issued certificates`: Uzavření termínu bez kvalifikovaných studentů (žádné neplatné certifikáty).
+- `Certificate sequence formatting and uniqueness enforcement`: Invarianty sekvenčního číslování `AT-YYYY-XXXX` a zamezení duplicitního vystavení.
+
+#### 5. Integrační toky API ([`test/api-creation-flows.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/api-creation-flows.test.ts) – 9 E2E testů)
 
 - `Flow 1: Creating a Course via POST /api/courses`: Vytvoření kurzu přes HTTP API.
 - `Flow 1: Creating a Course with price 0 (free workshop)`: Vytvoření bezplatného semináře s nulovou cenou.
@@ -1253,9 +1289,9 @@ Sada se spouští příkazem `npm test` a obsahuje 4 testovací moduly:
 
 ---
 
-### 8.3 Komplexní testovací sada v Jestu s TypeScript & ESM (71 testů)
+### 8.3 Komplexní testovací sada v Jestu s TypeScript & ESM (110 testů)
 
-Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresáři [`test/jest/`](file:///C:/Users/skitt/Documents/PPRO/test/jest/). Je rozdělena do 5 testovacích modulů:
+Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresáři [`test/jest/`](file:///C:/Users/skitt/Documents/PPRO/test/jest/). Je rozdělena do 7 testovacích modulů:
 
 #### 1. Doménová entita `Course` a `CourseService` ([`test/jest/course.service.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/course.service.test.ts) – 17 testů)
 
@@ -1270,7 +1306,7 @@ Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresá
 - **Transakční simulace čekací listiny (ADR-02):** Automatické zařazení na waitlist po naplnění kapacity; při stornu potvrzeného místa okamžité povýšení náhradníka #1 na stav `CONFIRMED` a přepočet pořadí zbývajících čekatelů o 1 dopředu.
 - **Pravidlo zákazu souběhu (ADR-03):** Odmítnutí druhé potvrzené registrace téhož studenta na jiný termín stejného kurzu.
 
-#### 3. Výukové dny, docházka a pravidlo 70 % ([`test/jest/attendance.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/attendance.test.ts) – 12 testů)
+#### 3. Výukové dny, docházka a pravidlo 70 % ([`test/jest/attendance.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/attendance.test.ts) – 11 testů)
 
 - Invarianty výukového dne: kladné hodiny, minimální délka tématu (min. 3 znaky), vazba na lektora (ADR-05).
 - Entita docházky: záznam přítomnosti a volitelné poznámky.
@@ -1285,7 +1321,15 @@ Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresá
 - Validace masky evidenčního čísla `AT-YYYY-XXXX` (např. `AT-2026-0001`).
 - Hromadné uzavření termínu v `CertificateService` a automatické vystavení absolventům.
 
-#### 5. Integrační testy Express REST API přes Supertest ([`test/jest/api.integration.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/api.integration.test.ts) – 18 testů)
+#### 5. Pokročilé hraniční stavy a invarianty domény ([`test/jest/domain-edge-cases.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/domain-edge-cases.test.ts) – 20 testů)
+
+- **Vícenásobný kaskádový posun ve frontě náhradníků (ADR-02):** Simulace sekvence 4 po sobě jdoucích storen s postupným povyšováním kandidátů z pořadníku a uvolněním kapacity po vyprázdnění waitlistu; storno kandidáta uprostřed čekací listiny (pozice #2).
+- **Hraniční stavy docházky a lektorské výjimky (ADR-01):** Validace přesně na 70.0 % (auto-pass) vs 69.9 % (striktní zamítnutí bez výjimky); výjimka s textovým zdůvodněním; zamítnutí výjimky s mezerami nebo < 5 znaky; úspěšné udělení výjimky i při 0.0 % docházce (hospitalizace + distanční zkouška); diskrétní přepočet přes 10 výukových dnů; přepínání prezence (`true` -> `false`) a vliv na přepočet.
+- **Ochrana integrity registrací (ADR-03):** Zákaz duplicity v tomtéž termínu pro potvrzeného i čekajícího studenta; normalizace e-mailu (velká písmena, mezery); povolení znovupřihlášení po předchozím stornu (`CANCELLED`); zákaz souběhu potvrzených účastí na stejný kurz v jiných termínech.
+- **Chování při uzavření termínu s nulovým počtem absolventů:** Přechod stavu termínu na `COMPLETED` bez vystavení falešných osvědčení (`issuedCount = 0`); idempotence vícenásobného volání `completeTerm`; dodatečné individuální vystavení diplomu na výjimku.
+- **Auditní sekvence certifikátů `AT-YYYY-XXXX`:** Monotonně rostoucí sekvence s nulovým paddingem; striktní zamezení duplicitního vystavení pro stejnou přihlášku; kontrola formátovací masky a rozsahů procent (0–100 %).
+
+#### 6. Integrační testy Express REST API přes Supertest ([`test/jest/api.integration.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/api.integration.test.ts) – 19 testů)
 
 - Ověření endpointu `/health` (HTTP 200, status "UP").
 - REST API kurzů (`GET /api/courses`, alias `GET /api/kurzy`, validace chyb 400 při neplatném zadání).
@@ -1294,7 +1338,7 @@ Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresá
 - REST API docházky (`GET /api/attendance/terms/:termId/days`, `summary`).
 - Číselníky a manažerská analytika (`/api/lecturers`, `/api/classrooms`, `/api/students`, `/api/analytics` a české aliasy).
 
-#### 6. Autentizace, autorizace a RBAC role ([`test/jest/auth.rbac.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/auth.rbac.test.ts) – 19 testů)
+#### 7. Autentizace, autorizace a RBAC role ([`test/jest/auth.rbac.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/auth.rbac.test.ts) – 19 testů)
 
 - **Autentizace administrátora:** Úspěšné přihlášení `admin` / `admin123` (`POST /api/auth/login`), generování Bearer tokenu, ověření přes `GET /api/auth/me`.
 - **Autentizace studenta:** Přihlášení přes e-mail (`jan.novak@firma.cz` / `student123`) a generický účet `student`, vytvoření studentské session s rolí `student`.
@@ -1311,21 +1355,23 @@ Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresá
 
 ---
 
-### 8.4 Souhrnná tabulka testovacího pokrytí (119 testů, 100% pass)
+### 8.4 Souhrnná tabulka testovacího pokrytí (144 testů, 100% pass)
 
 | Testovací sada                          | Běhové prostředí  | Zaměření                                                          | Počet testů   | Výsledek                    |
 | --------------------------------------- | ----------------- | ----------------------------------------------------------------- | ------------- | --------------------------- |
 | `test/CourseService.test.ts`            | Node Test Runner  | Doménové invarianty kurzu a CRUD operace                          | 7 testů       | PASS (100 %)                |
 | `test/TermAndEnrollment.test.ts`        | Node Test Runner  | Termíny, kapacity a invarianty waitlistu (ADR-02)                 | 5 testů       | PASS (100 %)                |
 | `test/AttendanceAndCertificate.test.ts` | Node Test Runner  | Výukové dny, docházka a certifikace (ADR-01, ADR-05)              | 8 testů       | PASS (100 %)                |
+| `test/DomainEdgeCases.test.ts`          | Node Test Runner  | Hraniční stavy waitlistu, 70% docházky a unikátnosti registrací   | 5 testů       | PASS (100 %)                |
 | `test/api-creation-flows.test.ts`       | Node Test Runner  | Ucelené integrační End-to-End průchody API                        | 9 testů       | PASS (100 %)                |
 | `test/jest/course.service.test.ts`      | Jest + TypeScript | Hloubkové unit testy kurzu a služeb                               | 17 testů      | PASS (100 %)                |
 | `test/jest/term-and-enrollment.test.ts` | Jest + TypeScript | Transakční posun čekací listiny (ADR-02) a zákaz souběhu (ADR-03) | 14 testů      | PASS (100 %)                |
-| `test/jest/attendance.test.ts`          | Jest + TypeScript | Výukové dny a kalkulace 70% docházky (ADR-01, ADR-05)             | 12 testů      | PASS (100 %)                |
+| `test/jest/attendance.test.ts`          | Jest + TypeScript | Výukové dny a kalkulace 70% docházky (ADR-01, ADR-05)             | 11 testů      | PASS (100 %)                |
 | `test/jest/certificate.test.ts`         | Jest + TypeScript | Generování diplomů AT-YYYY-XXXX a lektorské výjimky               | 10 testů      | PASS (100 %)                |
-| `test/jest/api.integration.test.ts`     | Jest + Supertest  | Integrační ověření Express rout, chyb a aliasů                    | 18 testů      | PASS (100 %)                |
+| `test/jest/domain-edge-cases.test.ts`   | Jest + TypeScript | Hloubkové testy kaskádového storna, 70/69.9% docházky a auditů    | 20 testů      | PASS (100 %)                |
+| `test/jest/api.integration.test.ts`     | Jest + Supertest  | Integrační ověření Express rout, chyb a aliasů                    | 19 testů      | PASS (100 %)                |
 | `test/jest/auth.rbac.test.ts`           | Jest + Supertest  | Ověření RBAC oprávnění, přihlášení a ochrany kurzů (ADR-07)       | 19 testů      | PASS (100 %)                |
-| **CELKEM V REPOZITÁŘI**                 |                   | **Kompletní dvoustupňový testovací harness**                      | **119 testů** | **100% ÚSPĚŠNOST (0 chyb)** |
+| **CELKEM V REPOZITÁŘI**                 |                   | **Kompletní dvoustupňový testovací harness**                      | **144 testů** | **100% ÚSPĚŠNOST (0 chyb)** |
 
 ---
 
@@ -1370,7 +1416,48 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
 
 ## 10. Historie verzí (Changelog) a Roadmapa
 
-### 10.1 Historie verzí (Changelog v1.0.0 až v1.8.2)
+### 10.1 Historie verzí (Changelog v1.0.0 až v1.9.0)
+
+#### Verze 1.9.0 (Redesign tabulek do stylu WoW Classic / Dalaran svitků, eliminace generického SaaS a rozšíření testovací sady na 144 testů)
+
+- **Redesign a stylování runových tabulek dle grafické předlohy `Kurzy-Projekt.webp` (`frontend/src/style.css`):**
+  - **Svitkový kontejner (`.table-box-wrap`):** Masivní zlacené/mosazné ohraničení (`border: 2px solid #caa049`), teplý pergamenový přechod v Light módu (`#fdfaf2` -> `#f5ecd6`) a hluboký obsidián v Dark módu (`#171322` -> `#0e0b16`), vnitřní vellum záře (`#fae19c`) a stínování.
+  - **Záhlavní lišta kontejnerů (`.table-box-header`):** Jednotný dekorativní banner se zlacenou linkou `border-bottom: 2px solid #caa049`.
+  - **Hlavička tabulky (`.table-tw th`):** Verzálkové serifové písmo `Cinzel` (bold 700, tracking 0.05em, text-shadow), pergamenový a obsidiánový gradient, spodní 2px zlaté ohraničení `#caa049`.
+  - **Datové řádky a zebra striping (`.table-tw td`, `tbody tr`):** Podbarvení sudých řádků jemným vellum tónem (`:nth-child(even)`), hladký hover se zlatým podsvícením (`rgba(202, 160, 73, 0.2/0.26)`), výběrový řádek `.row-selected` s 5px zlatým levým okrajem (`#d4af37` / `#ffd700`) a vnitřní září.
+  - **Typografie a zarovnání:** Všechna ID, data, hodiny, kapacity a čísla sjednocena na písmo `JetBrains Mono` s `font-variant-numeric: tabular-nums`.
+  - **Kovaná měřidla (`.forged-meter-track`):** Tmavé kované lůžko `#251a12` s mosazným rámečkem `#7c622e`, nahrazující moderní kulaté pilulky progress barů.
+- **Sjednocení UI a eliminace pozůstatků moderního SaaS vzhledu (dle designových auditů):**
+  - **Kompletní odstranění tříd `slate-*`:** Ze všech výhledů a šablon (`frontend/index.html`, `TermsView.ts`, `AttendanceView.ts`, `CertificatesView.ts`, `LecturersView.ts`, `AnalyticsView.ts`, `StudentPortalView.ts`, `Toast.ts`) bylo vymýceno přes 250 výskytů generických studených šedých tříd `slate-*`.
+  - **Převod detailu termínu (`#term-detail-box`):** Převrácen z moderního bílého stylu na třídy `.card-box` a `.table-box-wrap`.
+  - **KPI medailony v barvách předlohy (`.kpi-icon-box`):** 4 přehledové medailony nově nesou přesné barvy dle předlohy `Kurzy-Projekt.webp` jako čisté drahokamy (1. smaragdová zelená `#22c55e`, 2. kovaná zlatá `#caa049`, 3. smaragdová zelená `#22c55e`, 4. azurová `#38bdf8`) bez rušivých vnitřních ikonek.
+  - **Vyčištění záhlaví od číselných zkratek:** Z tlačítek hlavních záložek v navbaru byly odstraněny číselné štítky (`<kbd> 1, 2, 3`), což přináší čistý a nerušený dojem ze záhlaví.
+  - **Kirin Tor Arcane odznak (`.badge-pill-purple`):** Purpurový odznak počítadla nabízených programů (`#2c123b`, ohraničení `#a335ee`, fialová záře).
+- **Implementace komplexních testů hraničních stavů (Edge Cases) dle ADR-01 až ADR-05:**
+  - Vytvořeny dvě nové rozsáhlé testovací sady: [`test/jest/domain-edge-cases.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/domain-edge-cases.test.ts) (20 hloubkových testů v Jestu) a [`test/DomainEdgeCases.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/DomainEdgeCases.test.ts) (5 testů v nativním Node test runneru).
+  - **1. Kaskádový posun ve frontě náhradníků (ADR-02):**
+    - Simulace 4 po sobě jdoucích storen potvrzených účastníků se sekvenčním automatickým povyšováním kandidátů z pořadníku (pozice #1, #2, #3) bez lidského zásahu.
+    - Test stornování náhradníka uprostřed čekací listiny (pozice #2) a ověření správného posunu zbývajících náhradníků (#3 -> #2) při zachování integrity čela fronty.
+    - Test uvolnění kapacity pro veřejný zápis při stornu po úplném vyčerpání čekací listiny.
+  - **2. Hraniční kalkulace docházky a lektorské výjimky (ADR-01):**
+    - Ověření přesné hranice 70.0 % (automatické vydání certifikátu bez nutnosti výjimky) vs. 69.9 % (striktní odmítnutí doménovou entitou `Certificate` při absenci výjimky).
+    - Validace lektorské výjimky s písemným odůvodněním (minimální délka 5 znaků po ořezání bílých znaků) a úspěšné vystavení osvědčení i při 0.0 % docházce v případě doložené hospitalizace a náhradního projektu.
+    - Test přepínání prezence (`true` -> `false`) a vlivu na okamžitý přepočet souhrnné docházky.
+  - **3. Ochrana integrity registrací a zákaz duplicit (ADR-03):**
+    - Zákaz vícenásobné registrace studenta se stejným e-mailem na tentýž termín (pro studenta ve stavu `CONFIRMED` i `WAITLIST`).
+    - Robustní normalizace e-mailových adres (odstranění úvodních/koncových mezer a case-insensitivity).
+    - Ověření možnosti opětovného zápisu studenta po předchozím stornu přihlášky (`CANCELLED`).
+    - Striktní vynucení zákazu souběhu aktivních potvrzených přihlášek na stejný kurz v různých termínech.
+  - **4. Uzavření termínu s nulovým počtem kvalifikovaných studentů:**
+    - Ověření graceful ukončení termínu (`completeTerm`): přechod stavu termínu na `COMPLETED` s `issuedCount = 0` a prázdným polem certifikátů (žádné neplatné diplomy).
+    - Zajištění plné idempotence vícenásobného volání `completeTerm` a možnost dodatečného vystavení osvědčení na lektorskou výjimku.
+  - **5. Auditní sekvence certifikátů `AT-YYYY-XXXX`:**
+    - Generování přísně rostoucí posloupnosti čísel s 4-místným nulovým paddingem (`AT-2026-0001`, `AT-2026-0002`...).
+    - Zákaz duplicitního vystavení certifikátu pro tutéž přihlášku.
+    - Striktní validace formátovací masky regulárním výrazem a mezních hodnot docházky (0 až 100 %).
+- **Výsledek testovací strategie:**
+  - Celkový počet automatizovaných testů vzrostl ze 119 na **144 testů** (34 Node test runner + 110 Jest) se **100% úspěšností (zero failures)**.
+  - Build serveru i klienta (`npm run build`) a linting (`npm run lint`) prochází bez jediné chyby.
 
 #### Verze 1.8.2 (Oprava přesměrování studenta na záložku Termíny bez vyžadování přihlášení)
 
