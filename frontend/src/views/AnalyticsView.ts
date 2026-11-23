@@ -97,7 +97,7 @@ export class AnalyticsView {
             isOverbooked
               ? `<span class="text-amber-600 dark:text-amber-400 font-semibold font-mono flex items-center gap-1">
                   <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.8)]"></span>
-                  ADR-02: ${t.waitlist} ${t.waitlist === 1 ? "náhradník čeká" : "náhradníci čekají"} v pořadníku
+                  ${t.waitlist} ${t.waitlist === 1 ? "náhradník čeká" : "náhradníci čekají"} v pořadníku
                  </span>`
               : `<span class="text-[#8c6d3b] dark:text-[#c4a974] font-mono tabular-nums">Volná místa: ${Math.max(0, t.capacity - t.confirmed)}</span>`
           }

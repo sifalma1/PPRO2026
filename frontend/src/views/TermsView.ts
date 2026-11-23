@@ -195,7 +195,7 @@ export class TermsView {
             term.waitlistCount > 0
               ? `<div class="mt-1">
                   <span class="badge-chip badge-chip-yellow text-xs">
-                    ADR-02: ${term.waitlistCount} ${term.waitlistCount === 1 ? "náhradník" : "náhradníci"}
+                    ${term.waitlistCount} ${term.waitlistCount === 1 ? "náhradník" : "náhradníci"} v pořadníku
                   </span>
                  </div>`
               : `<div class="text-xs text-[#8c6d3b] dark:text-[#c4a974] mt-0.5 font-mono tabular-nums">Volno: ${Math.max(0, term.capacity - term.confirmedCount)} míst</div>`
@@ -259,7 +259,7 @@ export class TermsView {
         Termín: <strong class="font-mono text-[#4a3512] dark:text-[#faeed4]">${term.startDate} až ${term.endDate}</strong> •
         Učebna: <strong class="text-[#4a3512] dark:text-[#faeed4]">${term.classroomName}</strong> •
         Obsazenost: <strong class="font-mono text-[#4a3512] dark:text-[#faeed4]">${term.confirmedCount} / ${term.capacity} míst</strong>
-        ${term.waitlistCount > 0 ? ` • (<span class="text-amber-600 dark:text-amber-400 font-semibold font-mono">${term.waitlistCount} v pořadníku ADR-02</span>)` : ""}
+        ${term.waitlistCount > 0 ? ` • (<span class="text-amber-600 dark:text-amber-400 font-semibold font-mono">${term.waitlistCount} v pořadníku</span>)` : ""}
       `;
     }
 
@@ -292,7 +292,7 @@ export class TermsView {
       if (enr.status === "CONFIRMED") {
         statusHtml = '<span class="badge-chip badge-chip-green">Potvrzeno</span>';
       } else if (enr.status === "WAITLIST") {
-        statusHtml = `<span class="badge-chip badge-chip-yellow">Náhradník #${enr.waitlistPosition || 1} (ADR-02)</span>`;
+        statusHtml = `<span class="badge-chip badge-chip-yellow">Náhradník #${enr.waitlistPosition || 1}</span>`;
       } else if (enr.status === "CANCELLED") {
         statusHtml = '<span class="badge-chip badge-chip-red">Zrušeno</span>';
       } else if (enr.status === "COMPLETED") {
@@ -339,7 +339,7 @@ export class TermsView {
   private async handleCancelEnrollment(enr: Enrollment): Promise<void> {
     const isConfirmedSpot = enr.status === "CONFIRMED";
     const promptMsg = isConfirmedSpot
-      ? `Opravdu chcete zrušit účast studenta ${enr.studentName}?\n\nPravidlo fronty ADR-02: Zrušením se uvolní místo a první náhradník z pořadníku bude automaticky povýšen na potvrzeného!`
+      ? `Opravdu chcete zrušit účast studenta ${enr.studentName}?\n\nZrušením se uvolní místo a první náhradník z pořadníku bude automaticky povýšen na potvrzeného!`
       : `Opravdu chcete odebrat studenta ${enr.studentName} z pořadníku náhradníků?`;
 
     const confirmed = window.confirm(promptMsg);
@@ -475,7 +475,7 @@ export class TermsView {
           Obsazeno: ${term.confirmedCount} z ${term.capacity} míst.
           ${
             isFull
-              ? `<span class="block mt-1 font-semibold text-amber-900 dark:text-amber-200">Kapacita termínu je naplněna! Student bude automaticky zařazen do pořadníku na pozici Náhradník #${term.waitlistCount + 1} (ADR-02).</span>`
+              ? `<span class="block mt-1 font-semibold text-amber-900 dark:text-amber-200">Kapacita termínu je naplněna! Student bude automaticky zařazen do pořadníku na pozici Náhradník #${term.waitlistCount + 1}.</span>`
               : '<span class="block mt-1 text-emerald-900 dark:text-emerald-200">Na termínu jsou volná místa – student bude zaregistrován jako POTVRZENÝ.</span>'
           }
         </div>
@@ -518,7 +518,7 @@ export class TermsView {
         Toast.success(`Student ${firstName} ${lastName} byl úspěšně zaregistrován na termín.`);
       } else {
         Toast.warning(
-          `Kapacita termínu byla plná. Student ${firstName} ${lastName} byl zařazen do pořadníku na pozici Náhradník #${result.waitlistPosition} (ADR-02).`
+          `Kapacita termínu byla plná. Student ${firstName} ${lastName} byl zařazen do pořadníku na pozici Náhradník #${result.waitlistPosition}.`
         );
       }
 

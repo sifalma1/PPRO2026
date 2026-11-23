@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Cinzel+Decorative:wght@700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/assets/index-DdNhGRNa.js"></script>
+    <script type="module" crossorigin src="/assets/index-D4SgLW94.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-DXNcjWKY.css">
   </head>
   <body
@@ -379,7 +379,7 @@
                 class="text-xs text-amber-700 dark:text-amber-400 font-semibold tabular-nums"
                 id="kpi-waitlist-status"
               >
-                ADR-02 aktivní
+                Pořadník aktivní
               </div>
             </div>
           </div>
@@ -397,7 +397,7 @@
                 ≥ 70 %
               </div>
               <div class="text-xs text-amber-800/70 dark:text-amber-300/70 font-semibold">
-                ADR-01 & Výjimka lektora
+                Možnost lektorské výjimky
               </div>
             </div>
           </div>
@@ -501,10 +501,9 @@
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
             <div>
               <h2
-                class="text-lg font-bold tracking-tight text-[#4a3512] dark:text-[#fce8bd] flex items-center gap-2 font-display"
+                class="text-lg font-bold tracking-tight text-[#4a3512] dark:text-[#fce8bd] font-display"
               >
-                <span>Vypsané termíny a pořadník náhradníků</span>
-                <span class="badge-chip badge-chip-yellow">ADR-02</span>
+                Vypsané termíny a pořadník náhradníků
               </h2>
               <p class="text-xs text-[#7c5e2d] dark:text-[#c4a974] mt-0.5">
                 Striktní garance nepřekročení kapacity (žádný overbooking) a automatické povýšení
@@ -589,8 +588,8 @@
                 <span
                   class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.8)]"
                 ></span>
-                Algoritmus fronty ADR-02: Zrušením potvrzené registrace dojde k okamžitému povýšení
-                studenta z pozice Náhradník #1.
+                Zrušením potvrzené registrace dojde k okamžitému automatickému povýšení
+                prvního náhradníka z pořadníku.
               </span>
             </div>
 
@@ -619,10 +618,9 @@
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
             <div>
               <h2
-                class="text-lg font-bold tracking-tight text-[#4a3512] dark:text-[#fce8bd] flex items-center gap-2 font-display"
+                class="text-lg font-bold tracking-tight text-[#4a3512] dark:text-[#fce8bd] font-display"
               >
-                <span>Evidence docházky a prezenční matice</span>
-                <span class="badge-chip badge-chip-green">ADR-01 & ADR-05</span>
+                Evidence docházky a prezenční matice
               </h2>
               <p class="text-xs text-[#7c5e2d] dark:text-[#c4a974] mt-0.5">
                 Denní evidence po výukových blocích, sledování 70% pravidla docházky a udělení
@@ -744,7 +742,7 @@
                 <h3
                   class="text-xs font-bold uppercase tracking-wider font-display text-[#4a3512] dark:text-[#fce8bd]"
                 >
-                  Souhrnná matice splnění 70% pravidla docházky (ADR-01)
+                  Souhrnná matice splnění 70% pravidla docházky
                 </h3>
                 <p class="text-xs text-[#7c5e2d] dark:text-[#c4a974] mt-0.5">
                   Studenti s docházkou pod 70 % nemohou obdržet osvědčení bez udělení lektorské
@@ -760,7 +758,7 @@
                     <th>E-mail</th>
                     <th>Odučeno dnů</th>
                     <th>Míra docházky</th>
-                    <th>Limit 70 % (ADR-01)</th>
+                    <th>Limit 70 %</th>
                     <th>Stav osvědčení</th>
                     <th class="text-right">Výjimka</th>
                   </tr>
@@ -804,7 +802,7 @@
                 Uzavřít termín & vystavit osvědčení
               </button>
               <button id="btn-open-issue-waiver" class="btn-secondary-tw btn-sm-tw">
-                Udělit výjimku lektora (ADR-01)
+                Udělit výjimku lektora
               </button>
             </div>
           </div>
@@ -1296,8 +1294,7 @@
               required
             />
             <span class="text-xs text-slate-400 block mt-1">
-              Po dosažení kapacity jsou další zájemci automaticky směrováni do pořadníku náhradníků
-              (ADR-02).
+              Po dosažení kapacity jsou další zájemci automaticky směrováni do pořadníku náhradníků.
             </span>
           </div>
           <div>
@@ -1516,7 +1513,7 @@
               class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
               for="day-lecturer-select"
             >
-              Vyučující lektor pro tento blok (ADR-05)
+              Vyučující lektor pro tento blok
             </label>
             <select id="day-lecturer-select" class="input-tw"></select>
           </div>
@@ -1537,14 +1534,14 @@
       </div>
     </div>
 
-    <!-- Modal: Udělení výjimky lektora (ADR-01) -->
+    <!-- Modal: Udělení výjimky lektora -->
     <div id="modal-waiver" class="modal-overlay hidden" style="display: none">
       <div class="modal-dialog">
         <div
           class="px-5 py-3.5 border-b border-slate-200/90 dark:border-slate-800 flex items-center justify-between"
         >
           <h3 class="text-sm font-bold text-slate-900 dark:text-white">
-            Vystavení osvědčení s výjimkou lektora (ADR-01)
+            Vystavení osvědčení s výjimkou lektora
           </h3>
           <button
             class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg font-bold p-1 leading-none"
@@ -1567,7 +1564,7 @@
           <div
             class="p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-800 dark:text-amber-300"
           >
-            <strong>Pravidlo ADR-01:</strong> Pokud student nedosáhl požadované 70% docházky, může
+            <strong>Pravidlo docházky:</strong> Pokud student nedosáhl požadované 70% docházky, může
             lektor na základě odborného posouzení (náhradní práce, doplňková zkouška) schválit
             vydání osvědčení.
           </div>

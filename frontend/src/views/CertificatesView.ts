@@ -144,7 +144,7 @@ export class CertificatesView {
     this.certificates.forEach((c) => {
       const waiverHtml = c.hasWaiver
         ? `<span class="badge-chip badge-chip-yellow cursor-help" title="Důvod výjimky lektora: ${c.waiverReason || "Schváleno lektorem"}">
-            Výjimka lektora (ADR-01)
+            Výjimka lektora
            </span>`
         : `<span class="badge-chip badge-chip-green">Standardní (≥ 70 %)</span>`;
 
@@ -205,7 +205,7 @@ export class CertificatesView {
 
     if (waiverStatusEl) {
       if (cert.hasWaiver) {
-        waiverStatusEl.textContent = `Výjimka lektora dle ADR-01 (${cert.waiverReason || "Uděleno"})`;
+        waiverStatusEl.textContent = `Výjimka lektora (${cert.waiverReason || "Uděleno"})`;
         waiverStatusEl.className = "font-semibold text-amber-700 dark:text-amber-400 ml-1";
       } else {
         waiverStatusEl.textContent = "Standardní absolvování (splněno ≥ 70 % docházky)";
@@ -231,7 +231,7 @@ export class CertificatesView {
 
     const term = this.terms.find((t) => t.id === termId);
     const confirmed = window.confirm(
-      `Opravdu chcete uzavřít termín "${term?.courseTitle || ""}"?\n\nSystém automaticky vyhodnotí prezenční listiny a vystaví osvědčení všem studentům, kteří dosáhli alespoň 70% docházky (ADR-01).`
+      `Opravdu chcete uzavřít termín "${term?.courseTitle || ""}"?\n\nSystém automaticky vyhodnotí prezenční listiny a vystaví osvědčení všem studentům, kteří dosáhli alespoň 70% docházky.`
     );
     if (!confirmed) return;
 

@@ -1430,9 +1430,9 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
 - **Sjednocení UI a eliminace pozůstatků moderního SaaS vzhledu (dle designových auditů):**
   - **Kompletní odstranění tříd `slate-*`:** Ze všech výhledů a šablon (`frontend/index.html`, `TermsView.ts`, `AttendanceView.ts`, `CertificatesView.ts`, `LecturersView.ts`, `AnalyticsView.ts`, `StudentPortalView.ts`, `Toast.ts`) bylo vymýceno přes 250 výskytů generických studených šedých tříd `slate-*`.
   - **Převod detailu termínu (`#term-detail-box`):** Převrácen z moderního bílého stylu na třídy `.card-box` a `.table-box-wrap`.
-  - **KPI medailony v barvách předlohy (`.kpi-icon-box`):** 4 přehledové medailony nově nesou přesné barvy dle předlohy `Kurzy-Projekt.webp` jako čisté drahokamy (1. smaragdová zelená `#22c55e`, 2. kovaná zlatá `#caa049`, 3. smaragdová zelená `#22c55e`, 4. azurová `#38bdf8`) bez rušivých vnitřních ikonek.
-  - **Vyčištění záhlaví od číselných zkratek:** Z tlačítek hlavních záložek v navbaru byly odstraněny číselné štítky (`<kbd> 1, 2, 3`), což přináší čistý a nerušený dojem ze záhlaví.
-  - **Kirin Tor Arcane odznak (`.badge-pill-purple`):** Purpurový odznak počítadla nabízených programů (`#2c123b`, ohraničení `#a335ee`, fialová záře).
+  - **Odstranění vývojářských štítků ADR z klientského rozhraní:** Ze všech uživatelských obrazovek, nadpisů, odznaků, tabulek a potvrzovacích dialogů byly kompletně odstraněny interní technické štítky `ADR-01`, `ADR-02`, `ADR-05` (např. odznaky u termínů, v docházce a v tabulkách) a nahrazeny přirozenou doménovou terminologií (*Pořadník aktivní*, *Lektorská výjimka*, *Limit 70 %*, automatické povýšení náhradníka).
+  - **Pročištění KPI karet a navigačních nabídek:** Z KPI plaket byly odstraněny prázdné rámečky pro čistý vzdušný vzhled, z navbaru i dropdownu byly odebrány číselné zkratky a z nadpisu katalogu bylo odstraněno fialové počítadlo programů.
+  - **Dvoubarevný režim vyhledávání kurzů (`.course-filter-toolbar`):** Vyhledávací a filtrační lišta nově plně podporuje světlý pergamenový režim i tmavý ořechovo-kamenný režim.
 - **Implementace komplexních testů hraničních stavů (Edge Cases) dle ADR-01 až ADR-05:**
   - Vytvořeny dvě nové rozsáhlé testovací sady: [`test/jest/domain-edge-cases.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/domain-edge-cases.test.ts) (20 hloubkových testů v Jestu) a [`test/DomainEdgeCases.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/DomainEdgeCases.test.ts) (5 testů v nativním Node test runneru).
   - **1. Kaskádový posun ve frontě náhradníků (ADR-02):**

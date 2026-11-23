@@ -244,7 +244,7 @@ export class StudentPortalView {
                                   <span class="font-mono font-bold text-xs tabular-nums ${qualifies ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700"}">
                                     ${pct}%
                                   </span>
-                                  ${qualifies ? '<span class="text-xs text-emerald-600 font-medium">✓ Splněno (ADR-01)</span>' : '<span class="text-xs text-amber-600 font-medium">&lt; 70%</span>'}
+                                  ${qualifies ? '<span class="text-xs text-emerald-600 font-medium">✓ Splněno (≥ 70 %)</span>' : '<span class="text-xs text-amber-600 font-medium">&lt; 70%</span>'}
                                 </div>
                               </td>
                               <td class="text-right">
@@ -275,7 +275,7 @@ export class StudentPortalView {
           <div class="card-box">
             <div class="flex items-center justify-between mb-3 pb-2 border-b border-[#caa049]/40">
               <h3 class="text-xs font-bold uppercase tracking-wider font-display text-[#4a3512] dark:text-[#fce8bd]">
-                Vydaná osvědčení o absolvování (ADR-01)
+                Vydaná osvědčení o absolvování
               </h3>
               <span class="badge-chip badge-chip-green">MŠMT Akreditace</span>
             </div>
