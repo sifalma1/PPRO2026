@@ -1433,6 +1433,10 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
   - V záložce _Úřední kniha osvědčení a certifikátů_ byl odstraněn technický odznak `AT-YYYY-XXXX`. V KPI kartě byl text `Formát AT-YYYY-XXXX` nahrazen přirozeným popisem `Úřední osvědčení`.
   - V záložce _Manažerské přehledy a analytické výkazy_ byl odstraněn štítek `Bod 8 zadání` jak z hlavního nadpisu sekce, tak z podnadpisu přehledu studentů přihlášených na více kurzů v daném roce.
   - V modálu přihlášení (`modal-login`) byly z tlačítek rychlého předvyplnění role odstraněny emojis `🛡️` a `🎓`.
+- **Zesvětlení a projasnění pozadí ve světlém režimu (`frontend/src/style.css`):**
+  - **Kamenné zdivo (`.stone-wall-bg`):** Ve světlém režimu bylo kamenné podbarvení zesvětleno z téměř černé `#0b0a0e` na teplejší pískovcovou `#231c16` s projasněným pochodňovým gradientem a měkčí vinětací.
+  - **Pergamenový svitek (`.parchment-canvas` a `.timber-canvas-frame`):** Světlé pozadí plátna bylo projasněno na čistší ivory vellum `#faf5e8` / `#fcf8ed` s jemnější patinou `#fdfaf3` -> `#e8dac0` a sníženým vnitřním stínováním pro vyšší kontrast a čitelnost textu.
+  - **Karty a tabulky (`.card-box`, `.metric-kpi-card`, `.table-box-wrap`):** Podkladové gradienty byly zjemněny do čistších světlých pergamenových tónů (`#ffffff` / `#faf5e6`), které dávají vyniknout zlacenému orámování `#caa049`.
 
 #### Verze 1.9.0 (Redesign tabulek do stylu WoW Classic / Dalaran svitků, eliminace generického SaaS a rozšíření testovací sady na 144 testů)
 
