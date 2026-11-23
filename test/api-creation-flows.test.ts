@@ -363,6 +363,13 @@ describe("End-to-End API Creation Flows (Akademie Trutnov)", () => {
     try {
       const { pool } = await import("../src/infrastructure/database/db.js");
       await pool.query("DELETE FROM students WHERE email LIKE '%@example.com'");
+      await pool.query(`
+        UPDATE certificate_counter cc
+        SET last_seq = COALESCE(
+          (SELECT MAX(SUBSTRING(certificate_number FROM 9)::int) FROM certificates WHERE certificate_number LIKE 'AT-' || cc.year || '-%'),
+          2
+        )
+      `);
       await pool.end();
     } catch {
       // Ignore if db pool unavailable
