@@ -14,8 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Cinzel+Decorative:wght@700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/assets/index-CrkcDURs.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BitzCoqU.css">
+    <script type="module" crossorigin src="/assets/index-CFNYXr5B.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BDOzPbYM.css">
   </head>
   <body
     class="stone-wall-bg min-h-screen flex flex-col font-sans transition-colors duration-200 antialiased selection:bg-amber-600 selection:text-white"
@@ -1380,6 +1380,27 @@
         <form id="form-enrollment" class="p-5 space-y-3.5 overflow-y-auto">
           <input type="hidden" id="enrollment-term-id" />
           <div id="enrollment-term-notice"></div>
+
+          <!-- Výběrovník existujících studentů pro administrátora -->
+          <div
+            id="admin-student-select-wrap"
+            class="hidden p-3 rounded-lg bg-amber-500/10 border border-[#caa049]/40 mb-3"
+          >
+            <label
+              class="block text-xs font-bold text-[#8c6d3b] dark:text-[#caa049] uppercase tracking-wider mb-1"
+              for="select-existing-student"
+            >
+              Rychlý výběr existujícího studenta
+            </label>
+            <select id="select-existing-student" class="input-tw text-xs font-medium">
+              <option value="">-- Nový student (vyplnit ručně) --</option>
+            </select>
+            <p class="text-[11px] text-[#7c5e2d] dark:text-[#c4a974] mt-1">
+              Výběrem studenta se automaticky předvyplní jeho údaje. Můžete také nechat prázdné a
+              zapsat nového studenta.
+            </p>
+          </div>
+
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label

@@ -382,8 +382,8 @@
 
   /* ================= NAVIGATION TABS & DROPDOWN (Quest Log & Spellbook Tabs) ================= */
   .nav-tab-btn {
-    @apply px-3 py-1.5 text-xs font-semibold rounded transition-all flex items-center gap-1.5 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 cursor-pointer;
-    font-family: "Cinzel", Georgia, serif;
+    @apply px-3 py-1.5 text-xs font-medium rounded transition-all flex items-center gap-1.5 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 cursor-pointer font-sans;
+    letter-spacing: 0.015em;
     border: 1px solid transparent;
     color: #faeed4 !important;
   }
@@ -509,10 +509,8 @@
 
   /* ================= BLIZZARD CLASSIC ACTION BUTTONS ================= */
   .btn-base {
-    @apply inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 select-none active:translate-y-[1px] disabled:opacity-50 disabled:pointer-events-none;
-    font-family: "Cinzel", Georgia, serif;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    @apply inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 select-none active:translate-y-[1px] disabled:opacity-50 disabled:pointer-events-none font-sans;
+    letter-spacing: 0.02em;
   }
 
   /* Primary Action Button: Blizzard Ruby Red with Beveled Gold Border */
@@ -691,7 +689,8 @@
   }
 
   .filter-chip {
-    @apply px-3 py-1 text-xs font-bold rounded border transition-all cursor-pointer select-none font-display uppercase tracking-wider;
+    @apply px-3 py-1 text-xs font-semibold rounded border transition-all cursor-pointer select-none font-sans;
+    letter-spacing: 0.015em;
   }
 
   .filter-chip-active {
@@ -748,7 +747,7 @@
   }
 
   .badge-pill-accredited {
-    @apply inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase select-none font-display;
+    @apply inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase select-none font-sans;
     background: #0d2b15;
     border: 1.5px solid #22c55e;
     color: #4ade80;
@@ -756,7 +755,7 @@
   }
 
   .badge-pill-standard {
-    @apply inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase select-none font-display;
+    @apply inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase select-none font-sans;
     background: #231c17;
     border: 1px solid #7b6348;
     color: #b8a690;
@@ -826,8 +825,7 @@
     font-variant-numeric: tabular-nums;
   }
   .table-tw th {
-    @apply px-4 py-3 text-xs font-bold uppercase tracking-wider select-none;
-    font-family: "Cinzel", Georgia, serif;
+    @apply px-4 py-3 text-[11px] font-bold uppercase tracking-wider select-none font-sans;
     letter-spacing: 0.05em;
     color: #5a4115;
     background: linear-gradient(180deg, #f4ecd6 0%, #e6d6b6 100%);
@@ -987,13 +985,6 @@
     color: #f7d358;
     border: 1px solid #57442d;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-  }
-
-  /* Filter chip */
-  .filter-chip {
-    @apply px-3 py-1 text-xs font-bold rounded border transition-all cursor-pointer select-none;
-    font-family: "Cinzel", Georgia, serif;
-    letter-spacing: 0.03em;
   }
 }
 

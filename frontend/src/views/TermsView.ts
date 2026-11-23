@@ -3,7 +3,7 @@
  * Manages course terms, capacity limits, segmented meters, waitlist queuing,
  * and student enrollments.
  */
-import { CourseTerm, Enrollment } from "../types";
+import { CourseTerm, Enrollment, RegisteredStudent } from "../types";
 import { termsApi, CreateTermPayload, CreateEnrollmentPayload } from "../api/termsApi";
 import { coursesApi } from "../api/coursesApi";
 import { dictionariesApi } from "../api/dictionariesApi";
@@ -15,6 +15,7 @@ export class TermsView {
   private terms: CourseTerm[] = [];
   private selectedTermId: string | null = null;
   private enrollments: Enrollment[] = [];
+  private cachedStudents: RegisteredStudent[] = [];
 
   private termsTableBody: HTMLElement | null = null;
   private termDetailBox: HTMLElement | null = null;
@@ -78,6 +79,35 @@ export class TermsView {
     this.formEnrollment?.addEventListener("submit", async (e) => {
       e.preventDefault();
       await this.handleEnrollmentSubmit();
+    });
+
+    // Student selection dropdown for Admin
+    const selectStudent = document.getElementById("select-existing-student") as HTMLSelectElement;
+    selectStudent?.addEventListener("change", () => {
+      const studentId = selectStudent.value;
+      const firstNameInput = document.getElementById("student-first-name") as HTMLInputElement;
+      const lastNameInput = document.getElementById("student-last-name") as HTMLInputElement;
+      const emailInput = document.getElementById("student-email") as HTMLInputElement;
+      const phoneInput = document.getElementById("student-phone") as HTMLInputElement;
+      const orgInput = document.getElementById("student-organization") as HTMLInputElement;
+
+      if (!studentId) {
+        if (firstNameInput) firstNameInput.value = "";
+        if (lastNameInput) lastNameInput.value = "";
+        if (emailInput) emailInput.value = "";
+        if (phoneInput) phoneInput.value = "";
+        if (orgInput) orgInput.value = "";
+        return;
+      }
+
+      const student = this.cachedStudents.find((s) => s.id === studentId);
+      if (student) {
+        if (firstNameInput) firstNameInput.value = student.firstName;
+        if (lastNameInput) lastNameInput.value = student.lastName;
+        if (emailInput) emailInput.value = student.email;
+        if (phoneInput) phoneInput.value = student.phone || "";
+        if (orgInput) orgInput.value = student.organization || "";
+      }
     });
 
     // Listen for auth state changes
@@ -683,6 +713,16 @@ export class TermsView {
     if (this.formEnrollment) this.formEnrollment.reset();
     if (this.formEnrollmentError) this.formEnrollmentError.style.display = "none";
 
+    const adminSelectWrap = document.getElementById("admin-student-select-wrap");
+    const selectStudent = document.getElementById("select-existing-student") as HTMLSelectElement;
+
+    if (authApi.isAdmin()) {
+      if (adminSelectWrap) adminSelectWrap.classList.remove("hidden");
+      this.loadStudentsForAdmin(selectStudent);
+    } else {
+      if (adminSelectWrap) adminSelectWrap.classList.add("hidden");
+    }
+
     const termIdInput = document.getElementById("enrollment-term-id") as HTMLInputElement;
     if (termIdInput) termIdInput.value = this.selectedTermId;
 
@@ -750,6 +790,27 @@ export class TermsView {
     }
 
     Modal.open("modal-enrollment");
+  }
+
+  private async loadStudentsForAdmin(selectElement: HTMLSelectElement | null): Promise<void> {
+    if (!selectElement) return;
+    try {
+      if (this.cachedStudents.length === 0) {
+        this.cachedStudents = await dictionariesApi.getStudents();
+      }
+      selectElement.innerHTML = `
+        <option value="">-- Nový student (vyplnit ručně) --</option>
+        ${this.cachedStudents
+          .map(
+            (s) =>
+              `<option value="${s.id}">${s.firstName} ${s.lastName} (${s.email}${s.organization ? ` – ${s.organization}` : ""})</option>`
+          )
+          .join("")}
+      `;
+      selectElement.value = "";
+    } catch {
+      // Fallback silently if student dictionary endpoint fails
+    }
   }
 
   private async handleEnrollmentSubmit(): Promise<void> {

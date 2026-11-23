@@ -54,14 +54,14 @@
    - 7.4 [Přehled všech npm skriptů](#74-přehled-všech-npm-skriptů)
 8. [Testovací strategie a zajištění kvality](#8-testovací-strategie-a-zajištění-kvality)
    - 8.1 [Přehled testovací strategie (dvoustupňový testovací harness)](#81-přehled-testovací-strategie-dvoustupňový-testovací-harness)
-   - 8.2 [Nativní Node test runner (34 testů – 25 unit + 9 E2E)](#82-nativní-node-test-runner-34-testů--25-unit--9-e2e)
-   - 8.3 [Komplexní testovací sada v Jestu s TypeScript & ESM (123 testů)](#83-komplexní-testovací-sada-v-jestu-s-typescript--esm-123-testů)
-   - 8.4 [Souhrnná tabulka testovacího pokrytí (157 testů, 100% pass)](#84-souhrnná-tabulka-testovacího-pokrytí-157-testů-100-pass)
+   - 8.2 [Nativní Node test runner (35 testů – 26 unit + 9 E2E)](#82-nativní-node-test-runner-35-testů--26-unit--9-e2e)
+   - 8.3 [Komplexní testovací sada v Jestu s TypeScript & ESM (168 testů)](#83-komplexní-testovací-sada-v-jestu-s-typescript--esm-168-testů)
+   - 8.4 [Souhrnná tabulka testovacího pokrytí (203 testů, 100% pass)](#84-souhrnná-tabulka-testovacího-pokrytí-203-testů-100-pass)
    - 8.5 [Kvalita kódu, linting a formátování (ESLint + Prettier)](#85-kvalita-kódu-linting-a-formátování-eslint--prettier)
 9. [Přehled plnění požadavků zadání klienta (100% HOTOVO)](#9-přehled-plnění-požadavků-zadání-klienta-100-hotovo)
    - 9.1 [Tabulka plnění 8 bodů zadání](#91-tabulka-plnění-8-bodů-zadání)
 10. [Historie verzí (Changelog) a Roadmapa](#10-historie-verzí-changelog-a-roadmapa)
-    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.9.2)](#101-historie-verzí-changelog-v100-až-v192)
+    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.9.4)](#101-historie-verzí-changelog-v100-až-v194)
     - 10.2 [Roadmapa dalšího rozvoje](#102-roadmapa-dalšího-rozvoje)
 
 ---
@@ -1263,7 +1263,7 @@ npm run dev:client
 | `npm run dev`          | Spustí vývojový backend s automatickým restartem při změně kódu (`tsx watch`)               |
 | `npm run dev:client`   | Spustí samostatný Vite dev server s HMR pro okamžitý vývoj UI                               |
 | `npm run migrate`      | Provede řízené SQL migrace proti konfigurované PostgreSQL databázi                          |
-| `npm test`             | Spustí sadu 34 testů v nativním Node test runneru (25 unit + 9 E2E testů)                   |
+| `npm test`             | Spustí sadu 35 testů v nativním Node test runneru (26 unit + 9 E2E testů)                   |
 | `npm run test:jest`    | Spustí komplexní sadu 168 testů v frameworku Jest (91 unit + 77 integračních/RBAC/Security) |
 | `npm run lint`         | Zkontroluje kód celého projektu statickou analýzou ESLint (Flat Config)                     |
 | `npm run lint:fix`     | Automaticky opraví detekované formátovací a lintingové odchylky                             |
@@ -1281,11 +1281,11 @@ Systém využívá moderní dvoustupňový testovací harness kombinující:
 1. **Nativní Node Test Runner (`node --test`):** Zajišťuje bleskové ověření základních doménových modelů, hraničních stavů a reálných integračních toků vytváření entit.
 2. **Jest Test Runner s TypeScript & ESM (`test:jest`):** Poskytuje hloubkové, granulární ověření doménových invariantů, simulaci transakčních stavů s in-memory mocky, hraničních podmínek (edge cases) a integrační testování HTTP vrstvy přes Supertest.
 
-Celý repozitář obsahuje **157 plně automatizovaných testů** se **100% úspěšností (zero failures)**.
+Celý repozitář obsahuje **203 plně automatizovaných testů** se **100% úspěšností (zero failures)**.
 
 ---
 
-### 8.2 Nativní Node test runner (34 testů – 25 unit + 9 E2E)
+### 8.2 Nativní Node test runner (35 testů – 26 unit + 9 E2E)
 
 Sada se spouští příkazem `npm test` a obsahuje 5 testovacích modulů:
 
@@ -1318,13 +1318,14 @@ Sada se spouští příkazem `npm test` a obsahuje 5 testovacích modulů:
 - `Rejects certificate waiver if written justification is missing or too short`: Odmítnutí výjimky při odůvodnění kratším než 5 znaků.
 - `Validates certificate numbering format: AT-YYYY-XXXX`: Striktní validace masky čísla certifikátu.
 
-#### 4. Hraniční doménové stavy a invarianty ([`test/DomainEdgeCases.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/DomainEdgeCases.test.ts) – 5 testů)
+#### 4. Hraniční doménové stavy a invarianty ([`test/DomainEdgeCases.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/DomainEdgeCases.test.ts) – 6 testů)
 
 - `Cascading promotion across 3 consecutive cancellations of confirmed spots (ADR-02)`: Kaskádový posun náhradníků při 3 po sobě jdoucích stornech potvrzených účastí.
 - `Boundary attendance calculation 70.0% vs 69.9% with and without waiver (ADR-01)`: Přesná hrana 70.0 % (auto-pass) vs 69.9 % (vyžaduje výjimku lektora).
 - `Rejects duplicate registration in same term and prevents duplicate active registration for same course (ADR-03)`: Zákaz vícenásobné registrace studenta na stejný termín a kontrola souběhu.
 - `Term closure when no students meet 70% threshold transitions term to COMPLETED with 0 issued certificates`: Uzavření termínu bez kvalifikovaných studentů (žádné neplatné certifikáty).
 - `Certificate sequence formatting and uniqueness enforcement`: Invarianty sekvenčního číslování `AT-YYYY-XXXX` a zamezení duplicitního vystavení.
+- `Idempotent cancellation and non-existent term rejection`: Otestování bezpečného storna a odmítnutí neexistujícího termínu.
 
 #### 5. Integrační toky API ([`test/api-creation-flows.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/api-creation-flows.test.ts) – 9 E2E testů)
 
@@ -1453,7 +1454,7 @@ Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresá
 | `test/CourseService.test.ts`            | Node Test Runner  | Doménové invarianty kurzu a CRUD operace                                    | 7 testů       | PASS (100 %)                |
 | `test/TermAndEnrollment.test.ts`        | Node Test Runner  | Termíny, kapacity a invarianty waitlistu (ADR-02)                           | 5 testů       | PASS (100 %)                |
 | `test/AttendanceAndCertificate.test.ts` | Node Test Runner  | Výukové dny, docházka a certifikace (ADR-01, ADR-05)                        | 8 testů       | PASS (100 %)                |
-| `test/DomainEdgeCases.test.ts`          | Node Test Runner  | Hraniční stavy waitlistu, 70% docházky a unikátnosti registrací             | 5 testů       | PASS (100 %)                |
+| `test/DomainEdgeCases.test.ts`          | Node Test Runner  | Hraniční stavy waitlistu, 70% docházky a unikátnosti registrací             | 6 testů       | PASS (100 %)                |
 | `test/api-creation-flows.test.ts`       | Node Test Runner  | Ucelené integrační End-to-End průchody API                                  | 9 testů       | PASS (100 %)                |
 | `test/jest/course.service.test.ts`      | Jest + TypeScript | Hloubkové unit testy kurzu a služeb                                         | 17 testů      | PASS (100 %)                |
 | `test/jest/term-and-enrollment.test.ts` | Jest + TypeScript | Transakční posun čekací listiny (ADR-02) a zákaz souběhu (ADR-03)           | 14 testů      | PASS (100 %)                |
@@ -1508,7 +1509,25 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
 
 ## 10. Historie verzí (Changelog) a Roadmapa
 
-### 10.1 Historie verzí (Changelog v1.0.0 až v1.9.3)
+### 10.1 Historie verzí (Changelog v1.0.0 až v1.9.4)
+
+#### Verze 1.9.4 (Administrativní výběrovník studentů, typová očista bez ESLint varování a typografická harmonizace)
+
+- **Výběrovník studentů pro administrátora v zápisovém modálu (`#select-existing-student`):**
+  - Při zápisu studenta administrátorem (`TermsView.ts`) je k dispozici interaktivní výběrovník všech studentů evidovaných v databázi (`GET /api/students`).
+  - Po výběru existujícího studenta dojde k okamžitému automatickému předvyplnění jména, příjmení, e-mailu, telefonu i organizace, což šetří čas personálu recepce.
+  - Volba `-- Nový student (vyplnit ručně) --` ponechává pole čistá pro registraci nového zájemce.
+  - Pro studenta zůstává výběrovník skryt a jeho identita je uzamčena na aktivní relaci (ochrana integrity zápisů).
+- **Typografická harmonizace a optimalizace čitelnosti UI:**
+  - V návaznosti na audit čitelnosti bylo nasazení dekorativního fontu `Cinzel` přesně ohraničeno: je zachován pro prestižní heraldické záhlaví (`.wow-crest-text`), hlavní nadpisy sekcí (`h1`, `h2`) a oficiální akreditované diplomy (`#cert-display`).
+  - Pro veškeré funkční a datové komponenty (navigační tlačítka `.nav-tab-btn`, akční tlačítka `.btn-base`, záhlaví runových tabulek `.table-tw th`, filtrační čipy `.filter-chip` a stavové odznaky) je použit vysoce čitelný neutrální sans-serif `Inter` (`font-sans`), což výrazně zlepšuje scannovatelnost rozhraní a čitelnost české diakritiky.
+  - Pro kódy, data, ceny a čítače certifikátů `AT-YYYY-XXXX` je důsledně uplatněn `JetBrains Mono` s `tabular-nums`.
+- **Kompletní typový refaktoring a eliminace všech ESLint varování:**
+  - Všech původních 122 varování `@typescript-eslint/no-explicit-any` bylo vyřešeno.
+  - V repozitářích, službách, controllerech i testovacích sadách byly zavedeny přesné DTO typy, DB mapovací rozhraní a bezpečný type narrowing pro `catch (err: unknown)`.
+  - Příkaz `npm run lint` končí s **0 chybami a 0 varováními**.
+- **Celkové testovací pokrytí: 203 / 203 testů (100% pass, 0 chyb):**
+  - 35 testů v Node Test Runneru + 168 testů v Jestu.
 
 #### Verze 1.9.3 (Hloubkový bezpečnostní audit, eliminace IDOR, zabezpečení proti SQL/overflow injekcím a nová bezpečnostní testovací sada)
 

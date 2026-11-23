@@ -16,18 +16,67 @@ import {
   CreateTeachingDayDto,
   MarkAttendanceDto,
   AttendanceSummaryDto,
+  TeachingDayResponseDto,
+  StudentDayAttendanceDto,
 } from "../../src/application/dto/AttendanceDto.js";
-import { CreateEnrollmentDto } from "../../src/application/dto/EnrollmentDto.js";
+import {
+  CreateEnrollmentDto,
+  EnrollmentResponseDto,
+} from "../../src/application/dto/EnrollmentDto.js";
+import {
+  CreateTermDto,
+  TermResponseDto,
+  LecturerDto,
+  ClassroomDto,
+  StudentDto,
+  AnalyticsDto,
+  CancelEnrollmentResultDto,
+} from "../../src/application/dto/TermDto.js";
+
+interface MockEdgeTerm {
+  id: string;
+  courseId: string;
+  classroomId: string | null;
+  startDate: string;
+  endDate: string;
+  capacity: number;
+  status: string;
+}
+
+interface MockEdgeStudent {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string | null;
+  organization?: string | null;
+}
+
+interface MockEdgeTeachingDay {
+  id: string;
+  termId: string;
+  dayDate: string;
+  hours: number;
+  topic: string;
+  lecturerId: string | null;
+}
+
+interface MockEdgeAttendance {
+  teachingDayId: string;
+  studentId: string;
+  isPresent: boolean;
+  note?: string | null;
+}
 
 /**
  * Shared in-memory database context mimicking PostgreSQL tables
  */
 class SharedDatabaseContext {
-  public terms: any[] = [];
-  public students: any[] = [];
-  public enrollments: any[] = [];
-  public teachingDays: any[] = [];
-  public attendanceRecords: any[] = [];
+  public terms: MockEdgeTerm[] = [];
+  public students: MockEdgeStudent[] = [];
+  public enrollments: EnrollmentResponseDto[] = [];
+  public teachingDays: MockEdgeTeachingDay[] = [];
+  public attendanceRecords: MockEdgeAttendance[] = [];
   public certificates: CertificateResponseDto[] = [];
   public certCounter: number = 0;
 }
@@ -35,13 +84,24 @@ class SharedDatabaseContext {
 class InMemoryTermRepository {
   constructor(private ctx: SharedDatabaseContext) {}
 
-  async findAll(): Promise<any[]> {
+  async findAll(): Promise<TermResponseDto[]> {
     return this.ctx.terms.map((t) => {
       const termEnrollments = this.ctx.enrollments.filter((e) => e.termId === t.id);
       const confirmed = termEnrollments.filter((e) => e.status === "CONFIRMED").length;
       const waitlist = termEnrollments.filter((e) => e.status === "WAITLIST").length;
       return {
-        ...t,
+        id: t.id,
+        courseId: t.courseId,
+        courseTitle: "Edge Course",
+        coursePrice: 1000,
+        courseHours: 10,
+        classroomId: t.classroomId || undefined,
+        classroomName: "Unassigned",
+        startDate: t.startDate,
+        endDate: t.endDate,
+        capacity: t.capacity,
+        status: t.status,
+        lecturers: [],
         confirmedCount: confirmed,
         waitlistCount: waitlist,
         availableSpots: Math.max(0, t.capacity - confirmed),
@@ -50,12 +110,12 @@ class InMemoryTermRepository {
     });
   }
 
-  async findById(id: string): Promise<any | null> {
+  async findById(id: string): Promise<TermResponseDto | null> {
     const list = await this.findAll();
     return list.find((t) => t.id === id) || null;
   }
 
-  async createTerm(data: any): Promise<string> {
+  async createTerm(data: CreateTermDto): Promise<string> {
     const id = `term-${this.ctx.terms.length + 1}`;
     this.ctx.terms.push({
       id,
@@ -69,11 +129,14 @@ class InMemoryTermRepository {
     return id;
   }
 
-  async getEnrollmentsForTerm(termId: string): Promise<any[]> {
+  async getEnrollmentsForTerm(termId: string): Promise<EnrollmentResponseDto[]> {
     return this.ctx.enrollments.filter((e) => e.termId === termId);
   }
 
-  async createEnrollment(termId: string, studentData: CreateEnrollmentDto): Promise<any> {
+  async createEnrollment(
+    termId: string,
+    studentData: CreateEnrollmentDto
+  ): Promise<EnrollmentResponseDto> {
     const term = this.ctx.terms.find((t) => t.id === termId);
     if (!term) throw new Error("Course term was not found.");
 
@@ -146,7 +209,7 @@ class InMemoryTermRepository {
     return enrollment;
   }
 
-  async cancelEnrollment(enrollmentId: string): Promise<any> {
+  async cancelEnrollment(enrollmentId: string): Promise<CancelEnrollmentResultDto> {
     const enrollment = this.ctx.enrollments.find((e) => e.id === enrollmentId);
     if (!enrollment) throw new Error("Enrollment was not found.");
 
@@ -197,25 +260,40 @@ class InMemoryTermRepository {
     return { success: true, promotedStudentId };
   }
 
-  async getLecturers(): Promise<any[]> {
+  async getLecturers(): Promise<LecturerDto[]> {
     return [];
   }
-  async getClassrooms(): Promise<any[]> {
+  async getClassrooms(): Promise<ClassroomDto[]> {
     return [];
   }
-  async getStudents(): Promise<any[]> {
-    return this.ctx.students;
+  async getStudents(): Promise<StudentDto[]> {
+    return this.ctx.students.map((s) => ({
+      id: s.id,
+      name: `${s.firstName} ${s.lastName}`,
+      firstName: s.firstName,
+      lastName: s.lastName,
+      email: s.email,
+      phone: s.phone || null,
+      organization: s.organization || null,
+      enrollmentCount: 0,
+    }));
   }
-  async getAnalytics(): Promise<any> {
-    return {};
+  async getAnalytics(): Promise<AnalyticsDto> {
+    return { termStats: [], lecturerStats: [], multiCourseStudents: [] };
   }
 }
 
 class InMemoryAttendanceRepository {
   constructor(private ctx: SharedDatabaseContext) {}
 
-  async getTeachingDays(termId: string): Promise<any[]> {
-    return this.ctx.teachingDays.filter((d) => d.termId === termId);
+  async getTeachingDays(termId: string): Promise<TeachingDayResponseDto[]> {
+    return this.ctx.teachingDays
+      .filter((d) => d.termId === termId)
+      .map((d) => ({
+        ...d,
+        attendanceCount: 0,
+        presentCount: 0,
+      }));
   }
 
   async createTeachingDay(dto: CreateTeachingDayDto): Promise<string> {
@@ -231,7 +309,7 @@ class InMemoryAttendanceRepository {
     return id;
   }
 
-  async getAttendanceForDay(teachingDayId: string): Promise<any[]> {
+  async getAttendanceForDay(teachingDayId: string): Promise<StudentDayAttendanceDto[]> {
     const day = this.ctx.teachingDays.find((d) => d.id === teachingDayId);
     if (!day) return [];
     return this.ctx.enrollments
@@ -492,7 +570,7 @@ describe("Domain Edge Cases & Boundary Conditions (Jest Suite)", () => {
       let term = await termService.getTermById(termId);
       expect(term.confirmedCount).toBe(2);
       expect(term.waitlistCount).toBe(3);
-      expect((term as any).availableSpots).toBe(0);
+      expect(term.availableSpots).toBe(0);
 
       // --- CANCELLATION STEP 1: S1 cancels ---
       const cancel1 = await termService.cancelEnrollment(s1.id);
@@ -531,7 +609,7 @@ describe("Domain Edge Cases & Boundary Conditions (Jest Suite)", () => {
       term = await termService.getTermById(termId);
       expect(term.confirmedCount).toBe(2); // S4 and S5 are confirmed
       expect(term.waitlistCount).toBe(0);
-      expect((term as any).availableSpots).toBe(0);
+      expect(term.availableSpots).toBe(0);
 
       // --- CANCELLATION STEP 4: S4 cancels when waitlist is empty ---
       const cancel4 = await termService.cancelEnrollment(s4.id);
@@ -541,7 +619,7 @@ describe("Domain Edge Cases & Boundary Conditions (Jest Suite)", () => {
       term = await termService.getTermById(termId);
       expect(term.confirmedCount).toBe(1); // Only S5 remains
       expect(term.waitlistCount).toBe(0);
-      expect((term as any).availableSpots).toBe(1); // Spot is freed up for public registration!
+      expect(term.availableSpots).toBe(1); // Spot is freed up for public registration!
     });
 
     it("correctly shifts queue when a student in the middle of waitlist cancels", async () => {

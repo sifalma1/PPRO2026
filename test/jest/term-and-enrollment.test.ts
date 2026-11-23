@@ -3,16 +3,11 @@ import { CourseTerm } from "../../src/domain/entities/CourseTerm.js";
 import { Enrollment } from "../../src/domain/entities/Enrollment.js";
 import { TermService } from "../../src/application/services/TermService.js";
 import { PostgresTermRepository } from "../../src/infrastructure/database/PostgresTermRepository.js";
+import { CreateTermDto, TermResponseDto } from "../../src/application/dto/TermDto.js";
 import {
-  CreateTermDto,
-  TermResponseDto,
-  LecturerDto,
-  ClassroomDto,
-  StudentDto,
-  AnalyticsDto,
-  CancelEnrollmentResultDto,
-} from "../../src/application/dto/TermDto.js";
-import { CreateEnrollmentDto, EnrollmentResponseDto } from "../../src/application/dto/EnrollmentDto.js";
+  CreateEnrollmentDto,
+  EnrollmentResponseDto,
+} from "../../src/application/dto/EnrollmentDto.js";
 
 interface MockTerm {
   id: string;
@@ -46,13 +41,24 @@ class InMemoryTermRepository {
   public enrollments: EnrollmentResponseDto[] = [];
   public students: MockStudent[] = [];
 
-  async findAll(): Promise<any[]> {
+  async findAll(): Promise<TermResponseDto[]> {
     return this.terms.map((t) => {
       const termEnrollments = this.enrollments.filter((e) => e.termId === t.id);
       const confirmed = termEnrollments.filter((e) => e.status === "CONFIRMED").length;
       const waitlist = termEnrollments.filter((e) => e.status === "WAITLIST").length;
       return {
-        ...t,
+        id: t.id,
+        courseId: t.courseId,
+        courseTitle: t.courseTitle || "Default Title",
+        coursePrice: t.coursePrice || 0,
+        courseHours: t.courseHours || 0,
+        classroomId: t.classroomId || undefined,
+        classroomName: t.classroomName || "Unassigned",
+        startDate: t.startDate,
+        endDate: t.endDate,
+        capacity: t.capacity,
+        status: t.status,
+        lecturers: [],
         confirmedCount: confirmed,
         waitlistCount: waitlist,
         availableSpots: Math.max(0, t.capacity - confirmed),
@@ -61,12 +67,12 @@ class InMemoryTermRepository {
     });
   }
 
-  async findById(id: string): Promise<any | null> {
+  async findById(id: string): Promise<TermResponseDto | null> {
     const list = await this.findAll();
     return list.find((t) => t.id === id) || null;
   }
 
-  async createTerm(data: any): Promise<string> {
+  async createTerm(data: CreateTermDto): Promise<string> {
     const id = `term-${this.terms.length + 1}`;
     this.terms.push({
       id,
@@ -80,11 +86,14 @@ class InMemoryTermRepository {
     return id;
   }
 
-  async getEnrollmentsForTerm(termId: string): Promise<any[]> {
+  async getEnrollmentsForTerm(termId: string): Promise<EnrollmentResponseDto[]> {
     return this.enrollments.filter((e) => e.termId === termId);
   }
 
-  async createEnrollment(termId: string, studentData: any): Promise<any> {
+  async createEnrollment(
+    termId: string,
+    studentData: CreateEnrollmentDto
+  ): Promise<EnrollmentResponseDto> {
     const term = this.terms.find((t) => t.id === termId);
     if (!term) throw new Error("Course term was not found.");
 
@@ -158,7 +167,7 @@ class InMemoryTermRepository {
     return enrollment;
   }
 
-  async cancelEnrollment(enrollmentId: string): Promise<any> {
+  async cancelEnrollment(enrollmentId: string): Promise<CancelEnrollmentResultDto> {
     const enrollment = this.enrollments.find((e) => e.id === enrollmentId);
     if (!enrollment) throw new Error("Enrollment was not found.");
 
@@ -212,17 +221,26 @@ class InMemoryTermRepository {
     return { success: true, promotedStudentId };
   }
 
-  async getLecturers(): Promise<any[]> {
+  async getLecturers(): Promise<LecturerDto[]> {
     return [];
   }
-  async getClassrooms(): Promise<any[]> {
+  async getClassrooms(): Promise<ClassroomDto[]> {
     return [];
   }
-  async getStudents(): Promise<any[]> {
-    return this.students;
+  async getStudents(): Promise<StudentDto[]> {
+    return this.students.map((s) => ({
+      id: s.id,
+      name: `${s.firstName} ${s.lastName}`,
+      firstName: s.firstName,
+      lastName: s.lastName,
+      email: s.email,
+      phone: s.phone || null,
+      organization: s.organization || null,
+      enrollmentCount: s.enrollmentCount || 0,
+    }));
   }
-  async getAnalytics(): Promise<any> {
-    return {};
+  async getAnalytics(): Promise<AnalyticsDto> {
+    return { termStats: [], lecturerStats: [], multiCourseStudents: [] };
   }
 }
 
@@ -473,8 +491,8 @@ describe("CourseTerm and Enrollment Entities & TermService (Jest Unit Tests)", (
       const termOverview = await service.getTermById(termId);
       expect(termOverview.confirmedCount).toBe(2);
       expect(termOverview.waitlistCount).toBe(2);
-      expect((termOverview as any).isFull).toBe(true);
-      expect((termOverview as any).availableSpots).toBe(0);
+      expect(termOverview.isFull).toBe(true);
+      expect(termOverview.availableSpots).toBe(0);
     });
 
     it("promotes #1 waitlisted student to CONFIRMED and shifts remaining queue when a confirmed student cancels (ADR-02)", async () => {

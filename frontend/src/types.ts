@@ -185,6 +185,17 @@ export interface MultiCourseStudentStat {
   courses: string[];
 }
 
+export interface RegisteredStudent {
+  id: string;
+  name: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string | null;
+  organization?: string | null;
+  enrollmentCount?: number;
+}
+
 export interface AnalyticsData {
   termStats: TermAnalyticsStat[];
   lecturerStats: LecturerAnalyticsStat[];

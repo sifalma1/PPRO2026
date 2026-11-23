@@ -15,28 +15,88 @@ import {
   CreateTeachingDayDto,
   MarkAttendanceDto,
   AttendanceSummaryDto,
+  TeachingDayResponseDto,
+  StudentDayAttendanceDto,
 } from "../src/application/dto/AttendanceDto.js";
-import { CreateEnrollmentDto } from "../src/application/dto/EnrollmentDto.js";
+import {
+  CreateEnrollmentDto,
+  EnrollmentResponseDto,
+} from "../src/application/dto/EnrollmentDto.js";
+import {
+  CreateTermDto,
+  TermResponseDto,
+  LecturerDto,
+  ClassroomDto,
+  StudentDto,
+  AnalyticsDto,
+  CancelEnrollmentResultDto,
+} from "../src/application/dto/TermDto.js";
+
+interface MockEdgeTerm {
+  id: string;
+  courseId: string;
+  classroomId: string | null;
+  startDate: string;
+  endDate: string;
+  capacity: number;
+  status: string;
+}
+
+interface MockEdgeStudent {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string | null;
+  organization?: string | null;
+}
+
+interface MockEdgeTeachingDay {
+  id: string;
+  termId: string;
+  dayDate: string;
+  hours: number;
+  topic: string;
+  lecturerId: string | null;
+}
+
+interface MockEdgeAttendance {
+  teachingDayId: string;
+  studentId: string;
+  isPresent: boolean;
+  note?: string | null;
+}
 
 /**
  * In-memory repository for Node native test runner edge case suite.
  */
 class InMemoryEdgeCaseRepository {
-  public terms: any[] = [];
-  public students: any[] = [];
-  public enrollments: any[] = [];
-  public teachingDays: any[] = [];
-  public attendanceRecords: any[] = [];
+  public terms: MockEdgeTerm[] = [];
+  public students: MockEdgeStudent[] = [];
+  public enrollments: EnrollmentResponseDto[] = [];
+  public teachingDays: MockEdgeTeachingDay[] = [];
+  public attendanceRecords: MockEdgeAttendance[] = [];
   public certificates: CertificateResponseDto[] = [];
   private certCounter: number = 0;
 
-  async findAll(): Promise<any[]> {
+  async findAll(): Promise<TermResponseDto[]> {
     return this.terms.map((t) => {
       const termEnrollments = this.enrollments.filter((e) => e.termId === t.id);
       const confirmed = termEnrollments.filter((e) => e.status === "CONFIRMED").length;
       const waitlist = termEnrollments.filter((e) => e.status === "WAITLIST").length;
       return {
-        ...t,
+        id: t.id,
+        courseId: t.courseId,
+        courseTitle: "Edge Course",
+        coursePrice: 1000,
+        courseHours: 10,
+        classroomId: t.classroomId || undefined,
+        classroomName: "Unassigned",
+        startDate: t.startDate,
+        endDate: t.endDate,
+        capacity: t.capacity,
+        status: t.status,
+        lecturers: [],
         confirmedCount: confirmed,
         waitlistCount: waitlist,
         availableSpots: Math.max(0, t.capacity - confirmed),
@@ -45,12 +105,12 @@ class InMemoryEdgeCaseRepository {
     });
   }
 
-  async findById(id: string): Promise<any | null> {
+  async findById(id: string): Promise<TermResponseDto | null> {
     const list = await this.findAll();
     return list.find((t) => t.id === id) || null;
   }
 
-  async createTerm(data: any): Promise<string> {
+  async createTerm(data: CreateTermDto): Promise<string> {
     const id = `term-${this.terms.length + 1}`;
     this.terms.push({
       id,
@@ -64,11 +124,14 @@ class InMemoryEdgeCaseRepository {
     return id;
   }
 
-  async getEnrollmentsForTerm(termId: string): Promise<any[]> {
+  async getEnrollmentsForTerm(termId: string): Promise<EnrollmentResponseDto[]> {
     return this.enrollments.filter((e) => e.termId === termId);
   }
 
-  async createEnrollment(termId: string, studentData: CreateEnrollmentDto): Promise<any> {
+  async createEnrollment(
+    termId: string,
+    studentData: CreateEnrollmentDto
+  ): Promise<EnrollmentResponseDto> {
     const term = this.terms.find((t) => t.id === termId);
     if (!term) throw new Error("Course term was not found.");
 
@@ -139,7 +202,7 @@ class InMemoryEdgeCaseRepository {
     return enrollment;
   }
 
-  async cancelEnrollment(enrollmentId: string): Promise<any> {
+  async cancelEnrollment(enrollmentId: string): Promise<CancelEnrollmentResultDto> {
     const enrollment = this.enrollments.find((e) => e.id === enrollmentId);
     if (!enrollment) throw new Error("Enrollment was not found.");
 
@@ -190,8 +253,14 @@ class InMemoryEdgeCaseRepository {
     return { success: true, promotedStudentId };
   }
 
-  async getTeachingDays(termId: string): Promise<any[]> {
-    return this.teachingDays.filter((d) => d.termId === termId);
+  async getTeachingDays(termId: string): Promise<TeachingDayResponseDto[]> {
+    return this.teachingDays
+      .filter((d) => d.termId === termId)
+      .map((d) => ({
+        ...d,
+        attendanceCount: 0,
+        presentCount: 0,
+      }));
   }
 
   async createTeachingDay(dto: CreateTeachingDayDto): Promise<string> {
@@ -207,7 +276,7 @@ class InMemoryEdgeCaseRepository {
     return id;
   }
 
-  async getAttendanceForDay(teachingDayId: string): Promise<any[]> {
+  async getAttendanceForDay(teachingDayId: string): Promise<StudentDayAttendanceDto[]> {
     const day = this.teachingDays.find((d) => d.id === teachingDayId);
     if (!day) return [];
     return this.enrollments
@@ -388,17 +457,26 @@ class InMemoryEdgeCaseRepository {
     return { issuedCount: issued.length, certificates: issued };
   }
 
-  async getLecturers(): Promise<any[]> {
+  async getLecturers(): Promise<LecturerDto[]> {
     return [];
   }
-  async getClassrooms(): Promise<any[]> {
+  async getClassrooms(): Promise<ClassroomDto[]> {
     return [];
   }
-  async getStudents(): Promise<any[]> {
-    return this.students;
+  async getStudents(): Promise<StudentDto[]> {
+    return this.students.map((s) => ({
+      id: s.id,
+      name: `${s.firstName} ${s.lastName}`,
+      firstName: s.firstName,
+      lastName: s.lastName,
+      email: s.email,
+      phone: s.phone || null,
+      organization: s.organization || null,
+      enrollmentCount: 0,
+    }));
   }
-  async getAnalytics(): Promise<any> {
-    return {};
+  async getAnalytics(): Promise<AnalyticsDto> {
+    return { termStats: [], lecturerStats: [], multiCourseStudents: [] };
   }
 }
 
@@ -582,13 +660,13 @@ describe("Domain Edge Cases (Node Test Runner - ADR-01, ADR-02, ADR-03)", () => 
       capacity: 5,
     });
 
-    const d1 = await attendanceService.createTeachingDay({
+    const _d1 = await attendanceService.createTeachingDay({
       termId,
       dayDate: "2026-11-02",
       hours: 4,
       topic: "Day 1",
     });
-    const d2 = await attendanceService.createTeachingDay({
+    const _d2 = await attendanceService.createTeachingDay({
       termId,
       dayDate: "2026-11-03",
       hours: 4,
