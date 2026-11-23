@@ -1,4 +1,4 @@
-import { describe, it, before } from "node:test";
+import { describe, it, before, after } from "node:test";
 import assert from "node:assert/strict";
 
 const BASE_URL = process.env.API_URL || "http://localhost:3000";
@@ -346,5 +346,26 @@ describe("End-to-End API Creation Flows (Akademie Trutnov)", () => {
     assert.equal(json.data.hasWaiver, true);
     assert.equal(json.data.waiverReason, waiverPayload.waiverReason);
     assert.ok(json.data.certificateNumber.startsWith("AT-"));
+  });
+
+  after(async () => {
+    // Teardown: delete the test course, which cascades to terms, teaching days, enrollments, certificates
+    if (createdCourseId) {
+      try {
+        await fetch(`${BASE_URL}/api/courses/${createdCourseId}`, {
+          method: "DELETE",
+          headers: adminHeaders,
+        });
+      } catch {
+        // Ignore teardown error in case server is not running
+      }
+    }
+    try {
+      const { pool } = await import("../src/infrastructure/database/db.js");
+      await pool.query("DELETE FROM students WHERE email LIKE '%@example.com'");
+      await pool.end();
+    } catch {
+      // Ignore if db pool unavailable
+    }
   });
 });

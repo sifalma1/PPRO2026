@@ -60,7 +60,7 @@
 9. [Přehled plnění požadavků zadání klienta (100% HOTOVO)](#9-přehled-plnění-požadavků-zadání-klienta-100-hotovo)
    - 9.1 [Tabulka plnění 8 bodů zadání](#91-tabulka-plnění-8-bodů-zadání)
 10. [Historie verzí (Changelog) a Roadmapa](#10-historie-verzí-changelog-a-roadmapa)
-    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.9.0)](#101-historie-verzí-changelog-v100-až-v190)
+    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.9.1)](#101-historie-verzí-changelog-v100-až-v191)
     - 10.2 [Roadmapa dalšího rozvoje](#102-roadmapa-dalšího-rozvoje)
 
 ---
@@ -1416,7 +1416,23 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
 
 ## 10. Historie verzí (Changelog) a Roadmapa
 
-### 10.1 Historie verzí (Changelog v1.0.0 až v1.9.0)
+### 10.1 Historie verzí (Changelog v1.0.0 až v1.9.1)
+
+#### Verze 1.9.1 (Audit a ozdravení databáze, oprava poškozených dat, dočištění klientského portálu a odstranění zbývajících vývojářských štítků)
+
+- **Audit a hloubkové ozdravení PostgreSQL databáze a migračních seedů:**
+  - **Odstranění testovacího smetí:** Běžící databáze byla pročištěna od 50 zduplikovaných testovacích kurzů (_QA Testovací kurz – Automatizované testování_) a 151 zkušebních studentů s fiktivními e-maily `@example.com`, které se v ní nahromadily v důsledku dřívějších integračních testů bez úklidového mechanismu.
+  - **Oprava poškozené diakritiky (mojibake):** V tabulce `courses` byl opraven záznam kurzu `Účetnictví a daňová evidence pro praxi` (ID `b2a3f789-2345-4cde-8901-234567890abc`), u kterého byly české znaky s diakritikou poškozeny chybným kódováním.
+  - **Rozšíření a synchronizace autentických kurzů:** Seed skripty `002_seed_kurzy.sql` a `005_english_schema_and_completion.sql` byly obohaceny o 4 další autentické trutnovské vzdělávací programy (_Krkonošský horský průvodce a základy záchrany_, _Asistent pedagoga a základy speciální pedagogiky_, _Správa počítačových sítí, Linux a kybernetická bezpečnost_, _Grafický design, vizuální identita a digitální média_). Nabídka katalogu nyní čítá přesně 8 realistických a kompletních kurzů.
+  - **Reset čítače osvědčení:** Sekvence `certificate_counter` byla synchronizována na skutečný počet vydaných certifikátů (poslední vydané číslo `AT-2026-0002`).
+  - **Ochrana před budoucím znečištěním (`test/api-creation-flows.test.ts`):** Do integračního testovacího scénáře byl implementován `after()` hook s automatickou kaskádovou likvidací vytvořeného kurzu a smazáním testovacích studentů. Po průchodu všech 144 testů zůstává databáze 100% čistá.
+- **Pročištění klientského portálu studenta a odstranění nevhodných SaaS ikon:**
+  - **Klientský profil studenta:** Z hlavičky profilu studenta (např. _Tomáš Marný_) byly odstraněny nepatřičné emojis a ikony (`🎓`, `✉️`, `🏢`, `📜`) i moderní zelenomodrý gradient. Profilová karta je nyní vykreslena v čistém pergamenovém formátu `.card-box`.
+  - **Přebarvení fialové barvy:** Třída `.badge-chip-slate` byla v `frontend/src/style.css` přestylována z fialového odstínu (`#9333ea`) do teplého kovaného bronzu a patinovaného pergamenu (`#7c5e2d` / `#caa049`), čímž byla fialová barva zcela eliminována i ze stavových odznaků klientského portálu a celé aplikace.
+- **Odstranění technických štítků ze správy a modálů:**
+  - V záložce _Úřední kniha osvědčení a certifikátů_ byl odstraněn technický odznak `AT-YYYY-XXXX`. V KPI kartě byl text `Formát AT-YYYY-XXXX` nahrazen přirozeným popisem `Úřední osvědčení`.
+  - V záložce _Manažerské přehledy a analytické výkazy_ byl odstraněn štítek `Bod 8 zadání` jak z hlavního nadpisu sekce, tak z podnadpisu přehledu studentů přihlášených na více kurzů v daném roce.
+  - V modálu přihlášení (`modal-login`) byly z tlačítek rychlého předvyplnění role odstraněny emojis `🛡️` a `🎓`.
 
 #### Verze 1.9.0 (Redesign tabulek do stylu WoW Classic / Dalaran svitků, eliminace generického SaaS a rozšíření testovací sady na 144 testů)
 
@@ -1430,7 +1446,7 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
 - **Sjednocení UI a eliminace pozůstatků moderního SaaS vzhledu (dle designových auditů):**
   - **Kompletní odstranění tříd `slate-*`:** Ze všech výhledů a šablon (`frontend/index.html`, `TermsView.ts`, `AttendanceView.ts`, `CertificatesView.ts`, `LecturersView.ts`, `AnalyticsView.ts`, `StudentPortalView.ts`, `Toast.ts`) bylo vymýceno přes 250 výskytů generických studených šedých tříd `slate-*`.
   - **Převod detailu termínu (`#term-detail-box`):** Převrácen z moderního bílého stylu na třídy `.card-box` a `.table-box-wrap`.
-  - **Odstranění vývojářských štítků ADR z klientského rozhraní:** Ze všech uživatelských obrazovek, nadpisů, odznaků, tabulek a potvrzovacích dialogů byly kompletně odstraněny interní technické štítky `ADR-01`, `ADR-02`, `ADR-05` (např. odznaky u termínů, v docházce a v tabulkách) a nahrazeny přirozenou doménovou terminologií (*Pořadník aktivní*, *Lektorská výjimka*, *Limit 70 %*, automatické povýšení náhradníka).
+  - **Odstranění vývojářských štítků ADR z klientského rozhraní:** Ze všech uživatelských obrazovek, nadpisů, odznaků, tabulek a potvrzovacích dialogů byly kompletně odstraněny interní technické štítky `ADR-01`, `ADR-02`, `ADR-05` (např. odznaky u termínů, v docházce a v tabulkách) a nahrazeny přirozenou doménovou terminologií (_Pořadník aktivní_, _Lektorská výjimka_, _Limit 70 %_, automatické povýšení náhradníka).
   - **Pročištění KPI karet a navigačních nabídek:** Z KPI plaket byly odstraněny prázdné rámečky pro čistý vzdušný vzhled, z navbaru i dropdownu byly odebrány číselné zkratky a z nadpisu katalogu bylo odstraněno fialové počítadlo programů.
   - **Dvoubarevný režim vyhledávání kurzů (`.course-filter-toolbar`):** Vyhledávací a filtrační lišta nově plně podporuje světlý pergamenový režim i tmavý ořechovo-kamenný režim.
 - **Implementace komplexních testů hraničních stavů (Edge Cases) dle ADR-01 až ADR-05:**

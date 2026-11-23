@@ -446,12 +446,9 @@
       `;return}let t=this.dashboardData,n=t?.student||{id:e.studentId||e.id,name:e.name,email:e.email||e.username,organization:`Akademie Trutnov`},r=t?.enrollments||[],i=t?.certificates||[],a=t?.attendance||[],o=r.filter(e=>e.status===`CONFIRMED`).length,c=r.filter(e=>e.status===`WAITLIST`).length,l=a.length>0?Math.round(a.reduce((e,t)=>e+t.percentage,0)/a.length):100;this.container.innerHTML=`
       <div class="space-y-6">
         <!-- Student Info Header -->
-        <div class="card-box bg-gradient-to-r from-emerald-50/50 to-sky-50/50 dark:from-emerald-950/20 dark:to-sky-950/20 border-emerald-200/60 dark:border-emerald-800/60">
+        <div class="card-box">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                🎓
-              </div>
               <div>
                 <div class="flex items-center gap-2">
                   <h2 class="text-base font-bold font-display text-[#4a3512] dark:text-[#faeed4]">
@@ -460,8 +457,8 @@
                   <span class="badge-chip badge-chip-blue font-mono text-xs">Student</span>
                 </div>
                 <div class="text-xs text-[#7c5e2d] dark:text-[#c4a974] mt-0.5 flex flex-wrap items-center gap-3">
-                  <span>✉️ ${n.email}</span>
-                  ${n.organization?`<span>🏢 ${n.organization}</span>`:``}
+                  <span>${n.email}</span>
+                  ${n.organization?`<span class="opacity-80">• ${n.organization}</span>`:``}
                 </div>
               </div>
             </div>
@@ -550,7 +547,7 @@
                               </td>
                               <td class="text-right">
                                 ${n?`<button class="btn-student-cert-preview badge-chip badge-chip-blue font-mono text-xs cursor-pointer hover:border-amber-400 transition-colors" data-cert="${n.certificateNumber}">
-                                        📜 ${n.certificateNumber}
+                                        ${n.certificateNumber}
                                       </button>`:s?`<span class="text-xs text-[#8c6d3b] dark:text-[#c4a974]">Připraveno k vydání</span>`:`<span class="text-amber-600/50 text-xs font-mono">–</span>`}
                               </td>
                             </tr>

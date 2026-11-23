@@ -197,7 +197,9 @@ BEGIN
         ON CONFLICT (id) DO UPDATE SET
             first_name = EXCLUDED.first_name,
             last_name = EXCLUDED.last_name,
-            email = EXCLUDED.email;
+            email = EXCLUDED.email,
+            phone = EXCLUDED.phone,
+            organization = EXCLUDED.organization;
     END IF;
 
     IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'prihlasky') THEN
@@ -238,7 +240,7 @@ ON CONFLICT (term_id, lecturer_id) DO NOTHING;
 INSERT INTO enrollments (id, term_id, student_id, submitted_at, status, waitlist_position, note)
 VALUES 
     ('e1111111-1111-4111-8111-111111111111', 'a5555555-5555-4555-8555-555555555555', 'c2222222-2222-4222-8222-222222222222', '2026-08-15 10:00:00', 'COMPLETED', NULL, 'Absolvoval s vyznamenáním'),
-    ('e2222222-2222-4222-8222-222222222222', 'a5555555-5555-4555-8555-555555555555', 'c3333333-3333-4333-8333-333333333333', '2026-08-16 11:30:00', 'COMPLETED', NULL, 'Výjimka lektora ADR-01 (67% docházka)')
+    ('e2222222-2222-4222-8222-222222222222', 'a5555555-5555-4555-8555-555555555555', 'c3333333-3333-4333-8333-333333333333', '2026-08-16 11:30:00', 'COMPLETED', NULL, 'Udělení lektorské výjimky (docházka 67 %)')
 ON CONFLICT (id) DO NOTHING;
 
 -- Výukové dny pro dokončený termín (3 dny)

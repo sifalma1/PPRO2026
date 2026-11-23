@@ -119,12 +119,9 @@ export class StudentPortalView {
     this.container.innerHTML = `
       <div class="space-y-6">
         <!-- Student Info Header -->
-        <div class="card-box bg-gradient-to-r from-emerald-50/50 to-sky-50/50 dark:from-emerald-950/20 dark:to-sky-950/20 border-emerald-200/60 dark:border-emerald-800/60">
+        <div class="card-box">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                🎓
-              </div>
               <div>
                 <div class="flex items-center gap-2">
                   <h2 class="text-base font-bold font-display text-[#4a3512] dark:text-[#faeed4]">
@@ -133,8 +130,8 @@ export class StudentPortalView {
                   <span class="badge-chip badge-chip-blue font-mono text-xs">Student</span>
                 </div>
                 <div class="text-xs text-[#7c5e2d] dark:text-[#c4a974] mt-0.5 flex flex-wrap items-center gap-3">
-                  <span>✉️ ${student.email}</span>
-                  ${student.organization ? `<span>🏢 ${student.organization}</span>` : ""}
+                  <span>${student.email}</span>
+                  ${student.organization ? `<span class="opacity-80">• ${student.organization}</span>` : ""}
                 </div>
               </div>
             </div>
@@ -251,7 +248,7 @@ export class StudentPortalView {
                                 ${
                                   certItem
                                     ? `<button class="btn-student-cert-preview badge-chip badge-chip-blue font-mono text-xs cursor-pointer hover:border-amber-400 transition-colors" data-cert="${certItem.certificateNumber}">
-                                        📜 ${certItem.certificateNumber}
+                                        ${certItem.certificateNumber}
                                       </button>`
                                     : qualifies
                                       ? '<span class="text-xs text-[#8c6d3b] dark:text-[#c4a974]">Připraveno k vydání</span>'

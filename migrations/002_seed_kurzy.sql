@@ -32,5 +32,37 @@ VALUES
         150,
         12500.00,
         TRUE
+    ),
+    (
+        'f6e7d123-6789-4012-2345-678901234ef0',
+        'Krkonošský horský průvodce a základy záchrany',
+        'Odborný certifikovaný kurz pro průvodcovskou činnost v Krkonoších, základy místopisu, bezpečnosti v horách a první pomoci.',
+        80,
+        16900.00,
+        TRUE
+    ),
+    (
+        'a7b8c234-7890-4123-3456-789012345fa1',
+        'Asistent pedagoga a základy speciální pedagogiky',
+        'Akreditovaný kvalifikační program MŠMT pro asistenty pedagoga, inkluzivní vzdělávání a psychologii dětí se SVP.',
+        120,
+        11800.00,
+        TRUE
+    ),
+    (
+        'b8c9d345-8901-4234-4567-890123456ab2',
+        'Správa počítačových sítí, Linux a kybernetická bezpečnost',
+        'Praktický kurz správy serverů Linux, konfigurace směrovačů a switchů, zálohování a hardening firemní sítě.',
+        96,
+        19500.00,
+        FALSE
+    ),
+    (
+        'c9dae456-9012-4345-5678-901234567bc3',
+        'Grafický design, vizuální identita a digitální média',
+        'Intenzivní tvůrčí workshop práce s vektorovou grafikou, typografií, nástroji moderního designu a přípravou tiskovin.',
+        48,
+        9200.00,
+        FALSE
     )
 ON CONFLICT (id) DO NOTHING;
