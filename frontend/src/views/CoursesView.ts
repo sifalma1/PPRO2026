@@ -244,9 +244,9 @@ export class CoursesView {
         if (isAdmin && this.onScheduleTermCallback) {
           this.onScheduleTermCallback(course.id);
         } else {
-          // Switch to terms tab for this course
+          // Non-admin: just switch to Terms tab to view terms
           document.dispatchEvent(
-            new CustomEvent("akademie:schedule-course", { detail: { courseId: course.id } })
+            new CustomEvent("akademie:switch-tab", { detail: { tab: "terms" } })
           );
         }
       });

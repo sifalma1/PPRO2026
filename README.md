@@ -1370,7 +1370,15 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
 
 ## 10. Historie verzí (Changelog) a Roadmapa
 
-### 10.1 Historie verzí (Changelog v1.0.0 až v1.8.0)
+### 10.1 Historie verzí (Changelog v1.0.0 až v1.8.2)
+
+#### Verze 1.8.2 (Oprava přesměrování studenta na záložku Termíny bez vyžadování přihlášení)
+
+- **Oprava chyby navigace pro studentskou roli (`CoursesView.ts`):**
+  - Při kliknutí na tlačítko „Zobrazit termíny" jako přihlášený student systém chybně volal `openCreateTermModal`, což vyžadovalo administrátorská oprávnění a zobrazovalo přihlašovací modální okno.
+  - Opraveno nahrazením události `akademie:schedule-course` za `akademie:switch-tab` s parametrem `{ tab: "terms" }`, čímž je student korektně přesměrován na záložku Termíny bez nutnosti opětovného přihlášení.
+- **Kvalita a stabilita:**
+  - Všech 119 testů (29 Node test runner + 90 Jest) zůstává 100% zelených.
 
 #### Verze 1.8.1 (Optimalizace čitelnosti navbaru ve světlém režimu, ikony akcí kurzů a zjednodušení lišty)
 
