@@ -2,7 +2,6 @@ import { describe, it, expect, afterAll } from "@jest/globals";
 import request from "supertest";
 import { createApp } from "../../src/app.js";
 import { pool } from "../../src/infrastructure/database/db.js";
-import { AuthService } from "../../src/application/services/AuthService.js";
 
 describe("Admin & Student Authentication & RBAC Authorization (Supertest)", () => {
   const app = createApp();

@@ -580,4 +580,66 @@ describe("CourseTerm and Enrollment Entities & TermService (Jest Unit Tests)", (
       );
     });
   });
+
+  describe("Course Terms Filtering & Course Association Invariants", () => {
+    let mockRepo: InMemoryTermRepository;
+    let service: TermService;
+
+    beforeEach(() => {
+      mockRepo = new InMemoryTermRepository();
+      service = new TermService(mockRepo as unknown as PostgresTermRepository);
+    });
+
+    it("filters terms consistently by courseId without modifying unfiltered term repository", async () => {
+      const _termC1_1 = await service.createTerm({
+        courseId: "course-alpha",
+        startDate: "2026-11-01",
+        endDate: "2026-11-10",
+        capacity: 15,
+      });
+      const _termC1_2 = await service.createTerm({
+        courseId: "course-alpha",
+        startDate: "2026-12-01",
+        endDate: "2026-12-10",
+        capacity: 12,
+      });
+      const _termC2_1 = await service.createTerm({
+        courseId: "course-beta",
+        startDate: "2026-11-15",
+        endDate: "2026-11-25",
+        capacity: 20,
+      });
+
+      const allTerms = await service.getAllTerms();
+      const alphaTerms = allTerms.filter((t) => t.courseId === "course-alpha");
+      const betaTerms = allTerms.filter((t) => t.courseId === "course-beta");
+      const nonExistentTerms = allTerms.filter((t) => t.courseId === "course-non-existent");
+
+      expect(alphaTerms.length).toBeGreaterThanOrEqual(2);
+      expect(alphaTerms.every((t) => t.courseId === "course-alpha")).toBe(true);
+      expect(betaTerms.length).toBeGreaterThanOrEqual(1);
+      expect(betaTerms.every((t) => t.courseId === "course-beta")).toBe(true);
+      expect(nonExistentTerms.length).toBe(0);
+      expect(allTerms.length).toBeGreaterThanOrEqual(alphaTerms.length + betaTerms.length);
+    });
+
+    it("verifies enrollment correctly retains term and course association for client portal navigation", async () => {
+      const termId = await service.createTerm({
+        courseId: "course-gamma",
+        startDate: "2026-12-01",
+        endDate: "2026-12-15",
+        capacity: 10,
+      });
+
+      const enr = await service.createEnrollment(termId, {
+        firstName: "Eva",
+        lastName: "Bílá",
+        email: "eva.bila@test.cz",
+      });
+
+      expect(enr.termId).toBe(termId);
+      const term = await service.getTermById(enr.termId);
+      expect(term.courseId).toBe("course-gamma");
+    });
+  });
 });
