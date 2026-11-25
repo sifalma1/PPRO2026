@@ -201,23 +201,22 @@ export class TermsView {
 
       tr.innerHTML = `
         <td>
-          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${term.courseTitle}</div>
-          <div class="font-mono text-xs text-[#8c6d3b] dark:text-[#c4a974] mt-0.5">ID: ${term.id.slice(0, 8)}...</div>
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-snug">${term.courseTitle}</div>
+          <div class="font-mono text-[11px] text-[#8c6d3b] dark:text-[#c4a974] mt-0.5">ID: ${term.id.slice(0, 8)}...</div>
         </td>
-        <td class="font-mono text-xs tabular-nums text-[#5c4318] dark:text-[#e2d5b8]">
-          <span>${term.startDate}</span>
-          <span class="text-amber-500/70 mx-1">→</span>
-          <span>${term.endDate}</span>
+        <td class="font-mono text-xs tabular-nums text-[#5c4318] dark:text-[#e2d5b8] whitespace-nowrap">
+          <div>${term.startDate}</div>
+          <div class="text-[11px] text-[#8c6d3b] dark:text-[#c4a974]">až ${term.endDate}</div>
         </td>
         <td class="text-xs text-[#5c4318] dark:text-[#e2d5b8]">
-          <div class="font-medium">${term.classroomName || "Neuvedena"}</div>
+          <div class="font-medium leading-tight">${term.classroomName || "Neuvedena"}</div>
         </td>
         <td>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1.5 whitespace-nowrap">
             <span class="font-mono text-xs font-bold tabular-nums ${isFull ? "text-amber-600 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400"}">
               ${term.confirmedCount} / ${term.capacity}
             </span>
-            <div class="w-20 forged-meter-track">
+            <div class="w-14 sm:w-16 forged-meter-track">
               <div
                 class="h-full rounded-xs transition-all duration-300 ${isFull ? "bg-amber-500" : "bg-emerald-600"}"
                 style="width: ${fillPercentage}%;"
@@ -226,20 +225,20 @@ export class TermsView {
           </div>
           ${
             term.waitlistCount > 0
-              ? `<div class="mt-1">
-                  <span class="badge-chip badge-chip-yellow text-xs">
-                    ${term.waitlistCount} ${term.waitlistCount === 1 ? "náhradník" : "náhradníci"} v pořadníku
+              ? `<div class="mt-0.5">
+                  <span class="badge-chip badge-chip-yellow text-[11px] py-0">
+                    ${term.waitlistCount} ${term.waitlistCount === 1 ? "náhradník" : "náhradníci"}
                   </span>
                  </div>`
-              : `<div class="text-xs text-[#8c6d3b] dark:text-[#c4a974] mt-0.5 font-mono tabular-nums">Volno: ${Math.max(0, term.capacity - term.confirmedCount)} míst</div>`
+              : `<div class="text-[11px] text-[#8c6d3b] dark:text-[#c4a974] mt-0.5 font-mono tabular-nums">Volno: ${Math.max(0, term.capacity - term.confirmedCount)}</div>`
           }
         </td>
-        <td class="text-xs text-[#6e5223] dark:text-[#d1b88e]">${lecturersList}</td>
+        <td class="text-xs text-[#6e5223] dark:text-[#d1b88e] leading-tight">${lecturersList}</td>
         <td>${statusBadge}</td>
         <td class="text-right">
-          <div class="inline-flex items-center gap-1.5">
+          <div class="inline-flex flex-wrap sm:flex-nowrap items-center justify-end gap-1">
             <button
-              class="btn-secondary-tw btn-sm-tw btn-view-term"
+              class="btn-secondary-tw btn-sm-tw btn-view-term whitespace-nowrap py-1 px-2 text-xs"
               data-id="${term.id}"
               title="Zobrazit detail termínu"
             >
@@ -248,7 +247,7 @@ export class TermsView {
             ${
               authApi.isAdmin()
                 ? `<button
-                    class="btn-ghost-tw btn-sm-tw btn-jump-attendance text-emerald-700 dark:text-emerald-400"
+                    class="btn-ghost-tw btn-sm-tw btn-jump-attendance text-emerald-700 dark:text-emerald-400 whitespace-nowrap py-1 px-2 text-xs"
                     data-id="${term.id}"
                     title="Přejít do evidence docházky pro tento termín"
                   >
@@ -394,20 +393,20 @@ export class TermsView {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>
-            <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${enr.studentName}</div>
-            ${enr.note ? `<div class="text-xs text-[#8c6d3b] dark:text-[#c4a974] mt-0.5 truncate max-w-xs font-mono">Pozn.: ${enr.note}</div>` : ""}
+            <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">${enr.studentName}</div>
+            ${enr.note ? `<div class="text-[11px] text-[#8c6d3b] dark:text-[#c4a974] mt-0.5 font-mono leading-tight">Pozn.: ${enr.note}</div>` : ""}
           </td>
-          <td class="font-mono text-xs text-[#6e5223] dark:text-[#d1b88e]">${enr.studentEmail || "-"}</td>
+          <td class="font-mono text-xs text-[#6e5223] dark:text-[#d1b88e] break-all sm:break-normal">${enr.studentEmail || "-"}</td>
           <td class="text-xs">
-            <div class="font-mono text-[#5c4318] dark:text-[#e2d5b8] tabular-nums">${enr.studentPhone || "-"}</div>
-            ${enr.studentOrganization ? `<div class="text-xs text-[#8c6d3b] dark:text-[#c4a974]">${enr.studentOrganization}</div>` : ""}
+            <div class="font-mono text-[#5c4318] dark:text-[#e2d5b8] tabular-nums whitespace-nowrap">${enr.studentPhone || "-"}</div>
+            ${enr.studentOrganization ? `<div class="text-[11px] text-[#8c6d3b] dark:text-[#c4a974] leading-tight mt-0.5">${enr.studentOrganization}</div>` : ""}
           </td>
-          <td class="font-mono text-xs text-[#8c6d3b] dark:text-[#c4a974] tabular-nums">${dateStr}</td>
+          <td class="font-mono text-xs text-[#8c6d3b] dark:text-[#c4a974] tabular-nums whitespace-nowrap">${dateStr}</td>
           <td>${statusHtml}</td>
           <td class="text-right">
             ${
               canCancel
-                ? `<button class="btn-ghost-tw btn-sm-tw btn-cancel-enroll text-rose-700 dark:text-rose-400 hover:bg-rose-900/15" data-id="${enr.id}">
+                ? `<button class="btn-ghost-tw btn-sm-tw btn-cancel-enroll text-rose-700 dark:text-rose-400 hover:bg-rose-900/15 whitespace-nowrap py-1 px-2 text-xs" data-id="${enr.id}">
                     Zrušit účast
                    </button>`
                 : '<span class="text-amber-600/50 text-xs font-mono">-</span>'

@@ -226,32 +226,33 @@ export class StudentPortalView {
 
                           return `
                             <tr>
-                              <td class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">
+                              <td class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">
                                 ${enr.courseTitle}
                               </td>
-                              <td class="font-mono text-xs text-[#5c4318] dark:text-[#e2d5b8]">
-                                ${enr.startDate} až ${enr.endDate}
+                              <td class="font-mono text-xs text-[#5c4318] dark:text-[#e2d5b8] whitespace-nowrap">
+                                <div>${enr.startDate}</div>
+                                <div class="text-[11px] text-[#8c6d3b] dark:text-[#c4a974]">až ${enr.endDate}</div>
                               </td>
-                              <td class="text-xs text-[#6e5223] dark:text-[#d1b88e]">
+                              <td class="text-xs text-[#6e5223] dark:text-[#d1b88e] leading-tight">
                                 ${enr.classroomName || "Centrum Trutnov"}
                               </td>
                               <td>${statusBadge}</td>
                               <td>
-                                <div class="flex items-center gap-1.5">
+                                <div class="flex items-center gap-1.5 whitespace-nowrap">
                                   <span class="font-mono font-bold text-xs tabular-nums ${qualifies ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700"}">
                                     ${pct}%
                                   </span>
-                                  ${qualifies ? '<span class="text-xs text-emerald-600 font-medium">✓ Splněno (≥ 70 %)</span>' : '<span class="text-xs text-amber-600 font-medium">&lt; 70%</span>'}
+                                  ${qualifies ? '<span class="text-xs text-emerald-600 font-medium">✓ Splněno</span>' : '<span class="text-xs text-amber-600 font-medium">&lt; 70%</span>'}
                                 </div>
                               </td>
                               <td class="text-right">
                                 ${
                                   certItem
-                                    ? `<button class="btn-student-cert-preview badge-chip badge-chip-blue font-mono text-xs cursor-pointer hover:border-amber-400 transition-colors" data-cert="${certItem.certificateNumber}">
+                                    ? `<button class="btn-student-cert-preview badge-chip badge-chip-blue font-mono text-xs cursor-pointer hover:border-amber-400 transition-colors whitespace-nowrap" data-cert="${certItem.certificateNumber}">
                                         ${certItem.certificateNumber}
                                       </button>`
                                     : qualifies
-                                      ? '<span class="text-xs text-[#8c6d3b] dark:text-[#c4a974]">Připraveno k vydání</span>'
+                                      ? '<span class="text-xs text-[#8c6d3b] dark:text-[#c4a974] whitespace-nowrap">K vydání</span>'
                                       : '<span class="text-amber-600/50 text-xs font-mono">–</span>'
                                 }
                               </td>

@@ -212,12 +212,12 @@ export class AttendanceView {
       }
 
       tr.innerHTML = `
-        <td class="font-mono text-xs font-bold text-[#4a3512] dark:text-[#faeed4]">${day.dayDate}</td>
-        <td class="text-xs font-medium font-display text-[#4a3512] dark:text-[#eeddbb]">${day.topic}</td>
-        <td class="font-mono text-xs text-[#6e5223] dark:text-[#d1b88e]">${day.hours} hod.</td>
-        <td class="text-xs text-[#7c5e2d] dark:text-[#c4a974]">${day.lecturerName || "Neurčen"}</td>
+        <td class="font-mono text-xs font-bold text-[#4a3512] dark:text-[#faeed4] whitespace-nowrap">${day.dayDate}</td>
+        <td class="text-xs font-medium font-display text-[#4a3512] dark:text-[#eeddbb] leading-tight min-w-[120px]">${day.topic}</td>
+        <td class="font-mono text-xs text-[#6e5223] dark:text-[#d1b88e] whitespace-nowrap">${day.hours} hod.</td>
+        <td class="text-xs text-[#7c5e2d] dark:text-[#c4a974] leading-tight">${day.lecturerName || "Neurčen"}</td>
         <td class="text-right">
-          <button class="btn-secondary-tw btn-sm-tw btn-select-day" data-id="${day.id}">
+          <button class="btn-secondary-tw btn-sm-tw btn-select-day whitespace-nowrap py-1 px-2 text-xs" data-id="${day.id}">
             Zapsat (${day.presentCount}/${day.attendanceCount})
           </button>
         </td>
@@ -278,14 +278,14 @@ export class AttendanceView {
 
       tr.innerHTML = `
         <td>
-          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${student.studentName}</div>
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">${student.studentName}</div>
         </td>
-        <td class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974]">${student.studentEmail}</td>
-        <td>
-          <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+        <td class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974] break-all sm:break-normal">${student.studentEmail}</td>
+        <td class="whitespace-nowrap">
+          <label class="inline-flex items-center gap-1.5 cursor-pointer select-none">
             <input
               type="checkbox"
-              class="att-checkbox w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-[#caa049] accent-[#caa049] cursor-pointer"
+              class="att-checkbox w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-[#caa049] accent-[#caa049] cursor-pointer shrink-0"
               data-student="${student.studentId}"
               ${student.isPresent ? "checked" : ""}
             />
@@ -300,7 +300,7 @@ export class AttendanceView {
         <td>
           <input
             type="text"
-            class="att-note input-tw py-1 text-xs"
+            class="att-note input-tw py-1 px-2 text-xs w-full min-w-[100px] max-w-xs"
             data-student="${student.studentId}"
             value="${student.note || ""}"
             placeholder="Poznámka / omluva..."
@@ -401,16 +401,16 @@ export class AttendanceView {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>
-          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${item.studentName}</div>
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">${item.studentName}</div>
         </td>
-        <td class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974]">${item.studentEmail}</td>
-        <td class="font-mono text-xs text-[#5c4318] dark:text-[#e2d5b8]">${item.attendedDays} z ${item.totalDays} dnů</td>
+        <td class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974] break-all sm:break-normal">${item.studentEmail}</td>
+        <td class="font-mono text-xs text-[#5c4318] dark:text-[#e2d5b8] whitespace-nowrap">${item.attendedDays} z ${item.totalDays} dnů</td>
         <td>
-          <div class="flex items-center gap-2">
-            <span class="font-mono text-xs font-bold ${item.qualifiesForCertificate ? "text-emerald-700 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}">
+          <div class="flex items-center gap-1.5 whitespace-nowrap">
+            <span class="font-mono text-xs font-bold tabular-nums ${item.qualifiesForCertificate ? "text-emerald-700 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}">
               ${item.attendancePercentage} %
             </span>
-            <div class="w-16 forged-meter-track">
+            <div class="w-14 sm:w-16 forged-meter-track">
               <div
                 class="h-full rounded-xs transition-all duration-300 ${item.qualifiesForCertificate ? "bg-emerald-600" : "bg-rose-500"}"
                 style="width: ${Math.min(100, item.attendancePercentage)}%;"
@@ -423,7 +423,7 @@ export class AttendanceView {
         <td class="text-right">
           ${
             !item.qualifiesForCertificate && !item.certificateIssued
-              ? `<button class="btn-secondary-tw btn-sm-tw btn-waiver-shortcut text-amber-700 dark:text-amber-400" data-student="${item.studentId}">
+              ? `<button class="btn-secondary-tw btn-sm-tw btn-waiver-shortcut text-amber-700 dark:text-amber-400 whitespace-nowrap py-1 px-2 text-xs" data-student="${item.studentId}">
                   Udělit výjimku
                  </button>`
               : '<span class="text-amber-600/50 text-xs font-mono">-</span>'

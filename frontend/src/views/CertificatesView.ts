@@ -151,25 +151,25 @@ export class CertificatesView {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>
-          <span class="font-mono font-bold text-xs text-amber-900 dark:text-amber-200 bg-[#fbf5e6] dark:bg-[#1a1424] px-2.5 py-0.5 rounded border border-[#caa049]">
+          <span class="font-mono font-bold text-xs text-amber-900 dark:text-amber-200 bg-[#fbf5e6] dark:bg-[#1a1424] px-2 py-0.5 rounded border border-[#caa049] whitespace-nowrap">
             ${c.certificateNumber}
           </span>
         </td>
         <td>
-          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${c.studentName}</div>
-          <div class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974]">${c.studentEmail}</div>
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">${c.studentName}</div>
+          <div class="font-mono text-[11px] text-[#7c5e2d] dark:text-[#c4a974] break-all sm:break-normal mt-0.5">${c.studentEmail}</div>
         </td>
-        <td class="text-xs font-medium font-display text-[#4a3512] dark:text-[#eeddbb]">${c.courseTitle}</td>
-        <td class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974] tabular-nums">${c.issueDate}</td>
+        <td class="text-xs font-medium font-display text-[#4a3512] dark:text-[#eeddbb] leading-tight">${c.courseTitle}</td>
+        <td class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974] tabular-nums whitespace-nowrap">${c.issueDate}</td>
         <td>
-          <span class="font-mono font-bold text-xs tabular-nums ${c.attendanceRate >= 70 ? "text-emerald-700 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}">
+          <span class="font-mono font-bold text-xs tabular-nums whitespace-nowrap ${c.attendanceRate >= 70 ? "text-emerald-700 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}">
             ${c.attendanceRate} %
           </span>
         </td>
         <td>${waiverHtml}</td>
         <td class="text-right">
           <button
-            class="btn-secondary-tw btn-sm-tw btn-view-certificate"
+            class="btn-secondary-tw btn-sm-tw btn-view-certificate whitespace-nowrap py-1 px-2 text-xs"
             data-id="${c.id}"
             title="Otevřít reprezentativní náhled osvědčení pro tisk"
           >

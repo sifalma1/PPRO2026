@@ -820,18 +820,20 @@
   }
 
   .table-tw {
-    @apply min-w-full text-left text-xs;
+    @apply w-full text-left text-xs;
     border-collapse: collapse;
     font-variant-numeric: tabular-nums;
+    table-layout: auto;
   }
   .table-tw th {
-    @apply px-4 py-3 text-[11px] font-bold uppercase tracking-wider select-none font-sans;
-    letter-spacing: 0.05em;
+    @apply px-3 py-2.5 sm:px-3.5 sm:py-3 text-[11px] font-bold uppercase tracking-wider select-none font-sans;
+    letter-spacing: 0.04em;
     color: #5a4115;
     background: linear-gradient(180deg, #f4ecd6 0%, #e6d6b6 100%);
     border-bottom: 2px solid #caa049;
     box-shadow: inset 0 -1px 0 rgba(202, 160, 73, 0.45);
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+    vertical-align: middle;
   }
   html[data-theme="dark"] .table-tw th {
     color: #fce5a3;
@@ -841,10 +843,13 @@
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
   }
   .table-tw td {
-    @apply px-4 py-3 whitespace-nowrap transition-colors;
+    @apply px-3 py-2 sm:px-3.5 sm:py-2.5 transition-colors align-middle;
     border-bottom: 1px solid rgba(202, 160, 73, 0.22);
     font-variant-numeric: tabular-nums;
     color: #382714;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
   }
   html[data-theme="dark"] .table-tw td {
     border-bottom: 1px solid rgba(202, 160, 73, 0.16);
@@ -891,6 +896,15 @@
   .table-box-wrap .font-mono {
     font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
     font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 640px) {
+    .table-tw th,
+    .table-tw td {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      font-size: 11px;
+    }
   }
 
   /* Warcraft Classic Forged Brass / Timber Progress Track */

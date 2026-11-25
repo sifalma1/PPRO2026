@@ -569,11 +569,11 @@
                 <thead>
                   <tr>
                     <th>Vzdělávací program</th>
-                    <th>Harmonogram výuky</th>
+                    <th>Termín</th>
                     <th>Učebna</th>
-                    <th>Obsazenost míst (Kapacita)</th>
-                    <th>Garantující lektor</th>
-                    <th>Stav termínu</th>
+                    <th>Obsazenost</th>
+                    <th>Lektor</th>
+                    <th>Stav</th>
                     <th class="text-right">Operace</th>
                   </tr>
                 </thead>
@@ -639,11 +639,11 @@
                 <table class="table-tw">
                   <thead>
                     <tr>
-                      <th>Student (Jméno a příjmení)</th>
+                      <th>Student</th>
                       <th>E-mail</th>
-                      <th>Telefon / Zaměstnavatel</th>
+                      <th>Telefon / Organizace</th>
                       <th>Podáno dne</th>
-                      <th>Stav registrace</th>
+                      <th>Stav</th>
                       <th class="text-right">Správa účasti</th>
                     </tr>
                   </thead>
@@ -695,7 +695,7 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
+          <div class="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-6">
             <!-- Levý sloupec: Výukové dny -->
             <div class="table-box-wrap">
               <div class="table-box-header px-4 py-3 flex items-center justify-between">
@@ -715,10 +715,10 @@
                   <thead>
                     <tr>
                       <th>Datum</th>
-                      <th>Téma výukového bloku</th>
+                      <th>Téma bloku</th>
                       <th>Rozsah</th>
                       <th>Lektor</th>
-                      <th class="text-right">Stav účasti</th>
+                      <th class="text-right">Zápis</th>
                     </tr>
                   </thead>
                   <tbody id="teaching-days-table-body"></tbody>
@@ -767,7 +767,7 @@
                       <th>Student</th>
                       <th>E-mail</th>
                       <th>Prezence</th>
-                      <th>Poznámka / Omluvenka</th>
+                      <th>Poznámka / Omluva</th>
                     </tr>
                   </thead>
                   <tbody id="attendance-roster-body"></tbody>
@@ -795,12 +795,12 @@
               <table class="table-tw">
                 <thead>
                   <tr>
-                    <th>Student (Absolvent)</th>
+                    <th>Student</th>
                     <th>E-mail</th>
-                    <th>Odučeno dnů</th>
-                    <th>Míra docházky</th>
+                    <th>Odučeno</th>
+                    <th>Docházka</th>
                     <th>Limit 70 %</th>
-                    <th>Stav osvědčení</th>
+                    <th>Osvědčení</th>
                     <th class="text-right">Výjimka</th>
                   </tr>
                 </thead>
@@ -853,11 +853,11 @@
                 <thead>
                   <tr>
                     <th>Číslo osvědčení</th>
-                    <th>Absolvent (Student)</th>
-                    <th>Vzdělávací program</th>
-                    <th>Datum vystavení</th>
-                    <th>Míra docházky</th>
-                    <th>Režim schválení</th>
+                    <th>Absolvent</th>
+                    <th>Program</th>
+                    <th>Vystaveno</th>
+                    <th>Docházka</th>
+                    <th>Režim</th>
                     <th class="text-right">Certifikát</th>
                   </tr>
                 </thead>
@@ -869,7 +869,7 @@
 
         <!-- ==================== ZÁLOŽKA 5: LEKTOŘI & UČEBNY ==================== -->
         <section id="tab-lecturers" class="tab-pane hidden animate-fadeIn">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
             <!-- Lektoři -->
             <div class="table-box-wrap">
               <div class="table-box-header px-4 py-3">
@@ -889,7 +889,7 @@
                       <th>Lektor</th>
                       <th>Kontakt</th>
                       <th>Odbornost</th>
-                      <th>Odučeno hodin</th>
+                      <th>Odučeno</th>
                     </tr>
                   </thead>
                   <tbody id="lecturers-table-body"></tbody>
@@ -915,7 +915,7 @@
                     <tr>
                       <th>Učebna</th>
                       <th>Adresa</th>
-                      <th>Max. kapacita</th>
+                      <th>Kapacita</th>
                     </tr>
                   </thead>
                   <tbody id="classrooms-table-body"></tbody>

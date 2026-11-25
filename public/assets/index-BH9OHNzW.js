@@ -92,48 +92,47 @@
         </tr>
       `:this.terms.forEach(e=>{let t=e.confirmedCount>=e.capacity,n=e.status===`COMPLETED`,r=``;r=n?`<span class="badge-chip badge-chip-blue">Ukončen</span>`:t?`<span class="badge-chip badge-chip-yellow">Kapacita plná</span>`:`<span class="badge-chip badge-chip-green">Volná místa</span>`;let i=e.lecturers&&e.lecturers.length>0?e.lecturers.map(e=>e.name).join(`, `):`Nepřiřazen`,a=document.createElement(`tr`);e.id===this.selectedTermId&&a.classList.add(`row-selected`);let o=Math.min(100,Math.round(e.confirmedCount/e.capacity*100));a.innerHTML=`
         <td>
-          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${e.courseTitle}</div>
-          <div class="font-mono text-xs text-[#8c6d3b] dark:text-[#c4a974] mt-0.5">ID: ${e.id.slice(0,8)}...</div>
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-snug">${e.courseTitle}</div>
+          <div class="font-mono text-[11px] text-[#8c6d3b] dark:text-[#c4a974] mt-0.5">ID: ${e.id.slice(0,8)}...</div>
         </td>
-        <td class="font-mono text-xs tabular-nums text-[#5c4318] dark:text-[#e2d5b8]">
-          <span>${e.startDate}</span>
-          <span class="text-amber-500/70 mx-1">→</span>
-          <span>${e.endDate}</span>
+        <td class="font-mono text-xs tabular-nums text-[#5c4318] dark:text-[#e2d5b8] whitespace-nowrap">
+          <div>${e.startDate}</div>
+          <div class="text-[11px] text-[#8c6d3b] dark:text-[#c4a974]">až ${e.endDate}</div>
         </td>
         <td class="text-xs text-[#5c4318] dark:text-[#e2d5b8]">
-          <div class="font-medium">${e.classroomName||`Neuvedena`}</div>
+          <div class="font-medium leading-tight">${e.classroomName||`Neuvedena`}</div>
         </td>
         <td>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1.5 whitespace-nowrap">
             <span class="font-mono text-xs font-bold tabular-nums ${t?`text-amber-600 dark:text-amber-400`:`text-emerald-700 dark:text-emerald-400`}">
               ${e.confirmedCount} / ${e.capacity}
             </span>
-            <div class="w-20 forged-meter-track">
+            <div class="w-14 sm:w-16 forged-meter-track">
               <div
                 class="h-full rounded-xs transition-all duration-300 ${t?`bg-amber-500`:`bg-emerald-600`}"
                 style="width: ${o}%;"
               ></div>
             </div>
           </div>
-          ${e.waitlistCount>0?`<div class="mt-1">
-                  <span class="badge-chip badge-chip-yellow text-xs">
-                    ${e.waitlistCount} ${e.waitlistCount===1?`náhradník`:`náhradníci`} v pořadníku
+          ${e.waitlistCount>0?`<div class="mt-0.5">
+                  <span class="badge-chip badge-chip-yellow text-[11px] py-0">
+                    ${e.waitlistCount} ${e.waitlistCount===1?`náhradník`:`náhradníci`}
                   </span>
-                 </div>`:`<div class="text-xs text-[#8c6d3b] dark:text-[#c4a974] mt-0.5 font-mono tabular-nums">Volno: ${Math.max(0,e.capacity-e.confirmedCount)} míst</div>`}
+                 </div>`:`<div class="text-[11px] text-[#8c6d3b] dark:text-[#c4a974] mt-0.5 font-mono tabular-nums">Volno: ${Math.max(0,e.capacity-e.confirmedCount)}</div>`}
         </td>
-        <td class="text-xs text-[#6e5223] dark:text-[#d1b88e]">${i}</td>
+        <td class="text-xs text-[#6e5223] dark:text-[#d1b88e] leading-tight">${i}</td>
         <td>${r}</td>
         <td class="text-right">
-          <div class="inline-flex items-center gap-1.5">
+          <div class="inline-flex flex-wrap sm:flex-nowrap items-center justify-end gap-1">
             <button
-              class="btn-secondary-tw btn-sm-tw btn-view-term"
+              class="btn-secondary-tw btn-sm-tw btn-view-term whitespace-nowrap py-1 px-2 text-xs"
               data-id="${e.id}"
               title="Zobrazit detail termínu"
             >
               ${s.isAdmin()?`Přihlášky (${e.confirmedCount+e.waitlistCount})`:`Detail & Zápis`}
             </button>
             ${s.isAdmin()?`<button
-                    class="btn-ghost-tw btn-sm-tw btn-jump-attendance text-emerald-700 dark:text-emerald-400"
+                    class="btn-ghost-tw btn-sm-tw btn-jump-attendance text-emerald-700 dark:text-emerald-400 whitespace-nowrap py-1 px-2 text-xs"
                     data-id="${e.id}"
                     title="Přejít do evidence docházky pro tento termín"
                   >
@@ -170,18 +169,18 @@
           </tr>
         `;return}this.enrollments.forEach(e=>{let t=``;e.status===`CONFIRMED`?t=`<span class="badge-chip badge-chip-green">Potvrzeno</span>`:e.status===`WAITLIST`?t=`<span class="badge-chip badge-chip-yellow">Náhradník #${e.waitlistPosition||1}</span>`:e.status===`CANCELLED`?t=`<span class="badge-chip badge-chip-red">Zrušeno</span>`:e.status===`COMPLETED`&&(t=`<span class="badge-chip badge-chip-blue">Absolvováno</span>`);let n=new Date(e.submittedAt).toLocaleString(`cs-CZ`,{dateStyle:`short`,timeStyle:`short`}),r=e.status===`CONFIRMED`||e.status===`WAITLIST`,i=document.createElement(`tr`);i.innerHTML=`
           <td>
-            <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${e.studentName}</div>
-            ${e.note?`<div class="text-xs text-[#8c6d3b] dark:text-[#c4a974] mt-0.5 truncate max-w-xs font-mono">Pozn.: ${e.note}</div>`:``}
+            <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">${e.studentName}</div>
+            ${e.note?`<div class="text-[11px] text-[#8c6d3b] dark:text-[#c4a974] mt-0.5 font-mono leading-tight">Pozn.: ${e.note}</div>`:``}
           </td>
-          <td class="font-mono text-xs text-[#6e5223] dark:text-[#d1b88e]">${e.studentEmail||`-`}</td>
+          <td class="font-mono text-xs text-[#6e5223] dark:text-[#d1b88e] break-all sm:break-normal">${e.studentEmail||`-`}</td>
           <td class="text-xs">
-            <div class="font-mono text-[#5c4318] dark:text-[#e2d5b8] tabular-nums">${e.studentPhone||`-`}</div>
-            ${e.studentOrganization?`<div class="text-xs text-[#8c6d3b] dark:text-[#c4a974]">${e.studentOrganization}</div>`:``}
+            <div class="font-mono text-[#5c4318] dark:text-[#e2d5b8] tabular-nums whitespace-nowrap">${e.studentPhone||`-`}</div>
+            ${e.studentOrganization?`<div class="text-[11px] text-[#8c6d3b] dark:text-[#c4a974] leading-tight mt-0.5">${e.studentOrganization}</div>`:``}
           </td>
-          <td class="font-mono text-xs text-[#8c6d3b] dark:text-[#c4a974] tabular-nums">${n}</td>
+          <td class="font-mono text-xs text-[#8c6d3b] dark:text-[#c4a974] tabular-nums whitespace-nowrap">${n}</td>
           <td>${t}</td>
           <td class="text-right">
-            ${r?`<button class="btn-ghost-tw btn-sm-tw btn-cancel-enroll text-rose-700 dark:text-rose-400 hover:bg-rose-900/15" data-id="${e.id}">
+            ${r?`<button class="btn-ghost-tw btn-sm-tw btn-cancel-enroll text-rose-700 dark:text-rose-400 hover:bg-rose-900/15 whitespace-nowrap py-1 px-2 text-xs" data-id="${e.id}">
                     Zrušit účast
                    </button>`:`<span class="text-amber-600/50 text-xs font-mono">-</span>`}
           </td>
@@ -274,12 +273,12 @@
           </td>
         </tr>
       `:this.teachingDays.forEach(e=>{let t=document.createElement(`tr`);e.id===this.selectedDayId&&t.classList.add(`row-selected`),t.innerHTML=`
-        <td class="font-mono text-xs font-bold text-[#4a3512] dark:text-[#faeed4]">${e.dayDate}</td>
-        <td class="text-xs font-medium font-display text-[#4a3512] dark:text-[#eeddbb]">${e.topic}</td>
-        <td class="font-mono text-xs text-[#6e5223] dark:text-[#d1b88e]">${e.hours} hod.</td>
-        <td class="text-xs text-[#7c5e2d] dark:text-[#c4a974]">${e.lecturerName||`Neurčen`}</td>
+        <td class="font-mono text-xs font-bold text-[#4a3512] dark:text-[#faeed4] whitespace-nowrap">${e.dayDate}</td>
+        <td class="text-xs font-medium font-display text-[#4a3512] dark:text-[#eeddbb] leading-tight min-w-[120px]">${e.topic}</td>
+        <td class="font-mono text-xs text-[#6e5223] dark:text-[#d1b88e] whitespace-nowrap">${e.hours} hod.</td>
+        <td class="text-xs text-[#7c5e2d] dark:text-[#c4a974] leading-tight">${e.lecturerName||`Neurčen`}</td>
         <td class="text-right">
-          <button class="btn-secondary-tw btn-sm-tw btn-select-day" data-id="${e.id}">
+          <button class="btn-secondary-tw btn-sm-tw btn-select-day whitespace-nowrap py-1 px-2 text-xs" data-id="${e.id}">
             Zapsat (${e.presentCount}/${e.attendanceCount})
           </button>
         </td>
@@ -289,14 +288,14 @@
         </tr>
       `),this.btnSaveAttendance&&(this.btnSaveAttendance.style.display=`none`)}renderRoster(){this.rosterTableBody&&(this.rosterTableBody.innerHTML=``,this.roster.length===0?this.clearRoster(`Na tomto termínu nejsou žádní potvrzení studenti.`):(this.btnSaveAttendance&&(this.btnSaveAttendance.style.display=`inline-flex`),this.roster.forEach(e=>{let t=document.createElement(`tr`);t.innerHTML=`
         <td>
-          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${e.studentName}</div>
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">${e.studentName}</div>
         </td>
-        <td class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974]">${e.studentEmail}</td>
-        <td>
-          <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+        <td class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974] break-all sm:break-normal">${e.studentEmail}</td>
+        <td class="whitespace-nowrap">
+          <label class="inline-flex items-center gap-1.5 cursor-pointer select-none">
             <input
               type="checkbox"
-              class="att-checkbox w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-[#caa049] accent-[#caa049] cursor-pointer"
+              class="att-checkbox w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-[#caa049] accent-[#caa049] cursor-pointer shrink-0"
               data-student="${e.studentId}"
               ${e.isPresent?`checked`:``}
             />
@@ -311,7 +310,7 @@
         <td>
           <input
             type="text"
-            class="att-note input-tw py-1 text-xs"
+            class="att-note input-tw py-1 px-2 text-xs w-full min-w-[100px] max-w-xs"
             data-student="${e.studentId}"
             value="${e.note||``}"
             placeholder="Poznámka / omluva..."
@@ -329,16 +328,16 @@
           </button>
         `:e.qualifiesForCertificate?`<span class="badge-chip badge-chip-yellow">Čeká na uzavření</span>`:`<span class="badge-chip badge-chip-slate">Nutná výjimka</span>`;let r=document.createElement(`tr`);r.innerHTML=`
         <td>
-          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${e.studentName}</div>
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">${e.studentName}</div>
         </td>
-        <td class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974]">${e.studentEmail}</td>
-        <td class="font-mono text-xs text-[#5c4318] dark:text-[#e2d5b8]">${e.attendedDays} z ${e.totalDays} dnů</td>
+        <td class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974] break-all sm:break-normal">${e.studentEmail}</td>
+        <td class="font-mono text-xs text-[#5c4318] dark:text-[#e2d5b8] whitespace-nowrap">${e.attendedDays} z ${e.totalDays} dnů</td>
         <td>
-          <div class="flex items-center gap-2">
-            <span class="font-mono text-xs font-bold ${e.qualifiesForCertificate?`text-emerald-700 dark:text-emerald-400`:`text-rose-600 dark:text-rose-400`}">
+          <div class="flex items-center gap-1.5 whitespace-nowrap">
+            <span class="font-mono text-xs font-bold tabular-nums ${e.qualifiesForCertificate?`text-emerald-700 dark:text-emerald-400`:`text-rose-600 dark:text-rose-400`}">
               ${e.attendancePercentage} %
             </span>
-            <div class="w-16 forged-meter-track">
+            <div class="w-14 sm:w-16 forged-meter-track">
               <div
                 class="h-full rounded-xs transition-all duration-300 ${e.qualifiesForCertificate?`bg-emerald-600`:`bg-rose-500`}"
                 style="width: ${Math.min(100,e.attendancePercentage)}%;"
@@ -349,7 +348,7 @@
         <td>${t}</td>
         <td>${n}</td>
         <td class="text-right">
-          ${!e.qualifiesForCertificate&&!e.certificateIssued?`<button class="btn-secondary-tw btn-sm-tw btn-waiver-shortcut text-amber-700 dark:text-amber-400" data-student="${e.studentId}">
+          ${!e.qualifiesForCertificate&&!e.certificateIssued?`<button class="btn-secondary-tw btn-sm-tw btn-waiver-shortcut text-amber-700 dark:text-amber-400 whitespace-nowrap py-1 px-2 text-xs" data-student="${e.studentId}">
                   Udělit výjimku
                  </button>`:`<span class="text-amber-600/50 text-xs font-mono">-</span>`}
         </td>
@@ -363,25 +362,25 @@
             Výjimka lektora
            </span>`:`<span class="badge-chip badge-chip-green">Standardní (≥ 70 %)</span>`,n=document.createElement(`tr`);n.innerHTML=`
         <td>
-          <span class="font-mono font-bold text-xs text-amber-900 dark:text-amber-200 bg-[#fbf5e6] dark:bg-[#1a1424] px-2.5 py-0.5 rounded border border-[#caa049]">
+          <span class="font-mono font-bold text-xs text-amber-900 dark:text-amber-200 bg-[#fbf5e6] dark:bg-[#1a1424] px-2 py-0.5 rounded border border-[#caa049] whitespace-nowrap">
             ${e.certificateNumber}
           </span>
         </td>
         <td>
-          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${e.studentName}</div>
-          <div class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974]">${e.studentEmail}</div>
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">${e.studentName}</div>
+          <div class="font-mono text-[11px] text-[#7c5e2d] dark:text-[#c4a974] break-all sm:break-normal mt-0.5">${e.studentEmail}</div>
         </td>
-        <td class="text-xs font-medium font-display text-[#4a3512] dark:text-[#eeddbb]">${e.courseTitle}</td>
-        <td class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974] tabular-nums">${e.issueDate}</td>
+        <td class="text-xs font-medium font-display text-[#4a3512] dark:text-[#eeddbb] leading-tight">${e.courseTitle}</td>
+        <td class="font-mono text-xs text-[#7c5e2d] dark:text-[#c4a974] tabular-nums whitespace-nowrap">${e.issueDate}</td>
         <td>
-          <span class="font-mono font-bold text-xs tabular-nums ${e.attendanceRate>=70?`text-emerald-700 dark:text-emerald-400`:`text-amber-600 dark:text-amber-400`}">
+          <span class="font-mono font-bold text-xs tabular-nums whitespace-nowrap ${e.attendanceRate>=70?`text-emerald-700 dark:text-emerald-400`:`text-amber-600 dark:text-amber-400`}">
             ${e.attendanceRate} %
           </span>
         </td>
         <td>${t}</td>
         <td class="text-right">
           <button
-            class="btn-secondary-tw btn-sm-tw btn-view-certificate"
+            class="btn-secondary-tw btn-sm-tw btn-view-certificate whitespace-nowrap py-1 px-2 text-xs"
             data-id="${e.id}"
             title="Otevřít reprezentativní náhled osvědčení pro tisk"
           >
@@ -396,28 +395,28 @@
         </tr>
       `:this.lecturers.forEach(e=>{let t=document.createElement(`tr`);t.innerHTML=`
         <td>
-          <div class="flex items-center gap-2.5">
+          <div class="flex items-center gap-2">
             <div class="w-7 h-7 rounded-md bg-[#f0e3c8] dark:bg-[#251e30] text-[#6e4e1b] dark:text-[#f8df95] border border-[#caa049] font-mono font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
               ${e.name.split(` `).map(e=>e[0]).join(``).toUpperCase()}
             </div>
             <div>
-              <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${e.name}</div>
+              <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">${e.name}</div>
             </div>
           </div>
         </td>
         <td class="text-xs">
-          <div class="font-mono text-[#5c4318] dark:text-[#eeddbb] font-medium">${e.email}</div>
-          <div class="font-mono text-[#8c6d3b] dark:text-[#c4a974] text-xs tabular-nums">${e.phone||`-`}</div>
+          <div class="font-mono text-[#5c4318] dark:text-[#eeddbb] font-medium break-all sm:break-normal">${e.email}</div>
+          <div class="font-mono text-[#8c6d3b] dark:text-[#c4a974] text-[11px] tabular-nums whitespace-nowrap mt-0.5">${e.phone||`-`}</div>
         </td>
         <td class="text-xs">
-          <span class="inline-block px-2.5 py-0.5 rounded text-xs bg-[#f5ebd6] dark:bg-[#1a1424] text-[#5c4318] dark:text-[#fce8bd] font-medium border border-[#caa049]/50">
+          <span class="inline-block px-2 py-0.5 rounded text-[11px] bg-[#f5ebd6] dark:bg-[#1a1424] text-[#5c4318] dark:text-[#fce8bd] font-medium border border-[#caa049]/50 whitespace-nowrap">
             ${e.specialization||`Lektor`}
           </span>
         </td>
         <td>
-          <div class="flex items-center gap-1.5">
+          <div class="flex items-center gap-1.5 whitespace-nowrap">
             <strong class="font-mono text-emerald-700 dark:text-emerald-400 font-bold text-xs tabular-nums">${e.taughtHours} hod.</strong>
-            <span class="font-mono text-xs text-[#8c6d3b] dark:text-[#c4a974] tabular-nums">(${e.termCount} termínů)</span>
+            <span class="font-mono text-[11px] text-[#8c6d3b] dark:text-[#c4a974] tabular-nums">(${e.termCount} termínů)</span>
           </div>
         </td>
       `,this.lecturersTableBody?.appendChild(t)}))}renderClassrooms(){this.classroomsTableBody&&(this.classroomsTableBody.innerHTML=``,this.classrooms.length===0?this.classroomsTableBody.innerHTML=`
@@ -428,11 +427,11 @@
         </tr>
       `:this.classrooms.forEach(e=>{let t=document.createElement(`tr`);t.innerHTML=`
         <td>
-          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${e.name}</div>
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">${e.name}</div>
         </td>
-        <td class="text-xs text-[#6e5223] dark:text-[#d1b88e]">${e.address}</td>
+        <td class="text-xs text-[#6e5223] dark:text-[#d1b88e] leading-tight">${e.address}</td>
         <td>
-          <span class="font-mono font-bold text-xs text-[#5c4318] dark:text-[#fce28b] bg-[#f5ebd6] dark:bg-[#1a1424] px-2.5 py-0.5 rounded border border-[#caa049]">
+          <span class="font-mono font-bold text-xs text-[#5c4318] dark:text-[#fce28b] bg-[#f5ebd6] dark:bg-[#1a1424] px-2 py-0.5 rounded border border-[#caa049] whitespace-nowrap">
             ${e.capacity} studentů
           </span>
         </td>
@@ -493,7 +492,7 @@
         <thead>
           <tr>
             <th>Student</th>
-            <th>Kontakt (E-mail)</th>
+            <th>Kontakt</th>
             <th>Organizace</th>
             <th>Počet kurzů</th>
             <th>Navštěvované programy</th>
@@ -503,16 +502,18 @@
       </table>
     `;let t=e.querySelector(`#multi-students-table-body`);this.data.multiCourseStudents.forEach(e=>{let n=document.createElement(`tr`),r=e.courses.map(e=>`<span class="inline-block px-2.5 py-0.5 rounded text-xs bg-[#f5ebd6] dark:bg-[#1a1424] text-[#5c4318] dark:text-[#fce8bd] border border-[#caa049]/50 mr-1 mb-1 font-medium">${e}</span>`).join(``);n.innerHTML=`
         <td>
-          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${e.student}</div>
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">${e.student}</div>
         </td>
-        <td class="font-mono text-xs text-[#6e5223] dark:text-[#d1b88e]">${e.email}</td>
-        <td class="text-xs text-[#7c5e2d] dark:text-[#c4a974]">${e.organization||`-`}</td>
+        <td class="font-mono text-xs text-[#6e5223] dark:text-[#d1b88e] break-all sm:break-normal">${e.email}</td>
+        <td class="text-xs text-[#7c5e2d] dark:text-[#c4a974] leading-tight">${e.organization||`-`}</td>
         <td>
-          <span class="badge-chip badge-chip-green font-mono">
+          <span class="badge-chip badge-chip-green font-mono whitespace-nowrap">
             ${e.courseCount} kurzy
           </span>
         </td>
-        <td class="py-2">${r}</td>
+        <td class="py-2">
+          <div class="flex flex-wrap gap-1">${r}</div>
+        </td>
       `,t?.appendChild(n)}),this.studentsListContainer.appendChild(e)}},S=class{container=null;dashboardData=null;init(){this.container=document.getElementById(`tab-student`),this.bindEvents(),document.addEventListener(`akademie:auth-changed`,()=>{s.isStudent()?this.load():this.render()})}bindEvents(){this.container?.addEventListener(`click`,async t=>{let n=t.target,r=n.closest(`.btn-student-cert-preview`);if(r){let e=r.getAttribute(`data-cert`);e&&await this.previewCertificate(e)}n.closest(`#btn-student-portal-login`)&&e.open(`modal-login`)})}async load(){if(!s.isAuthenticated())this.render();else try{this.dashboardData=await s.getStudentDashboard(),this.render()}catch(e){let t=e instanceof Error?e.message:`Nepodařilo se načíst data klientského portálu.`;c.error(t),this.render()}}render(){if(!this.container)return;let e=s.getUser();if(!e){this.container.innerHTML=`
         <div class="card-box text-center py-12 max-w-xl mx-auto">
           <div class="w-12 h-12 rounded-full bg-[#f4ebce] dark:bg-[#251e30] text-[#8c6d3b] dark:text-[#f8df95] flex items-center justify-center mx-auto mb-3 border border-[#caa049]">
@@ -619,28 +620,29 @@
               <tbody>
                 ${r.length===0?`<tr><td colspan="6" class="py-8 text-center text-xs text-amber-800/60 dark:text-amber-200/50 italic">Zatím nemáte žádné aktivní přihlášky. Vyberte si kurz v katalogu!</td></tr>`:r.map(e=>{let t=a.find(t=>t.termId===e.termId),n=i.find(t=>t.courseTitle===e.courseTitle),r=``;r=e.status===`CONFIRMED`?`<span class="badge-chip badge-chip-green">Potvrzena</span>`:e.status===`WAITLIST`?`<span class="badge-chip badge-chip-amber">Náhradník #${e.waitlistPosition||1}</span>`:e.status===`COMPLETED`?`<span class="badge-chip badge-chip-blue">Absolvováno</span>`:`<span class="badge-chip badge-chip-slate">${e.status}</span>`;let o=t?t.percentage:100,s=o>=70;return`
                             <tr>
-                              <td class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">
+                              <td class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">
                                 ${e.courseTitle}
                               </td>
-                              <td class="font-mono text-xs text-[#5c4318] dark:text-[#e2d5b8]">
-                                ${e.startDate} až ${e.endDate}
+                              <td class="font-mono text-xs text-[#5c4318] dark:text-[#e2d5b8] whitespace-nowrap">
+                                <div>${e.startDate}</div>
+                                <div class="text-[11px] text-[#8c6d3b] dark:text-[#c4a974]">až ${e.endDate}</div>
                               </td>
-                              <td class="text-xs text-[#6e5223] dark:text-[#d1b88e]">
+                              <td class="text-xs text-[#6e5223] dark:text-[#d1b88e] leading-tight">
                                 ${e.classroomName||`Centrum Trutnov`}
                               </td>
                               <td>${r}</td>
                               <td>
-                                <div class="flex items-center gap-1.5">
+                                <div class="flex items-center gap-1.5 whitespace-nowrap">
                                   <span class="font-mono font-bold text-xs tabular-nums ${s?`text-emerald-700 dark:text-emerald-400`:`text-amber-700`}">
                                     ${o}%
                                   </span>
-                                  ${s?`<span class="text-xs text-emerald-600 font-medium">✓ Splněno (≥ 70 %)</span>`:`<span class="text-xs text-amber-600 font-medium">&lt; 70%</span>`}
+                                  ${s?`<span class="text-xs text-emerald-600 font-medium">✓ Splněno</span>`:`<span class="text-xs text-amber-600 font-medium">&lt; 70%</span>`}
                                 </div>
                               </td>
                               <td class="text-right">
-                                ${n?`<button class="btn-student-cert-preview badge-chip badge-chip-blue font-mono text-xs cursor-pointer hover:border-amber-400 transition-colors" data-cert="${n.certificateNumber}">
+                                ${n?`<button class="btn-student-cert-preview badge-chip badge-chip-blue font-mono text-xs cursor-pointer hover:border-amber-400 transition-colors whitespace-nowrap" data-cert="${n.certificateNumber}">
                                         ${n.certificateNumber}
-                                      </button>`:s?`<span class="text-xs text-[#8c6d3b] dark:text-[#c4a974]">Připraveno k vydání</span>`:`<span class="text-amber-600/50 text-xs font-mono">–</span>`}
+                                      </button>`:s?`<span class="text-xs text-[#8c6d3b] dark:text-[#c4a974] whitespace-nowrap">K vydání</span>`:`<span class="text-amber-600/50 text-xs font-mono">–</span>`}
                               </td>
                             </tr>
                           `}).join(``)}

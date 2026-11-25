@@ -62,28 +62,28 @@ export class LecturersView {
 
       tr.innerHTML = `
         <td>
-          <div class="flex items-center gap-2.5">
+          <div class="flex items-center gap-2">
             <div class="w-7 h-7 rounded-md bg-[#f0e3c8] dark:bg-[#251e30] text-[#6e4e1b] dark:text-[#f8df95] border border-[#caa049] font-mono font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
               ${initials}
             </div>
             <div>
-              <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${l.name}</div>
+              <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">${l.name}</div>
             </div>
           </div>
         </td>
         <td class="text-xs">
-          <div class="font-mono text-[#5c4318] dark:text-[#eeddbb] font-medium">${l.email}</div>
-          <div class="font-mono text-[#8c6d3b] dark:text-[#c4a974] text-xs tabular-nums">${l.phone || "-"}</div>
+          <div class="font-mono text-[#5c4318] dark:text-[#eeddbb] font-medium break-all sm:break-normal">${l.email}</div>
+          <div class="font-mono text-[#8c6d3b] dark:text-[#c4a974] text-[11px] tabular-nums whitespace-nowrap mt-0.5">${l.phone || "-"}</div>
         </td>
         <td class="text-xs">
-          <span class="inline-block px-2.5 py-0.5 rounded text-xs bg-[#f5ebd6] dark:bg-[#1a1424] text-[#5c4318] dark:text-[#fce8bd] font-medium border border-[#caa049]/50">
+          <span class="inline-block px-2 py-0.5 rounded text-[11px] bg-[#f5ebd6] dark:bg-[#1a1424] text-[#5c4318] dark:text-[#fce8bd] font-medium border border-[#caa049]/50 whitespace-nowrap">
             ${l.specialization || "Lektor"}
           </span>
         </td>
         <td>
-          <div class="flex items-center gap-1.5">
+          <div class="flex items-center gap-1.5 whitespace-nowrap">
             <strong class="font-mono text-emerald-700 dark:text-emerald-400 font-bold text-xs tabular-nums">${l.taughtHours} hod.</strong>
-            <span class="font-mono text-xs text-[#8c6d3b] dark:text-[#c4a974] tabular-nums">(${l.termCount} termínů)</span>
+            <span class="font-mono text-[11px] text-[#8c6d3b] dark:text-[#c4a974] tabular-nums">(${l.termCount} termínů)</span>
           </div>
         </td>
       `;
@@ -110,11 +110,11 @@ export class LecturersView {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>
-          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${c.name}</div>
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">${c.name}</div>
         </td>
-        <td class="text-xs text-[#6e5223] dark:text-[#d1b88e]">${c.address}</td>
+        <td class="text-xs text-[#6e5223] dark:text-[#d1b88e] leading-tight">${c.address}</td>
         <td>
-          <span class="font-mono font-bold text-xs text-[#5c4318] dark:text-[#fce28b] bg-[#f5ebd6] dark:bg-[#1a1424] px-2.5 py-0.5 rounded border border-[#caa049]">
+          <span class="font-mono font-bold text-xs text-[#5c4318] dark:text-[#fce28b] bg-[#f5ebd6] dark:bg-[#1a1424] px-2 py-0.5 rounded border border-[#caa049] whitespace-nowrap">
             ${c.capacity} studentů
           </span>
         </td>

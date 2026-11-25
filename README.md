@@ -61,7 +61,7 @@
 9. [Přehled plnění požadavků zadání klienta (100% HOTOVO)](#9-přehled-plnění-požadavků-zadání-klienta-100-hotovo)
    - 9.1 [Tabulka plnění 8 bodů zadání](#91-tabulka-plnění-8-bodů-zadání)
 10. [Historie verzí (Changelog) a Roadmapa](#10-historie-verzí-changelog-a-roadmapa)
-    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.9.4)](#101-historie-verzí-changelog-v100-až-v194)
+    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.9.5)](#101-historie-verzí-changelog-v100-až-v195)
     - 10.2 [Roadmapa dalšího rozvoje](#102-roadmapa-dalšího-rozvoje)
 
 ---
@@ -701,13 +701,15 @@ Vizuální styl frontendu byl detailně sjednocen a přepracován přesně podle
 
 2. **Runové tabulky a svitkový kodex (Runic Ledger Tables):**
    - **Svitkový kontejner (`.table-box-wrap`):** Masivní zlacené/mosazné ohraničení (`border: 2px solid #caa049`) se zaoblenými rohy (`rounded-lg`), vnitřní zlatavou vellum září v Light módu (`inset 0 0 0 1px #fae19c`, `inset 0 2px 12px rgba(120, 88, 38, 0.12)`) a hlubokým stínem v Dark módu pro dojem pergamenového svitku či cechovní knihy.
+   - **Plně responzivní layout bez nutnosti horizontálního posouvání:** Tabulky `.table-tw` jsou nastaveny na `w-full` (100% šířka rodičovského kontejneru) s automatickým rozvržením sloupců (`table-layout: auto`) a přirozeným zalamováním textu (`white-space: normal`, `overflow-wrap: break-word`). Byla plně eliminována globální direktiva `whitespace-nowrap`, která dříve nutila uživatele posouvat tabulky do stran.
    - **Dekorativní záhlavní lišta (`.table-box-header`):** Sjednocená lišta kontejnerů tabulek s jemným pergamenovým přechodem a zlacenou dělicí linkou (`border-bottom: 2px solid #caa049`).
-   - **Záhlaví sloupců (`.table-tw th`):** Výrazné verzálkové písmo `Cinzel` (font-weight 700, tracking 0.05em, text-shadow), pergamenový gradient v Light módu (`#f4ecd6` -> `#e6d6b6`), obsidiánový gradient v Dark módu (`#241d30` -> `#161220`) a 2px zlaté spodní ohraničení (`border-bottom: 2px solid #caa049`).
-   - **Datové řádky (`.table-tw td`):** Jemná zlacená linka (`border-bottom: 1px solid rgba(202, 160, 73, 0.22/0.16)`), písmo `JetBrains Mono` pro ID, časy, hodiny, data a kapacity, striktně zarovnané přes `font-variant-numeric: tabular-nums`.
+   - **Záhlaví sloupců (`.table-tw th`):** Jasné čitelné písmo (Inter / font-sans, bold, text-shadow), pergamenový gradient v Light módu (`#f4ecd6` -> `#e6d6b6`), obsidiánový gradient v Dark módu (`#241d30` -> `#161220`) a 2px zlaté spodní ohraničení (`border-bottom: 2px solid #caa049`). Texty záhlaví jsou optimalizovány pro úsporu horizontálního prostoru (např. _Termín_, _Obsazenost_, _Zápis_).
+   - **Datové řádky (`.table-tw td`):** Jemná zlacená linka (`border-bottom: 1px solid rgba(202, 160, 73, 0.22/0.16)`), písmo `JetBrains Mono` pro ID, časy, hodiny, data a kapacity, striktně zarovnané přes `font-variant-numeric: tabular-nums`. Vertikální zarovnání na střed (`align-middle`) a kompaktní vnitřní odsazení (`px-3 py-2 sm:px-3.5 sm:py-2.5`).
+   - **Vertikální skládání a kompaktní data:** Časové intervaly termínů a kontaktní údaje jsou vertikálně uspořádány (např. počáteční datum nad koncovým datem), což radikálně zmenšuje šířku sloupců.
    - **Vellum Zebra Striping (`tbody tr:nth-child(even)`):** Střídavé podbarvení sudých řádků jemným pergamenovým nádechem (`rgba(245, 236, 216, 0.65)` v Light, `rgba(26, 20, 36, 0.9)` v Dark).
    - **Plynulý zlatavý hover (`tbody tr:hover`):** Zvýraznění řádku podsvícením v tónu teplého zlata (`rgba(202, 160, 73, 0.2/0.26)`) s jemným vnitřním stínem.
    - **Aktivní výběrový řádek (`.table-tw tbody tr.row-selected`):** Masivní 5px zlatý levý okraj (`#d4af37` v Light, `#ffd700` v Dark) s vnitřní zlatavou září pro okamžitou indikaci zvoleného termínu či výukového dne.
-   - **Kovaná měřidla kapacity a docházky (`.forged-meter-track`):** Tmavé kované lůžko (`#251a12`) s tenkým mosazným rámečkem (`1px solid #7c622e`, `rounded-sm`), nahrazující generické moderní kulaté pilulky.
+   - **Kovaná měřidla kapacity a docházky (`.forged-meter-track`):** Tmavé kované lůžko (`#251a12`) s tenkým mosazným rámečkem (`1px solid #7c622e`, `rounded-sm`) a optimalizovanou kompaktní šířkou `w-14 sm:w-16`.
 
 3. **Barevné tokeny a povrchy (Parchment & Obsidian / Brass):**
    - _Dark mode (Obsidian & Brass):_ Hluboký obsidián `#0b0a10`, podklad plátna `#13101b`, ohraničení a kování `#caa049` a `#d4af37`, pergamenové písmo `#fce8bd` a `#ece5f5`.
@@ -1509,7 +1511,20 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
 
 ## 10. Historie verzí (Changelog) a Roadmapa
 
-### 10.1 Historie verzí (Changelog v1.0.0 až v1.9.4)
+### 10.1 Historie verzí (Changelog v1.0.0 až v1.9.5)
+
+#### Verze 1.9.5 (Responzivní optimalizace tabulek – eliminace nutnosti horizontálního posouvání, přirozené zalamování a kompaktní datový layout)
+
+- **Eliminace nutnosti horizontálního posouvání ve všech tabulkách aplikace (`frontend/src/style.css`):**
+  - **Zrušení globální direktivy `whitespace-nowrap`:** Třída `.table-tw td` byla upravena na `white-space: normal`, `word-break: normal` a `overflow-wrap: break-word`. Dlouhé texty (názvy kurzů, témata výukových bloků, e-maily a poznámky) se nyní přirozeně zalamují do řádků a neroztahují tabulku za hranice obrazovky.
+  - **Automatické přizpůsobení šířce kontejneru:** Třída `.table-tw` byla nastavena na `w-full` a `table-layout: auto` namísto `min-w-full`. Tabulky se tak přesně přizpůsobují 100 % šířky viewportu bez vzniku zbytečných horizontálních posuvníků.
+  - **Kompaktní vnitřní odsazení:** Padding buněk byl optimalizován na `px-3 py-2 sm:px-3.5 sm:py-2.5` (a pro mobilní zařízení ≤ 640px na `px-2 py-1.5` s textem `11px`), což poskytuje více prostoru pro data a zachovává elegantní vizuální rytmus.
+- **Vertikální skládání a kompaktní datové reprezentace ve výhledech:**
+  - **Termíny a přihlášky (`TermsView.ts`, `frontend/index.html`):** Časová rozmezí výuky byla převedena na přehledný dvousloupcový vertikální stack (datum zahájení nad koncovým datem), kovaná měřidla obsazenosti byla zmenšena na `w-14 sm:w-16` a záhlaví sloupců bylo zkráceno (_Harmonogram výuky_ -> _Termín_, _Obsazenost míst (Kapacita)_ -> _Obsazenost_, _Garantující lektor_ -> _Lektor_, _Stav termínu_ -> _Stav_).
+  - **Evidence docházky (`AttendanceView.ts`, `frontend/index.html`):** Dvou-sloupcový grid harmonogramu výukových dnů a prezenční listiny byl upraven z `lg:grid-cols-2` na `xl:grid-cols-2`. Na standardních monitorech a noteboocích (do 1280px) se tabulky skládají pod sebe v plné šířce, čímž mají dostatek prostoru pro témata i prezenční pole bez ořezu. Vstupní pole pro poznámku docházky dostalo flexibilní šířku `w-full min-w-[100px] max-w-xs`.
+  - **Osvědčení a certifikáty (`CertificatesView.ts`, `frontend/index.html`):** Jméno a e-mail absolventa jsou přehledně složeny nad sebou, texty záhlaví byly zkráceny a odznaky i tlačítka diplomu jsou optimalizovány.
+  - **Lektoři a učebny (`LecturersView.ts`, `frontend/index.html`):** Rozložení převedeno na `xl:grid-cols-2`, e-mail a telefon jsou strukturovány nad sebou s ochranou proti přetečení (`break-all sm:break-normal`).
+  - **Studentský portál a manažerská analytika (`StudentPortalView.ts`, `AnalyticsView.ts`):** Termíny kurzů jsou vertikálně uspořádány, odznaky programů jsou zabaleny do pružného `flex-wrap` kontejneru.
 
 #### Verze 1.9.4 (Administrativní výběrovník studentů, typová očista bez ESLint varování a typografická harmonizace)
 

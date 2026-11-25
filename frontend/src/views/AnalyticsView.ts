@@ -173,7 +173,7 @@ export class AnalyticsView {
         <thead>
           <tr>
             <th>Student</th>
-            <th>Kontakt (E-mail)</th>
+            <th>Kontakt</th>
             <th>Organizace</th>
             <th>Počet kurzů</th>
             <th>Navštěvované programy</th>
@@ -197,16 +197,18 @@ export class AnalyticsView {
 
       tr.innerHTML = `
         <td>
-          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4]">${st.student}</div>
+          <div class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">${st.student}</div>
         </td>
-        <td class="font-mono text-xs text-[#6e5223] dark:text-[#d1b88e]">${st.email}</td>
-        <td class="text-xs text-[#7c5e2d] dark:text-[#c4a974]">${st.organization || "-"}</td>
+        <td class="font-mono text-xs text-[#6e5223] dark:text-[#d1b88e] break-all sm:break-normal">${st.email}</td>
+        <td class="text-xs text-[#7c5e2d] dark:text-[#c4a974] leading-tight">${st.organization || "-"}</td>
         <td>
-          <span class="badge-chip badge-chip-green font-mono">
+          <span class="badge-chip badge-chip-green font-mono whitespace-nowrap">
             ${st.courseCount} kurzy
           </span>
         </td>
-        <td class="py-2">${coursesBadges}</td>
+        <td class="py-2">
+          <div class="flex flex-wrap gap-1">${coursesBadges}</div>
+        </td>
       `;
 
       tbody?.appendChild(tr);
