@@ -35,7 +35,7 @@ Aplikace je navržena jako robustní třívrstvá webová architektura se strikt
 
 1. **Prezentační vrstva:** Single Page Application postavená na moderním bundleru Vite, TypeScriptu a Tailwind CSS. Nabízí plně responzivní rozhraní pro desktop i mobilní zařízení, přepínání světlého a tmavého režimu a ergonomické rozdělení typografie (prestižní titulní font Cinzel v kombinaci s ultra-čitelným funkčním fontem Inter a neproporcionálním JetBrains Mono).
 2. **Aplikační a doménová vrstva:** REST API v Node.js (Express framework) a TypeScriptu. Zahrnuje 9 bohatých doménových entit a 4 aplikační služby (`CourseService`, `TermService`, `AttendanceService`, `CertificateService`) s transakčním řízením operací a ověřováním rolí.
-3. **Perzistentní vrstva:** Relační databáze PostgreSQL 16 v Docker kontejneru s řízenými verzovanými migracemi (001–005), 19 cizími klíči s kaskádní integritou a 38 výkonnostními indexy. Celý stack se spouští jediným příkazem `docker compose up`. Spolehlivost garantuje 203 automatizovaných testů (35 Node + 168 Jest) se 100% úspěšností.
+3. **Perzistentní vrstva:** Relační databáze PostgreSQL 16 v Docker kontejneru s řízenými verzovanými migracemi (001–005), 19 cizími klíči s kaskádní integritou a 38 výkonnostními indexy. Celý stack se spouští jediným příkazem `docker compose up`. Spolehlivost garantuje 209 automatizovaných testů (35 Node + 174 Jest) se 100% úspěšností.
 
 ---
 

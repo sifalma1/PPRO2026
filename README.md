@@ -58,8 +58,8 @@
 8. [Testovací strategie a zajištění kvality](#8-testovací-strategie-a-zajištění-kvality)
    - 8.1 [Přehled testovací strategie (dvoustupňový testovací harness)](#81-přehled-testovací-strategie-dvoustupňový-testovací-harness)
    - 8.2 [Nativní Node test runner (35 testů – 26 unit + 9 E2E)](#82-nativní-node-test-runner-35-testů--26-unit--9-e2e)
-   - 8.3 [Komplexní testovací sada v Jestu s TypeScript & ESM (170 testů)](#83-komplexní-testovací-sada-v-jestu-s-typescript--esm-170-testů)
-   - 8.4 [Souhrnná tabulka testovacího pokrytí (205 testů, 100% pass)](#84-souhrnná-tabulka-testovacího-pokrytí-205-testů-100-pass)
+   - 8.3 [Komplexní testovací sada v Jestu s TypeScript & ESM (174 testů)](#83-komplexní-testovací-sada-v-jestu-s-typescript--esm-174-testů)
+   - 8.4 [Souhrnná tabulka testovacího pokrytí (209 testů, 100% pass)](#84-souhrnná-tabulka-testovacího-pokrytí-209-testů-100-pass)
    - 8.5 [Kvalita kódu, linting a formátování (ESLint + Prettier)](#85-kvalita-kódu-linting-a-formátování-eslint--prettier)
 9. [Přehled plnění požadavků zadání klienta (100% HOTOVO)](#9-přehled-plnění-požadavků-zadání-klienta-100-hotovo)
    - 9.1 [Tabulka plnění 8 bodů zadání](#91-tabulka-plnění-8-bodů-zadání)
@@ -1436,7 +1436,7 @@ Sada se spouští příkazem `npm test` a obsahuje 5 testovacích modulů:
 
 ---
 
-### 8.3 Komplexní testovací sada v Jestu s TypeScript & ESM (168 testů)
+### 8.3 Komplexní testovací sada v Jestu s TypeScript & ESM (174 testů)
 
 Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresáři [`test/jest/`](file:///C:/Users/skitt/Documents/PPRO/test/jest/). Je rozdělena do 8 testovacích modulů:
 
@@ -1446,7 +1446,7 @@ Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresá
 - Povolení bezplatných kurzů a seminářů s cenou 0 Kč.
 - Use cases aplikační služby: vytvoření kurzu, vyhledání dle ID, ošetření neexistujícího záznamu, kombinované filtry akreditace a fulltextu, aktualizace a bezpečné mazání.
 
-#### 2. Entita `CourseTerm`, `Enrollment` a čekací listina ([`test/jest/term-and-enrollment.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/term-and-enrollment.test.ts) – 14 testů)
+#### 2. Entita `CourseTerm`, `Enrollment` a čekací listina ([`test/jest/term-and-enrollment.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/term-and-enrollment.test.ts) – 16 testů)
 
 - Invarianty termínu: chronologie od–do, kladná kapacita, detekce naplněnosti.
 - Invarianty přihlášky: validace stavu `CONFIRMED` a `WAITLIST` s kladným pořadím.
@@ -1485,7 +1485,7 @@ Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresá
 - REST API docházky (`GET /api/attendance/terms/:termId/days`, `summary`).
 - Číselníky a manažerská analytika (`/api/lecturers`, `/api/classrooms`, `/api/students`, `/api/analytics` a české aliasy).
 
-#### 7. Autentizace, autorizace a RBAC role ([`test/jest/auth.rbac.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/auth.rbac.test.ts) – 32 testů)
+#### 7. Autentizace, autorizace a RBAC role ([`test/jest/auth.rbac.test.ts`](file:///C:/Users/skitt/Documents/PPRO/test/jest/auth.rbac.test.ts) – 36 testů)
 
 - **Autentizace administrátora:** Úspěšné přihlášení `admin` / `admin123` (`POST /api/auth/login`), generování Bearer tokenu, ověření přes `GET /api/auth/me`.
 - **Autentizace studenta:** Přihlášení přes e-mail (`jan.novak@firma.cz` / `student123`) a generický účet `student`, vytvoření studentské session s rolí `student`.
@@ -1542,7 +1542,7 @@ Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresá
 
 ---
 
-### 8.4 Souhrnná tabulka testovacího pokrytí (205 testů, 100% pass)
+### 8.4 Souhrnná tabulka testovacího pokrytí (209 testů, 100% pass)
 
 | Testovací sada                          | Běhové prostředí  | Zaměření                                                                    | Počet testů   | Výsledek                    |
 | --------------------------------------- | ----------------- | --------------------------------------------------------------------------- | ------------- | --------------------------- |
@@ -1557,9 +1557,9 @@ Sada v frameworku **Jest** se spouští příkazem `npm run test:jest` v adresá
 | `test/jest/certificate.test.ts`         | Jest + TypeScript | Generování diplomů AT-YYYY-XXXX a lektorské výjimky                         | 10 testů      | PASS (100 %)                |
 | `test/jest/domain-edge-cases.test.ts`   | Jest + TypeScript | Hloubkové testy kaskádového storna, 70/69.9% docházky a auditů              | 20 testů      | PASS (100 %)                |
 | `test/jest/api.integration.test.ts`     | Jest + Supertest  | Integrační ověření Express rout, chyb a aliasů                              | 19 testů      | PASS (100 %)                |
-| `test/jest/auth.rbac.test.ts`           | Jest + Supertest  | Ověření RBAC oprávnění, ochrana zápisů a anonymních přístupů (ADR-07)       | 32 testů      | PASS (100 %)                |
+| `test/jest/auth.rbac.test.ts`           | Jest + Supertest  | Ověření RBAC oprávnění, ochrana zápisů a anonymních přístupů (ADR-07)       | 36 testů      | PASS (100 %)                |
 | `test/jest/security-deep.test.ts`       | Jest + Supertest  | Hloubkový audit: chybějící/expirované/podvržené tokeny, IDOR, SQL, overflow | 45 testů      | PASS (100 %)                |
-| **CELKEM V REPOZITÁŘI**                 |                   | **Kompletní dvoustupňový testovací harness**                                | **205 testů** | **100% ÚSPĚŠNOST (0 chyb)** |
+| **CELKEM V REPOZITÁŘI**                 |                   | **Kompletní dvoustupňový testovací harness**                                | **209 testů** | **100% ÚSPĚŠNOST (0 chyb)** |
 
 ---
 
@@ -1627,7 +1627,7 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
     4. **COMPLETED (Absolvováno s osvědčením):** Kurz _Účetnictví a daňová evidence_ (`a5555555`) – dokončený termín, 100% docházka na 3 výukových dnech a vystavené oficiální osvědčení `AT-2026-0003`.
   - Doplněna podpora mock/fallback dat v `AuthService.getStudentDashboard` pro offline a testovací běhy.
 - **Kvalita a integrita:**
-  - Všech 203 automatizovaných testů (35 Node test runner + 168 Jest) prochází se 100% úspěšností.
+  - Všech 209 automatizovaných testů (35 Node test runner + 174 Jest) prochází se 100% úspěšností.
   - Produkční build (`npm run build`), ESLint (`npm run lint`) i Prettier (`npm run format:check`) jsou 100% čisté.
 
 #### Verze 1.9.5 (Responzivní optimalizace tabulek – eliminace nutnosti horizontálního posouvání, přirozené zalamování a kompaktní datový layout)
