@@ -32,6 +32,7 @@ export interface StudentDashboardData {
   enrollments: Array<{
     enrollmentId: string;
     termId: string;
+    courseId?: string;
     courseTitle: string;
     startDate: string;
     endDate: string;

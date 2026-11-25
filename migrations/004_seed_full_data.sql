@@ -48,19 +48,20 @@ ON CONFLICT (termin_id, lektor_id) DO NOTHING;
 -- 5. Studenti
 INSERT INTO studenti (id, jmeno, prijmeni, email, telefon, organizace)
 VALUES
-    ('c1111111-1111-4111-8111-111111111111', 'Tomáš', 'Marný', 'tomas.marny@seznam.cz', '+420 603 111 222', 'MěÚ Trutnov'),
+    ('c1111111-1111-4111-8111-111111111111', 'Jan', 'Novák', 'jan.novak@firma.cz', '+420 603 111 222', 'Krkonoše Tech s.r.o.'),
     ('c2222222-2222-4222-8222-222222222222', 'Alena', 'Kratochvílová', 'a.kratochvilova@gmail.com', '+420 604 222 333', 'OSVČ'),
     ('c3333333-3333-4333-8333-333333333333', 'Michal', 'Kučera', 'michal.kucera@post.cz', '+420 605 333 444', 'Krkonoše Tech s.r.o.'),
     ('c4444444-4444-4444-8444-444444444444', 'Lenka', 'Burešová', 'lenka.b@centrum.cz', '+420 606 444 555', 'Samoplátce'),
     ('c5555555-5555-4555-8555-555555555555', 'Jakub', 'Veselý', 'jakub.vesely@email.cz', '+420 607 555 666', 'Mladé Buky Ski'),
-    ('c6666666-6666-4666-8666-666666666666', 'Kateřina', 'Horáková', 'k.horakova@volny.cz', '+420 608 666 777', 'Nemocnice Trutnov')
+    ('c6666666-6666-4666-8666-666666666666', 'Kateřina', 'Horáková', 'k.horakova@volny.cz', '+420 608 666 777', 'Nemocnice Trutnov'),
+    ('c7777777-7777-4777-8777-777777777777', 'Tomáš', 'Marný', 'tomas.marny@seznam.cz', '+420 603 111 333', 'MěÚ Trutnov')
 ON CONFLICT (id) DO NOTHING;
 
 -- 6. Přihlášky (termín 1 má kapacitu 3; první 3 studenti mají POTVRZENA, 4. a 5. jsou v POŘADNÍKU!)
 INSERT INTO prihlasky (id, termin_id, student_id, datum_podani, stav, poradi_v_poradniku, poznamka)
 VALUES
     -- Termín Python (kapacita 3) - 3 potvrzené
-    ('d1111111-1111-4111-8111-111111111111', 'a1111111-1111-4111-8111-111111111111', 'c1111111-1111-4111-8111-111111111111', '2026-10-01 08:30:00', 'POTVRZENA', NULL, 'Hradí zaměstnavatel'),
+    ('d1111111-1111-4111-8111-111111111111', 'a1111111-1111-4111-8111-111111111111', 'c1111111-1111-4111-8111-111111111111', '2026-10-01 08:30:00', 'POTVRZENA', NULL, 'Hradí zaměstnavatel (Jan Novák)'),
     ('d2222222-2222-4222-8222-222222222222', 'a1111111-1111-4111-8111-111111111111', 'c2222222-2222-4222-8222-222222222222', '2026-10-01 09:15:00', 'POTVRZENA', NULL, 'Dotace ÚP'),
     ('d3333333-3333-4333-8333-333333333333', 'a1111111-1111-4111-8111-111111111111', 'c3333333-3333-4333-8333-333333333333', '2026-10-01 10:00:00', 'POTVRZENA', NULL, 'Vlastní zájemce'),
     -- Termín Python (plno -> Náhradníci v pořadníku)
@@ -68,5 +69,7 @@ VALUES
     ('d5555555-5555-4555-8555-555555555555', 'a1111111-1111-4111-8111-111111111111', 'c5555555-5555-4555-8555-555555555555', '2026-10-03 14:40:00', 'PORADNIK', 2, 'Druhý náhradník v řadě'),
     -- Termín Účetnictví
     ('d6666666-6666-4666-8666-666666666666', 'a2222222-2222-4222-8222-222222222222', 'c6666666-6666-4666-8666-666666666666', '2026-10-04 10:00:00', 'POTVRZENA', NULL, 'Rekvalifikace MŠMT'),
-    ('d7777777-7777-4777-8777-777777777777', 'a2222222-2222-4222-8222-222222222222', 'c1111111-1111-4111-8111-111111111111', '2026-10-05 11:00:00', 'POTVRZENA', NULL, 'Student přihlášen na 2 různé kurzy (Tomáš Marný)')
+    ('d7777777-7777-4777-8777-777777777777', 'a2222222-2222-4222-8222-222222222222', 'c1111111-1111-4111-8111-111111111111', '2026-10-05 11:00:00', 'POTVRZENA', NULL, 'Student přihlášen na 2 různé kurzy (Jan Novák)'),
+    -- Termín Sociální služby (Jan Novák v pořadníku náhradníků)
+    ('d8888888-8888-4888-8888-888888888888', 'a4444444-4444-4444-8444-444444444444', 'c1111111-1111-4111-8111-111111111111', '2026-10-10 14:00:00', 'PORADNIK', 1, 'Čekatel v pořadníku náhradníků (Jan Novák)')
 ON CONFLICT (id) DO NOTHING;

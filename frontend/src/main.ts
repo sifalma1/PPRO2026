@@ -168,10 +168,18 @@ class App {
 
     // Custom event: Switch tab
     document.addEventListener("akademie:switch-tab", ((
-      e: CustomEvent<{ tab: string; termId?: string; openWaiver?: boolean }>
+      e: CustomEvent<{
+        tab: string;
+        termId?: string;
+        courseId?: string;
+        openWaiver?: boolean;
+      }>
     ) => {
-      const { tab, termId, openWaiver } = e.detail || {};
+      const { tab, termId, courseId, openWaiver } = e.detail || {};
       if (tab) {
+        if (tab === "terms") {
+          this.termsView.filterByCourse(courseId ?? null);
+        }
         this.header.setActiveTab(tab);
         this.handleTabChange(tab);
 

@@ -156,7 +156,9 @@ export class CoursesView {
 
     filtered.forEach((course, index) => {
       const card = document.createElement("div");
-      card.className = "card-box flex flex-col justify-between transition-all duration-150";
+      card.className =
+        "card-box flex flex-col justify-between transition-all duration-150 cursor-pointer hover:border-[#caa049] hover:shadow-md";
+      card.title = "Kliknutím zobrazíte vypsané termíny kurzu";
 
       const formattedPrice = Number(course.price).toLocaleString("cs-CZ");
       const courseCode = `AT-K${String(index + 1).padStart(2, "0")}`;
@@ -238,26 +240,46 @@ export class CoursesView {
         </div>
       `;
 
+      // Clicking whole card switches to terms tab filtered by this course
+      card.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest("button")) return;
+        document.dispatchEvent(
+          new CustomEvent("akademie:switch-tab", {
+            detail: { tab: "terms", courseId: course.id },
+          })
+        );
+      });
+
       // Schedule event
       const scheduleBtn = card.querySelector(".btn-schedule-course");
-      scheduleBtn?.addEventListener("click", () => {
+      scheduleBtn?.addEventListener("click", (e) => {
+        e.stopPropagation();
         if (isAdmin && this.onScheduleTermCallback) {
           this.onScheduleTermCallback(course.id);
         } else {
-          // Non-admin: just switch to Terms tab to view terms
+          // Non-admin: switch to Terms tab filtered by course
           document.dispatchEvent(
-            new CustomEvent("akademie:switch-tab", { detail: { tab: "terms" } })
+            new CustomEvent("akademie:switch-tab", {
+              detail: { tab: "terms", courseId: course.id },
+            })
           );
         }
       });
 
       // Edit event
       const editBtn = card.querySelector(".btn-edit-course");
-      editBtn?.addEventListener("click", () => this.openEditModal(course));
+      editBtn?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.openEditModal(course);
+      });
 
       // Delete event
       const deleteBtn = card.querySelector(".btn-delete-course");
-      deleteBtn?.addEventListener("click", () => this.handleDelete(course));
+      deleteBtn?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.handleDelete(course);
+      });
 
       this.container?.appendChild(card);
     });

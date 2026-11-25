@@ -562,6 +562,38 @@
             </button>
           </div>
 
+          <!-- Banner aktivního filtru kurzu -->
+          <div
+            id="terms-filter-banner"
+            class="hidden mb-4 p-3 rounded-xl border border-amber-500/40 bg-amber-500/10 flex items-center justify-between gap-3 text-xs animate-fadeIn"
+          >
+            <div class="flex items-center gap-2 text-[#4a3512] dark:text-[#faeed4]">
+              <svg
+                class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+              </svg>
+              <span>
+                Filtrováno dle kurzu:
+                <strong
+                  id="terms-filter-course-title"
+                  class="font-bold text-amber-900 dark:text-amber-200"
+                ></strong>
+              </span>
+            </div>
+            <button
+              type="button"
+              id="btn-clear-terms-filter"
+              class="btn-secondary-tw btn-sm-tw py-1 px-2.5 text-xs whitespace-nowrap cursor-pointer hover:border-amber-500"
+            >
+              Zobrazit všechny termíny
+            </button>
+          </div>
+
           <!-- Tabulka termínů -->
           <div class="table-box-wrap mb-6">
             <div class="overflow-x-auto">

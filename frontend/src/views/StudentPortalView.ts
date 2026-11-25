@@ -28,9 +28,23 @@ export class StudentPortalView {
   }
 
   private bindEvents(): void {
-    // Delegated click for certificate preview
+    // Delegated click for certificate preview and course term navigation
     this.container?.addEventListener("click", async (e) => {
       const target = e.target as HTMLElement;
+
+      const courseBtn = target.closest<HTMLButtonElement>(".btn-course-filter");
+      if (courseBtn) {
+        const courseId = courseBtn.getAttribute("data-course-id");
+        if (courseId) {
+          document.dispatchEvent(
+            new CustomEvent("akademie:switch-tab", {
+              detail: { tab: "terms", courseId },
+            })
+          );
+          return;
+        }
+      }
+
       const certBtn = target.closest<HTMLButtonElement>(".btn-student-cert-preview");
       if (certBtn) {
         const certCode = certBtn.getAttribute("data-cert");
@@ -227,7 +241,17 @@ export class StudentPortalView {
                           return `
                             <tr>
                               <td class="font-bold font-display text-[#4a3512] dark:text-[#faeed4] leading-tight">
-                                ${enr.courseTitle}
+                                <button
+                                  type="button"
+                                  class="btn-course-filter text-left font-bold font-display text-[#4a3512] dark:text-[#faeed4] hover:text-amber-700 dark:hover:text-amber-300 hover:underline cursor-pointer inline-flex items-center gap-1.5 transition-colors group"
+                                  data-course-id="${enr.courseId || ""}"
+                                  title="Zobrazit vypsané termíny tohoto kurzu"
+                                >
+                                  <span>${enr.courseTitle}</span>
+                                  <svg class="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                  </svg>
+                                </button>
                               </td>
                               <td class="font-mono text-xs text-[#5c4318] dark:text-[#e2d5b8] whitespace-nowrap">
                                 <div>${enr.startDate}</div>

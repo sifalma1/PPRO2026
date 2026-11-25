@@ -11,7 +11,11 @@ export class TermController {
 
   public getAll = async (req: Request, res: Response): Promise<void> => {
     try {
-      const terms = await this.termService.getAllTerms();
+      let terms = await this.termService.getAllTerms();
+      const courseId = req.query.courseId || req.query.kurzId;
+      if (courseId) {
+        terms = terms.filter((t) => t.courseId === String(courseId));
+      }
       res.status(200).json({ success: true, count: terms.length, data: terms });
     } catch (err: unknown) {
       const error = err instanceof Error ? err.message : String(err);

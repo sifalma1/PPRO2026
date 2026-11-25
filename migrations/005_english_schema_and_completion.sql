@@ -236,11 +236,23 @@ INSERT INTO term_lecturers (term_id, lecturer_id, role)
 VALUES ('a5555555-5555-4555-8555-555555555555', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'lead')
 ON CONFLICT (term_id, lecturer_id) DO NOTHING;
 
--- Přihlášky na dokončený termín
+-- Zajištění syntetického studenta Jan Novák
+INSERT INTO students (id, first_name, last_name, email, phone, organization)
+VALUES ('c1111111-1111-4111-8111-111111111111', 'Jan', 'Novák', 'jan.novak@firma.cz', '+420 603 111 222', 'Krkonoše Tech s.r.o.')
+ON CONFLICT (id) DO UPDATE SET
+    first_name = EXCLUDED.first_name,
+    last_name = EXCLUDED.last_name,
+    email = EXCLUDED.email,
+    phone = EXCLUDED.phone,
+    organization = EXCLUDED.organization;
+
+-- Přihlášky na dokončený termín a další stavy (Jan Novák)
 INSERT INTO enrollments (id, term_id, student_id, submitted_at, status, waitlist_position, note)
 VALUES 
     ('e1111111-1111-4111-8111-111111111111', 'a5555555-5555-4555-8555-555555555555', 'c2222222-2222-4222-8222-222222222222', '2026-08-15 10:00:00', 'COMPLETED', NULL, 'Absolvoval s vyznamenáním'),
-    ('e2222222-2222-4222-8222-222222222222', 'a5555555-5555-4555-8555-555555555555', 'c3333333-3333-4333-8333-333333333333', '2026-08-16 11:30:00', 'COMPLETED', NULL, 'Udělení lektorské výjimky (docházka 67 %)')
+    ('e2222222-2222-4222-8222-222222222222', 'a5555555-5555-4555-8555-555555555555', 'c3333333-3333-4333-8333-333333333333', '2026-08-16 11:30:00', 'COMPLETED', NULL, 'Udělení lektorské výjimky (docházka 67 %)'),
+    ('e3333333-3333-4333-8333-333333333333', 'a5555555-5555-4555-8555-555555555555', 'c1111111-1111-4111-8111-111111111111', '2026-08-14 09:00:00', 'COMPLETED', NULL, 'Absolvoval rekvalifikační program s vyznamenáním (Jan Novák)'),
+    ('d8888888-8888-4888-8888-888888888888', 'a4444444-4444-4444-8444-444444444444', 'c1111111-1111-4111-8111-111111111111', '2026-10-10 14:00:00', 'WAITLIST', 1, 'Čekatel v pořadníku náhradníků (Jan Novák)')
 ON CONFLICT (id) DO NOTHING;
 
 -- Výukové dny pro dokončený termín (3 dny)
@@ -273,9 +285,22 @@ VALUES
     ('f2222222-2222-4222-8222-222222222222', 'c3333333-3333-4333-8333-333333333333', FALSE, 'Omluven ze zdravotních důvodů'),
     ('f3333333-3333-4333-8333-333333333333', 'c3333333-3333-4333-8333-333333333333', TRUE, 'Doplnil samostudiem');
 
+-- Jan Novák (c1): 3/3 dny přítomen = 100%
+INSERT INTO attendance (teaching_day_id, student_id, is_present, note)
+VALUES
+    ('f1111111-1111-4111-8111-111111111111', 'c1111111-1111-4111-8111-111111111111', TRUE, 'Přítomen včas'),
+    ('f2222222-2222-4222-8222-222222222222', 'c1111111-1111-4111-8111-111111111111', TRUE, 'Aktivní práce s daňovými doklady'),
+    ('f3333333-3333-4333-8333-333333333333', 'c1111111-1111-4111-8111-111111111111', TRUE, 'Závěrečný test 95 %');
+
+-- Jan Novák (c1): Evidence docházky pro běžící termín Účetnictví (2/2 = 100%)
+INSERT INTO attendance (teaching_day_id, student_id, is_present, note)
+VALUES
+    ('f4444444-4444-4444-8444-444444444444', 'c1111111-1111-4111-8111-111111111111', TRUE, 'Přítomen'),
+    ('f5555555-5555-4555-8555-555555555555', 'c1111111-1111-4111-8111-111111111111', TRUE, 'Splněno praktické cvičení');
+
 -- Vystavená osvědčení
-INSERT INTO certificate_counter (year, last_seq) VALUES (2026, 2)
-ON CONFLICT (year) DO UPDATE SET last_seq = GREATEST(certificate_counter.last_seq, 2);
+INSERT INTO certificate_counter (year, last_seq) VALUES (2026, 3)
+ON CONFLICT (year) DO UPDATE SET last_seq = GREATEST(certificate_counter.last_seq, 3);
 
 INSERT INTO certificates (id, enrollment_id, student_id, term_id, certificate_number, issue_date, attendance_rate, has_waiver, waiver_reason)
 VALUES
@@ -300,5 +325,16 @@ VALUES
         66.67,
         TRUE,
         'Schválena výjimka lektora: student předložil lékařské potvrzení a prokázal znalosti v náhradním testu.'
+    ),
+    (
+        'c0000003-0000-4000-8000-000000000003',
+        'e3333333-3333-4333-8333-333333333333',
+        'c1111111-1111-4111-8111-111111111111',
+        'a5555555-5555-4555-8555-555555555555',
+        'AT-2026-0003',
+        '2026-09-30',
+        100.00,
+        FALSE,
+        NULL
     )
 ON CONFLICT (id) DO NOTHING;

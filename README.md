@@ -23,6 +23,9 @@
    - [ADR-05: Více lektorů na termínu a rozpad na výukové dny (M:N)](#adr-05-více-lektorů-na-termínu-a-rozpad-na-výukové-dny-mn)
    - [ADR-06: Vyhodnocení vhodnosti Strapi CMS jako administrace (Zamítnuto)](#adr-06-vyhodnocení-vhodnosti-strapi-cms-jako-administrace-zamítnuto)
    - [ADR-07: Role-Based Access Control (RBAC), Administrátorská a Studentská autentizace](#adr-07-role-based-access-control-rbac-administrátorská-a-studentská-autentizace)
+   - [ADR-08: Způsob filtrace vypsaných termínů při prokliku z kurzu a možnost zrušení filtru (R15, Z14)](#adr-08-způsob-filtrace-vypsaných-termínů-při-prokliku-z-kurzu-a-možnost-zrušení-filtru-r15-z14)
+   - [ADR-09: Rozšíření testovacích zápisů pro klientský portál studenta (různé stavy CONFIRMED, WAITLIST, COMPLETED a evidence docházky) (R16, Z15)](#adr-09-rozšíření-testovacích-zápisů-pro-klientský-portál-studenta-různé-stavy-confirmed-waitlist-completed-a-evidence-docházky-r16-z15)
+   - [Přehled všech rozhodnutí (R1–R16) a změn požadovaných klientem (Z1–Z15)](#přehled-všech-rozhodnutí-r1r16-a-změn-požadovaných-klientem-z1z15)
 3. [Třívrstvá architektura a technický návrh](#3-třívrstvá-architektura-a-technický-návrh)
    - 3.1 [Třívrstvá architektura a vrstvy aplikace](#31-třívrstvá-architektura-a-vrstvy-aplikace)
    - 3.2 [Sekvenční diagram: Vypsání termínu a přihlášení s čekací listinou (ADR-02)](#32-sekvenční-diagram-vypsání-termínu-a-přihlášení-s-čekací-listinou-adr-02)
@@ -61,7 +64,7 @@
 9. [Přehled plnění požadavků zadání klienta (100% HOTOVO)](#9-přehled-plnění-požadavků-zadání-klienta-100-hotovo)
    - 9.1 [Tabulka plnění 8 bodů zadání](#91-tabulka-plnění-8-bodů-zadání)
 10. [Historie verzí (Changelog) a Roadmapa](#10-historie-verzí-changelog-a-roadmapa)
-    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.9.5)](#101-historie-verzí-changelog-v100-až-v195)
+    - 10.1 [Historie verzí (Changelog v1.0.0 až v1.9.6)](#101-historie-verzí-changelog-v100-až-v196)
     - 10.2 [Roadmapa dalšího rozvoje](#102-roadmapa-dalšího-rozvoje)
 
 ---
@@ -1511,7 +1514,31 @@ Následující přehled dokumentuje stoprocentní splnění všech akademických
 
 ## 10. Historie verzí (Changelog) a Roadmapa
 
-### 10.1 Historie verzí (Changelog v1.0.0 až v1.9.5)
+### 10.1 Historie verzí (Changelog v1.0.0 až v1.9.6)
+
+#### Verze 1.9.6 (Filtrování termínů podle kurzu v UI, navigace ze studentského portálu & katalogu a rozšíření syntetických zápisů studenta)
+
+- **Filtrování vypsaných termínů podle kurzu (`TermsView.ts`, `frontend/index.html`):**
+  - Do pohledu termínů byl zaveden aktivní kurzový filtr (`filterByCourse(courseId: string | null)`).
+  - Při aktivním filtru se v horní části tabulky zobrazí dekorativní informační banner: `Filtrováno dle kurzu: [Název kurzu]` s tlačítkem `Zobrazit všechny termíny` pro okamžitý reset filtru jedním kliknutím.
+  - Pokud pro vybraný kurz neexistují žádné termíny, tabulka informuje uživatele přehledným sdělením _„Pro vybraný kurz nebyly nalezeny žádné vypsané termíny.“_
+- **Interaktivní proklik z katalogu kurzů (`CoursesView.ts`):**
+  - Karta kurzu byla učiněna celá klikatelnou (`cursor-pointer hover:border-[#caa049] hover:shadow-md`).
+  - Kliknutí na kartu kurzu i na tlačítko `Zobrazit termíny` vyvolá globální událost `akademie:switch-tab` s detailem `{ tab: 'terms', courseId: course.id }`, což přepne záložku a okamžitě zafiltruje termíny daného kurzu.
+- **Proklik z klientského portálu studenta (`StudentPortalView.ts`):**
+  - V tabulce _Moje zapsané kurzy & termíny_ jsou názvy kurzů interaktivními tlačítky (`.btn-course-filter`) se šipkou a hover efektem.
+  - Kliknutí na název kurzu ve studentském portálu přepne studenta na vypsané termíny daného kurzu, kde vidí harmonogram i zbývající volná místa.
+  - V `AuthService.ts` a `StudentDashboardDto` bylo do DTO přihlášek doplněno `courseId`.
+- **Rozšíření syntetických testovacích zápisů pro studenta Jana Nováka (`migrations/004_seed_full_data.sql`, `migrations/005_english_schema_and_completion.sql`, `AuthService.ts`):**
+  - Pro studenta Jana Nováka (`c1111111-1111-4111-8111-111111111111`, `jan.novak@firma.cz`) byla rozšířena testovací data pokrývající různé stavy přihlášek:
+    1. **CONFIRMED (Potvrzena):** Kurz _Programování v Pythonu_ (`a1111111`) – kapacita naplněna, účast potvrzena.
+    2. **CONFIRMED (Potvrzena s docházkou):** Kurz _Účetnictví a daňová evidence_ (`a2222222`) – probíhající termín, zapsána docházka na výukových dnech (100 %).
+    3. **WAITLIST (Pořadník náhradníků):** Kurz _Pracovník v sociálních službách_ (`a4444444`) – zařazen do fronty na pozici Náhradník #1.
+    4. **COMPLETED (Absolvováno s osvědčením):** Kurz _Účetnictví a daňová evidence_ (`a5555555`) – dokončený termín, 100% docházka na 3 výukových dnech a vystavené oficiální osvědčení `AT-2026-0003`.
+  - Doplněna podpora mock/fallback dat v `AuthService.getStudentDashboard` pro offline a testovací běhy.
+- **Kvalita a integrita:**
+  - Všech 203 automatizovaných testů (35 Node test runner + 168 Jest) prochází se 100% úspěšností.
+  - Produkční build (`npm run build`), ESLint (`npm run lint`) i Prettier (`npm run format:check`) jsou 100% čisté.
 
 #### Verze 1.9.5 (Responzivní optimalizace tabulek – eliminace nutnosti horizontálního posouvání, přirozené zalamování a kompaktní datový layout)
 

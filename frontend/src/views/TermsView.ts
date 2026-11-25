@@ -14,6 +14,7 @@ import { authApi } from "../api/authApi";
 export class TermsView {
   private terms: CourseTerm[] = [];
   private selectedTermId: string | null = null;
+  private filteredCourseId: string | null = null;
   private enrollments: Enrollment[] = [];
   private cachedStudents: RegisteredStudent[] = [];
 
@@ -110,6 +111,12 @@ export class TermsView {
       }
     });
 
+    // Button to clear active course filter
+    const btnClearFilter = document.getElementById("btn-clear-terms-filter");
+    btnClearFilter?.addEventListener("click", () => {
+      this.filterByCourse(null);
+    });
+
     // Listen for auth state changes
     document.addEventListener("akademie:auth-changed", () => {
       this.renderTerms();
@@ -117,6 +124,42 @@ export class TermsView {
         this.selectTerm(this.selectedTermId);
       }
     });
+  }
+
+  public async filterByCourse(courseId: string | null): Promise<void> {
+    this.filteredCourseId = courseId;
+    await this.renderFilterBanner();
+    this.renderTerms();
+  }
+
+  private async renderFilterBanner(): Promise<void> {
+    const banner = document.getElementById("terms-filter-banner");
+    const titleEl = document.getElementById("terms-filter-course-title");
+    if (!banner || !titleEl) return;
+
+    if (!this.filteredCourseId) {
+      banner.classList.add("hidden");
+      return;
+    }
+
+    let courseTitle = "";
+    const termWithCourse = this.terms.find((t) => t.courseId === this.filteredCourseId);
+    if (termWithCourse) {
+      courseTitle = termWithCourse.courseTitle;
+    } else {
+      try {
+        const allCourses = await coursesApi.getAll();
+        const found = allCourses.find((c) => c.id === this.filteredCourseId);
+        if (found) {
+          courseTitle = found.title;
+        }
+      } catch {
+        // fallback
+      }
+    }
+
+    titleEl.textContent = courseTitle || "Vybraný vzdělávací program";
+    banner.classList.remove("hidden");
   }
 
   public async load(): Promise<void> {
@@ -135,6 +178,7 @@ export class TermsView {
             : "Pořadník náhradníků prázdný";
       }
 
+      await this.renderFilterBanner();
       this.renderTerms();
 
       if (this.selectedTermId) {
@@ -163,18 +207,26 @@ export class TermsView {
     if (!this.termsTableBody) return;
     this.termsTableBody.innerHTML = "";
 
-    if (this.terms.length === 0) {
+    const displayedTerms = this.filteredCourseId
+      ? this.terms.filter((t) => t.courseId === this.filteredCourseId)
+      : this.terms;
+
+    if (displayedTerms.length === 0) {
       this.termsTableBody.innerHTML = `
         <tr>
           <td colspan="7" class="text-center py-10 text-amber-800/60 dark:text-amber-200/50 italic">
-            Dosud nebyly vypsány žádné termíny kurzů.
+            ${
+              this.filteredCourseId
+                ? "Pro vybraný kurz nebyly nalezeny žádné vypsané termíny."
+                : "Dosud nebyly vypsány žádné termíny kurzů."
+            }
           </td>
         </tr>
       `;
       return;
     }
 
-    this.terms.forEach((term) => {
+    displayedTerms.forEach((term) => {
       const isFull = term.confirmedCount >= term.capacity;
       const isCompleted = term.status === "COMPLETED";
 
