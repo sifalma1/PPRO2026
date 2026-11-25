@@ -2,6 +2,7 @@ import { describe, it, expect, afterAll } from "@jest/globals";
 import request from "supertest";
 import { createApp } from "../../src/app.js";
 import { pool } from "../../src/infrastructure/database/db.js";
+import { AuthService } from "../../src/application/services/AuthService.js";
 
 describe("Admin & Student Authentication & RBAC Authorization (Supertest)", () => {
   const app = createApp();
@@ -236,7 +237,7 @@ describe("Admin & Student Authentication & RBAC Authorization (Supertest)", () =
       expect(res.body.success).toBe(false);
     });
 
-    it("Authenticated Student can access /api/student/dashboard and see registrations", async () => {
+    it("Authenticated Student can access /api/student/dashboard and receives rich multi-enrollment structure (CONFIRMED, WAITLIST, COMPLETED)", async () => {
       const res = await request(app)
         .get("/api/student/dashboard")
         .set("Authorization", `Bearer ${studentToken}`);
@@ -245,19 +246,163 @@ describe("Admin & Student Authentication & RBAC Authorization (Supertest)", () =
       expect(res.body.success).toBe(true);
       expect(res.body.data).toBeDefined();
       expect(res.body.data.student).toBeDefined();
-      expect(Array.isArray(res.body.data.enrollments)).toBe(true);
-      expect(Array.isArray(res.body.data.attendance)).toBe(true);
-      expect(Array.isArray(res.body.data.certificates)).toBe(true);
+      expect(res.body.data.student.email).toBe("jan.novak@firma.cz");
+
+      const enrollments = res.body.data.enrollments;
+      expect(Array.isArray(enrollments)).toBe(true);
+      expect(enrollments.length).toBeGreaterThanOrEqual(3);
+
+      // Verify CONFIRMED enrollment
+      const confirmedEnr = enrollments.find(
+        (e: {
+          status: string;
+          waitlistPosition?: number | null;
+          termId?: string;
+          courseTitle?: string;
+          courseId?: string;
+        }) => e.status === "CONFIRMED"
+      );
+      expect(confirmedEnr).toBeDefined();
+      expect(confirmedEnr?.waitlistPosition).toBeNull();
+      expect(confirmedEnr?.termId).toBeDefined();
+      expect(confirmedEnr?.courseTitle).toBeDefined();
+      expect(confirmedEnr?.courseId).toBeDefined();
+
+      // Verify WAITLIST enrollment with sequential position
+      const waitlistEnr = enrollments.find(
+        (e: { status: string; waitlistPosition?: number | null }) => e.status === "WAITLIST"
+      );
+      expect(waitlistEnr).toBeDefined();
+      expect(typeof waitlistEnr?.waitlistPosition).toBe("number");
+      expect(waitlistEnr?.waitlistPosition).toBeGreaterThanOrEqual(1);
+
+      // Verify COMPLETED enrollment
+      const completedEnr = enrollments.find(
+        (e: { status: string; termId?: string }) => e.status === "COMPLETED"
+      );
+      expect(completedEnr).toBeDefined();
+      expect(completedEnr?.termId).toBeDefined();
     });
 
-    it("Authenticated Admin can also view student dashboard via /api/student/dashboard", async () => {
+    it("Student dashboard correctly calculates attendance metrics and certificate qualification threshold (>=70%)", async () => {
       const res = await request(app)
         .get("/api/student/dashboard")
+        .set("Authorization", `Bearer ${studentToken}`);
+
+      expect(res.status).toBe(200);
+      const attendance = res.body.data.attendance;
+      expect(Array.isArray(attendance)).toBe(true);
+      expect(attendance.length).toBeGreaterThan(0);
+
+      for (const item of attendance) {
+        expect(item.termId).toBeDefined();
+        expect(item.courseTitle).toBeDefined();
+        expect(typeof item.totalDays).toBe("number");
+        expect(typeof item.attendedDays).toBe("number");
+        expect(typeof item.percentage).toBe("number");
+        expect(item.totalDays).toBeGreaterThanOrEqual(item.attendedDays);
+
+        // Verification of ADR-01 70% threshold logic
+        if (item.percentage >= 70) {
+          expect(item.qualifiesForCertificate).toBe(true);
+        } else {
+          expect(item.qualifiesForCertificate).toBe(false);
+        }
+      }
+    });
+
+    it("Student dashboard includes valid certificates with sequential numbering format (AT-YYYY-XXXX)", async () => {
+      const res = await request(app)
+        .get("/api/student/dashboard")
+        .set("Authorization", `Bearer ${studentToken}`);
+
+      expect(res.status).toBe(200);
+      const certificates = res.body.data.certificates;
+      expect(Array.isArray(certificates)).toBe(true);
+      expect(certificates.length).toBeGreaterThan(0);
+
+      for (const cert of certificates) {
+        expect(cert.id).toBeDefined();
+        expect(cert.certificateNumber).toMatch(/^AT-\d{4}-\d{4}$/);
+        expect(cert.courseTitle).toBeDefined();
+        expect(cert.issueDate).toBeDefined();
+        expect(typeof cert.attendanceRate).toBe("number");
+      }
+    });
+
+    it("Authenticated Admin can preview student dashboard via ?studentId= query parameter", async () => {
+      const res = await request(app)
+        .get("/api/student/dashboard?studentId=c1111111-1111-4111-8111-111111111111")
         .set("Authorization", `Bearer ${adminToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data).toBeDefined();
+      expect(res.body.data.student).toBeDefined();
+      expect(res.body.data.enrollments.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it("Direct AuthService.getStudentDashboard standalone execution returns complete dashboard structure with fallback demo data", async () => {
+      const authService = new AuthService();
+      const dashboard = await authService.getStudentDashboard(
+        "c1111111-1111-4111-8111-111111111111",
+        "jan.novak@firma.cz"
+      );
+
+      expect(dashboard).toBeDefined();
+      expect(dashboard.student.name).toBe("Jan Novák");
+      expect(dashboard.student.email).toBe("jan.novak@firma.cz");
+
+      // Verify all 4 demo enrollments covering CONFIRMED, WAITLIST and COMPLETED
+      expect(dashboard.enrollments.length).toBe(4);
+      const statuses = dashboard.enrollments.map((e) => e.status);
+      expect(statuses).toContain("CONFIRMED");
+      expect(statuses).toContain("WAITLIST");
+      expect(statuses).toContain("COMPLETED");
+
+      const waitlist = dashboard.enrollments.find((e) => e.status === "WAITLIST");
+      expect(waitlist?.waitlistPosition).toBe(1);
+
+      // Verify attendance calculation
+      expect(dashboard.attendance.length).toBe(2);
+      expect(dashboard.attendance[0].percentage).toBe(100);
+      expect(dashboard.attendance[0].qualifiesForCertificate).toBe(true);
+
+      // Verify certificates
+      expect(dashboard.certificates.length).toBe(1);
+      expect(dashboard.certificates[0].certificateNumber).toBe("AT-2026-0003");
+      expect(dashboard.certificates[0].attendanceRate).toBe(100);
+    });
+
+    it("Consistency check: term filtering by courseId aligns with enrollments courseIds", async () => {
+      // 1. Fetch all terms
+      const allTermsRes = await request(app).get("/api/terms");
+      expect(allTermsRes.status).toBe(200);
+      const allTerms = allTermsRes.body.data;
+      expect(allTerms.length).toBeGreaterThan(0);
+
+      // 2. Fetch student dashboard to get a known courseId
+      const dashRes = await request(app)
+        .get("/api/student/dashboard")
+        .set("Authorization", `Bearer ${studentToken}`);
+      expect(dashRes.status).toBe(200);
+      const enrollments = dashRes.body.data.enrollments;
+      const targetCourseId = enrollments[0].courseId;
+      expect(targetCourseId).toBeDefined();
+
+      // 3. Filter terms by targetCourseId via query parameter
+      const filteredRes = await request(app).get(`/api/terms?courseId=${targetCourseId}`);
+      expect(filteredRes.status).toBe(200);
+      const filteredTerms = filteredRes.body.data;
+      expect(filteredTerms.length).toBeGreaterThan(0);
+      expect(filteredTerms.every((t: { courseId?: string }) => t.courseId === targetCourseId)).toBe(
+        true
+      );
+
+      // 4. Query with non-existent courseId returns empty list
+      const emptyRes = await request(app).get("/api/terms?courseId=non-existent-course-id-999");
+      expect(emptyRes.status).toBe(200);
+      expect(emptyRes.body.data.length).toBe(0);
     });
   });
 
